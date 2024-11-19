@@ -6,21 +6,15 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.format.FormatStringsInDatetimeFormats
 import kotlinx.datetime.format.byUnicodePattern
-import org.gmautostop.hitchlogmp.data.HitchLogRecord
-import org.gmautostop.hitchlogmp.data.HitchLogRecordType
-import org.gmautostop.hitchlogmp.data.FirestoreRepository
-import org.gmautostop.hitchlogmp.data.getTime
+import org.gmautostop.hitchlogmp.domain.HitchLogRecord
+import org.gmautostop.hitchlogmp.domain.HitchLogRecordType
 import org.gmautostop.hitchlogmp.domain.Repository
 import org.gmautostop.hitchlogmp.domain.Response
-import org.gmautostop.hitchlogmp.toLocalDateTime
-import org.gmautostop.hitchlogmp.toTimestamp
-import org.gmautostop.hitchlogmp.ui.Loading
 
 @OptIn(FormatStringsInDatetimeFormats::class)
 class RecordViewModel(
@@ -44,8 +38,8 @@ class RecordViewModel(
     init {
         if (recordId.isNullOrEmpty()) {
             record.value = HitchLogRecord(type = itemType).also {
-                date.value = dateFormat.format(it.getTime())
-                time.value = timeFormat.format(it.getTime())
+                date.value = dateFormat.format(it.time)
+                time.value = timeFormat.format(it.time)
             }
             _state.value = ViewState.Show(record.value)
         } else {
@@ -57,8 +51,8 @@ class RecordViewModel(
                             response.data.let {
                                 _state.value = ViewState.Show(it)
                                 record.value = it
-                                date.value = dateFormat.format(it.getTime())
-                                time.value = timeFormat.format(it.getTime())
+                                date.value = dateFormat.format(it.time)
+                                time.value = timeFormat.format(it.time)
                             }
                         }
                         is Response.Failure -> _state.value =
@@ -80,7 +74,7 @@ class RecordViewModel(
     private fun saveDate() {
         try {
             dateTimeFormat.parse("${date.value} ${time.value}").let {
-                record.value = record.value.copy(time = it.toTimestamp())
+                record.value = record.value.copy(time = it)
             }
         } catch (e: IllegalArgumentException) {}
     }

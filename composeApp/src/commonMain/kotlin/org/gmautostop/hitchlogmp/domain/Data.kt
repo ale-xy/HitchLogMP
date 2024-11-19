@@ -1,15 +1,25 @@
-package org.gmautostop.hitchlogmp.data
+package org.gmautostop.hitchlogmp.domain
 
-import dev.gitlive.firebase.firestore.DoubleAsTimestampSerializer
 import dev.gitlive.firebase.firestore.Timestamp
-import dev.gitlive.firebase.firestore.TimestampSerializer
 import hitchlogmp.composeapp.generated.resources.Res
-import hitchlogmp.composeapp.generated.resources.*
+import hitchlogmp.composeapp.generated.resources.checkpoint
+import hitchlogmp.composeapp.generated.resources.finish
+import hitchlogmp.composeapp.generated.resources.free_text
+import hitchlogmp.composeapp.generated.resources.get_off
+import hitchlogmp.composeapp.generated.resources.lift
+import hitchlogmp.composeapp.generated.resources.meet
+import hitchlogmp.composeapp.generated.resources.offside_off
+import hitchlogmp.composeapp.generated.resources.offside_on
+import hitchlogmp.composeapp.generated.resources.rest_off
+import hitchlogmp.composeapp.generated.resources.rest_on
+import hitchlogmp.composeapp.generated.resources.retire
+import hitchlogmp.composeapp.generated.resources.start
+import hitchlogmp.composeapp.generated.resources.walk
+import hitchlogmp.composeapp.generated.resources.walk_end
 import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDateTime
 import kotlinx.serialization.Serializable
 import org.gmautostop.hitchlogmp.localTZDateTime
-import org.gmautostop.hitchlogmp.toLocalDateTime
 import org.jetbrains.compose.resources.StringResource
 
 @Serializable
@@ -19,20 +29,15 @@ data class HitchLog(
     val raceId: String = "",
     val teamId: String = "",
     val name: String = "",
-//    val creationTime: LocalDateTime = Clock.System.now().localTZDateTime(),
     val creationTime: Timestamp = Timestamp.now()
 )
 
-@Serializable
 data class HitchLogRecord(
     val id: String = "",
-//    val time: LocalDateTime = Clock.System.now().localTZDateTime(),
-    val time: Timestamp = Timestamp.now(),
+    val time: LocalDateTime = Clock.System.now().localTZDateTime(),
     val type: HitchLogRecordType = HitchLogRecordType.FREE_TEXT,
     val text: String = ""
 )
-
-fun HitchLogRecord.getTime() = time.toLocalDateTime()
 
 @Serializable
 enum class HitchLogRecordType(val text: StringResource) {

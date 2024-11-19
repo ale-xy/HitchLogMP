@@ -1,8 +1,6 @@
 package org.gmautostop.hitchlogmp.domain
 
 import kotlinx.coroutines.flow.Flow
-import org.gmautostop.hitchlogmp.data.HitchLog
-import org.gmautostop.hitchlogmp.data.HitchLogRecord
 
 interface Repository {
     fun userId(): String?

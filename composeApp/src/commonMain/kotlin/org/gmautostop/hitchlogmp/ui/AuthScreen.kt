@@ -15,7 +15,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mmk.kmpauth.firebase.google.GoogleButtonUiContainerFirebase
 import com.mmk.kmpauth.uihelper.google.GoogleSignInButton
-import org.gmautostop.hitchlogmp.data.User
+import org.gmautostop.hitchlogmp.domain.User
 import org.gmautostop.hitchlogmp.ui.viewmodel.AuthViewModel
 import org.lighthousegames.logging.logging
 

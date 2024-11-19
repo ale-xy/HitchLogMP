@@ -1,4 +1,4 @@
-package org.gmautostop.hitchlogmp.data
+package org.gmautostop.hitchlogmp.domain
 
 data class User(
     val id: String = "",

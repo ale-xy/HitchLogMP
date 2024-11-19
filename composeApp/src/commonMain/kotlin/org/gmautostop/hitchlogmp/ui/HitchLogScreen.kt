@@ -21,11 +21,9 @@ import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.format
 import kotlinx.datetime.format.FormatStringsInDatetimeFormats
 import kotlinx.datetime.format.byUnicodePattern
-import org.gmautostop.hitchlogmp.data.HitchLog
-import org.gmautostop.hitchlogmp.data.HitchLogRecord
-import org.gmautostop.hitchlogmp.data.HitchLogRecordType
-import org.gmautostop.hitchlogmp.data.getTime
-import org.gmautostop.hitchlogmp.toLocalDateTime
+import org.gmautostop.hitchlogmp.domain.HitchLog
+import org.gmautostop.hitchlogmp.domain.HitchLogRecord
+import org.gmautostop.hitchlogmp.domain.HitchLogRecordType
 import org.gmautostop.hitchlogmp.ui.viewmodel.HitchLogState
 import org.gmautostop.hitchlogmp.ui.viewmodel.HitchLogViewModel
 import org.gmautostop.hitchlogmp.ui.viewmodel.ViewState
@@ -68,12 +66,12 @@ fun HitchLog(
 
         LazyColumn(modifier = Modifier.weight(1f)) {
             items(records) { item ->
-                item.getTime().format(timeFormat)
+                item.time.format(timeFormat)
                 Row (
                     Modifier.clickable { editRecord(item.id) },
                     horizontalArrangement = Arrangement.spacedBy(2.dp)
                 ) {
-                    Text(text = timeFormat.format(item.getTime()))
+                    Text(text = timeFormat.format(item.time))
                     Text(text = stringResource(item.type.text))
                     Text(text = item.text)
                 }

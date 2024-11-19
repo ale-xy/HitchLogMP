@@ -2,38 +2,26 @@ package org.gmautostop.hitchlogmp.data
 
 import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.firestore.Direction
-import dev.gitlive.firebase.firestore.FieldValue
 import dev.gitlive.firebase.firestore.Source
 import dev.gitlive.firebase.firestore.Timestamp
 import dev.gitlive.firebase.firestore.firestore
-import dev.gitlive.firebase.firestore.fromMilliseconds
-import dev.gitlive.firebase.firestore.toMilliseconds
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.flatMapConcat
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.mapLatest
-import kotlinx.coroutines.flow.toList
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.plus
 import kotlinx.datetime.toInstant
-import kotlinx.serialization.KSerializer
-import kotlinx.serialization.SerializationException
-import kotlinx.serialization.descriptors.SerialDescriptor
-import kotlinx.serialization.descriptors.buildClassSerialDescriptor
-import kotlinx.serialization.encoding.Decoder
-import kotlinx.serialization.encoding.Encoder
+import org.gmautostop.hitchlogmp.domain.HitchLog
+import org.gmautostop.hitchlogmp.domain.HitchLogRecord
 import org.gmautostop.hitchlogmp.domain.Repository
 import org.gmautostop.hitchlogmp.domain.Response
 import org.gmautostop.hitchlogmp.localTZDateTime
-import org.gmautostop.hitchlogmp.toLocalDateTime
 import org.gmautostop.hitchlogmp.toTimestamp
 import org.lighthousegames.logging.logging
 import kotlin.uuid.ExperimentalUuidApi
@@ -134,21 +122,23 @@ class FirestoreRepository(
     }
 
     override fun getLogRecords(logId: String) =
-        logRecordsRef(logId).orderBy("time").snapshots().map {
+        logRecordsRef(logId).orderBy("timestamp").snapshots().map {
             it.documents.map {document ->
-                document.data<HitchLogRecord>()
+                document.data<FirestoreHitchLogRecord>().toHitchLogRecord().also {
+                    log.d { "getLogRecords $it" }
+                }
             }
         }.map {
             Response.Success(it)
         }
 
-
     override fun getRecord(logId: String, recordId: String) = repositoryFlow {
         with(logRecordsRef(logId).document(recordId).get()) {
             when {
                 !exists -> throw Exception("Document $recordId doesn't exist")
-                else -> return@repositoryFlow (data<HitchLogRecord>()).also {
-                    log.d { "log record ${data<HitchLogRecord>()}"}
+                else -> data<FirestoreHitchLogRecord>().toHitchLogRecord().let {
+                    log.d { "getRecord $it"}
+                    return@repositoryFlow it
                 }
             }
         }
@@ -156,23 +146,29 @@ class FirestoreRepository(
 
     override fun addRecord(logId: String, record: HitchLogRecord) = repositoryFlow {
         val id = Uuid.random().toString()
-        logRecordsRef(logId).document(id)
-            .set(record.copy(
-                id = id,
-                time = getNextTime(logId, record.time)
-            ))
+
+        val firestoreRecord = FirestoreHitchLogRecord(
+            record,
+            id,
+            getNextTime(logId, record.time.toTimestamp())
+        )
+
+        logRecordsRef(logId).document(id).set(firestoreRecord)
     }
 
     override fun updateRecord(logId: String, record: HitchLogRecord) = repositoryFlow {
-        val existing = logRecordsRef(logId).document(record.id).get().data<HitchLogRecord>()
+        val existing = logRecordsRef(logId).document(record.id).get().data<FirestoreHitchLogRecord>()
 
-        val updatedRecord = if (existing.time == record.time) {
-            record
+        val updatedRecord = if (existing.timestamp == record.time.toTimestamp()) {
+            FirestoreHitchLogRecord(record)
         } else {
-            record.copy(time = getNextTime(logId, record.time))
+            FirestoreHitchLogRecord(
+                from = record,
+                timestamp = getNextTime(logId, record.time.toTimestamp())
+            )
         }
 
-        logRecordsRef(logId).document(record.id).set(updatedRecord)
+        logRecordsRef(logId).document(updatedRecord.id).set(updatedRecord)
     }
 
     override fun deleteRecord(logId: String, record: HitchLogRecord) = repositoryFlow {
@@ -187,11 +183,11 @@ class FirestoreRepository(
 
     private suspend fun getNextTime(logId: String, enteredTime: Timestamp): Timestamp {
         return logRecordsRef(logId)
-                    .where { "time" greaterThanOrEqualTo enteredTime }
-                    .where { "time" lessThan enteredTime.toLocalDateTime().addMinute().toTimestamp() }
+                    .where { "timestamp" greaterThanOrEqualTo enteredTime }
+                    .where { "timestamp" lessThan enteredTime.addMinute() }
                     .get(Source.CACHE)
-                    .documents.map { it.data<HitchLogRecord>() }
-                    .maxByOrNull { it.time.seconds }?.time?.toLocalDateTime()?.addSecond()?.toTimestamp()
+                    .documents.map { it.data<FirestoreHitchLogRecord>()
+                    }.maxByOrNull { it.timestamp.seconds }?.timestamp?.addSecond()
             ?: enteredTime
     }
 
@@ -200,6 +196,8 @@ class FirestoreRepository(
     private fun LocalDateTime.addMinute(): LocalDateTime =
         toInstant(TimeZone.currentSystemDefault()).plus(1, DateTimeUnit.MINUTE).localTZDateTime()
 
+    private fun Timestamp.addSecond(): Timestamp = Timestamp(seconds + 1, nanoseconds)
+    private fun Timestamp.addMinute(): Timestamp = Timestamp(seconds + 60, nanoseconds)
 
     companion object {
         val log = logging()

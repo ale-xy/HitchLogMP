@@ -6,10 +6,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.launch
-import org.gmautostop.hitchlogmp.data.HitchLog
+import org.gmautostop.hitchlogmp.domain.HitchLog
 import org.gmautostop.hitchlogmp.domain.Repository
 import org.gmautostop.hitchlogmp.domain.Response
-import org.gmautostop.hitchlogmp.ui.viewmodel.LogListViewModel.Companion.logger
 import org.lighthousegames.logging.logging
 
 class EditLogViewModel(

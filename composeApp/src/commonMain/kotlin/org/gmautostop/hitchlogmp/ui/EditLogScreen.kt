@@ -9,8 +9,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import hitchlogmp.composeapp.generated.resources.Res
-import hitchlogmp.composeapp.generated.resources.*
-import org.gmautostop.hitchlogmp.data.HitchLog
+import hitchlogmp.composeapp.generated.resources.delete
+import hitchlogmp.composeapp.generated.resources.name
+import hitchlogmp.composeapp.generated.resources.ok
+import org.gmautostop.hitchlogmp.domain.HitchLog
 import org.gmautostop.hitchlogmp.ui.viewmodel.EditLogViewModel
 import org.gmautostop.hitchlogmp.ui.viewmodel.ViewState
 import org.jetbrains.compose.resources.stringResource
