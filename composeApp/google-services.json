@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "869765129540",
+    "project_id": "hitchlogmp",
+    "storage_bucket": "hitchlogmp.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:869765129540:android:5205435813697c5a022311",
+        "android_client_info": {
+          "package_name": "org.gmautostop.hitchlogmp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "869765129540-1ibmdpt4vatcmgg6c58jl7taogt3mjpb.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "org.gmautostop.hitchlogmp",
+            "certificate_hash": "52822db23344dab8371622507d11b252643e7677"
+          }
+        },
+        {
+          "client_id": "869765129540-5pmuegm08d0e77b2idbqqpfkjf7ghpuk.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCC3qRm78x1IUggVIdSHnzVPlqYHp9f9yk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "869765129540-5pmuegm08d0e77b2idbqqpfkjf7ghpuk.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "869765129540-i29qffhbok16a1pbj8vorjumf1sva7md.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "org.gmautostop.hitchlogmp.HitchLogMP"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

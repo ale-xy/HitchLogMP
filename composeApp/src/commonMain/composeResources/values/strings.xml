@@ -1,0 +1,32 @@
+<resources>
+    <string name="auth">Auth</string>
+    <string name="log_list">Log List</string>
+
+
+    <string name="my_logs">Мои хроники</string>
+    <string name="no_logs">Хроник нету</string>
+
+    <string name="create">Создать</string>
+    <string name="delete">Удалить</string>
+
+    <string name="name">Название</string>
+    <string name="date">Дата</string>
+    <string name="time">Время</string>
+    <string name="text">Текст</string>
+
+    <string name="start">Старт</string>
+    <string name="lift">Посадка</string>
+    <string name="get_off">Выход</string>
+    <string name="walk">ППХ</string>
+    <string name="walk_end">Конец ППХ</string>
+    <string name="checkpoint">КП</string>
+    <string name="meet">Встреча</string>
+    <string name="rest_on">Rest on</string>
+    <string name="rest_off">Rest off</string>
+    <string name="offside_on">Вне игры</string>
+    <string name="offside_off">Вне игры off</string>
+    <string name="finish">Финиш</string>
+    <string name="retire">Сход</string>
+    <string name="free_text">Прочее</string>
+    <string name="ok">OK</string>
+</resources>
