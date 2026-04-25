@@ -27,7 +27,7 @@ fun EditRecordScreen(
     val time by rememberSaveable { viewModel.time }
 
     Column {
-        Text(text = stringResource(hitchLogRecord.type.text))
+        Text(text = stringResource(hitchLogRecord.type.toStringResource()))
 
         TextField(
             value = date,

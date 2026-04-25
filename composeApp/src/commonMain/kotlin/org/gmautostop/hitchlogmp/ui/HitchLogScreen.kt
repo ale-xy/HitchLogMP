@@ -72,7 +72,7 @@ fun HitchLog(
                     horizontalArrangement = Arrangement.spacedBy(2.dp)
                 ) {
                     Text(text = timeFormat.format(item.time))
-                    Text(text = stringResource(item.type.text))
+                    Text(text = stringResource(item.type.toStringResource()))
                     Text(text = item.text)
                 }
             }
@@ -81,7 +81,7 @@ fun HitchLog(
         LazyVerticalGrid(columns = GridCells.Fixed(4)) {
             items(HitchLogRecordType.entries) { item ->
                 Button(onClick = { createRecord(item) }) {
-                    Text(text = stringResource(item.text))
+                    Text(text = stringResource(item.toStringResource()))
                 }
             }
         }

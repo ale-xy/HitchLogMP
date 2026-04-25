@@ -2,7 +2,7 @@ package org.gmautostop.hitchlogmp
 
 import dev.gitlive.firebase.firestore.Timestamp
 import dev.gitlive.firebase.firestore.toMilliseconds
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toInstant

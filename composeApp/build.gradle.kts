@@ -57,13 +57,14 @@ kotlin {
 
         }
         commonMain.dependencies {
-            implementation(compose.runtime)
-            implementation(compose.foundation)
-            implementation(compose.material)
-            implementation(compose.ui)
-            implementation(compose.components.resources)
-            implementation(compose.components.uiToolingPreview)
-            implementation(compose.material3)
+            implementation(libs.runtime)
+            implementation(libs.foundation)
+            implementation(libs.material)
+            implementation(libs.material.icons.extended)
+            implementation(libs.ui)
+            implementation(libs.components.resources)
+            implementation(libs.ui.tooling.preview)
+            implementation(libs.material3)
 
             implementation(libs.androidx.lifecycle.viewmodel)
             implementation(libs.androidx.lifecycle.runtime.compose)
@@ -78,9 +79,7 @@ kotlin {
             implementation(libs.koin.core)
             implementation(libs.koin.compose)
             implementation(libs.koin.compose.viewmodel)
-            implementation(libs.koin.compose.viewmodel.navigation)
 
-            implementation(libs.napier)
             api(libs.logging)
             implementation(libs.kotlinx.datetime)
         }
@@ -93,7 +92,6 @@ android {
 
     sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
     sourceSets["main"].res.srcDirs("src/androidMain/res")
-    sourceSets["main"].resources.srcDirs("src/commonMain/resources")
 
     defaultConfig {
         applicationId = "org.gmautostop.hitchlogmp"

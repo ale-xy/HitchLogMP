@@ -14,12 +14,10 @@ import org.gmautostop.hitchlogmp.ui.viewmodel.EditLogViewModel
 import org.gmautostop.hitchlogmp.ui.viewmodel.HitchLogViewModel
 import org.gmautostop.hitchlogmp.ui.viewmodel.LogListViewModel
 import org.gmautostop.hitchlogmp.ui.viewmodel.RecordViewModel
-import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 
 @Composable
-@Preview
 fun HitchLogApp(navController: NavHostController) {
     MaterialTheme {
         Surface(
