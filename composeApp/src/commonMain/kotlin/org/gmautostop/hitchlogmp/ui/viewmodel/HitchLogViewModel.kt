@@ -4,7 +4,7 @@ package org.gmautostop.hitchlogmp.ui.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.onEach
@@ -26,8 +26,8 @@ class HitchLogViewModel(
     private val logId: String,
     repository: Repository
 ) : ViewModel() {
-    val _state = MutableStateFlow<ViewState<HitchLogState>>(ViewState.Loading)
-    val state = _state.asStateFlow()
+    val state: StateFlow<ViewState<HitchLogState>>
+        field = MutableStateFlow<ViewState<HitchLogState>>(ViewState.Loading)
 
     init {
         viewModelScope.launch {
@@ -35,12 +35,12 @@ class HitchLogViewModel(
                 .distinctUntilChanged()
                 .onEach { response ->
                     when(response) {
-                        is Response.Loading -> _state.value = ViewState.Loading
-                        is Response.Failure -> _state.value = ViewState.Error(response.errorMessage)
+                        is Response.Loading -> state.value = ViewState.Loading
+                        is Response.Failure -> state.value = ViewState.Error(response.errorMessage)
                         is Response.Success -> {
                             repository.getLogRecords(logId)
                                 .collect { recordResponse ->
-                                    _state.value = when(recordResponse) {
+                                    state.value = when(recordResponse) {
                                         is Response.Loading ->
                                             ViewState.Loading
                                         is Response.Failure ->

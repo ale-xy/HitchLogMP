@@ -3,6 +3,7 @@ package org.gmautostop.hitchlogmp.ui.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.launch
@@ -16,7 +17,8 @@ class EditLogViewModel(
     private val logId: String,
     private val repository: Repository
 ): ViewModel() {
-    val state = MutableStateFlow<ViewState<HitchLog>>(ViewState.Loading)
+    val state: StateFlow<ViewState<HitchLog>>
+        field = MutableStateFlow<ViewState<HitchLog>>(ViewState.Loading)
     private var name: String = ""
 
     init {
