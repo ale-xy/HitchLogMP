@@ -11,6 +11,10 @@ plugins {
 }
 
 kotlin {
+    compilerOptions {
+        freeCompilerArgs.add("-Xexplicit-backing-fields")
+    }
+
 //    @OptIn(ExperimentalWasmDsl::class)
 //    wasmJs {
 //        moduleName = "composeApp"
@@ -50,7 +54,7 @@ kotlin {
     sourceSets {
         
         androidMain.dependencies {
-            implementation(compose.preview)
+            implementation(libs.ui.tooling.preview)
             implementation(libs.androidx.activity.compose)
 
             implementation(project.dependencies.platform(libs.firebase.bom))
@@ -119,7 +123,7 @@ android {
     }
     dependencies {
         implementation(libs.koin.android)
-        debugImplementation(compose.uiTooling)
+        debugImplementation(libs.ui.tooling)
     }
 }
 

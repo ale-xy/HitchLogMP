@@ -1,6 +1,9 @@
 package org.gmautostop.hitchlogmp.ui
 
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
@@ -24,7 +27,11 @@ fun HitchLogApp(navController: NavHostController) {
             modifier = Modifier.fillMaxSize(),
             color = MaterialTheme.colors.background
         ) {
-            NavHost(navController = navController, startDestination = Screen.Auth) {
+            NavHost(
+                navController = navController,
+                startDestination = Screen.Auth,
+                modifier = Modifier.windowInsetsPadding(WindowInsets.safeDrawing)
+            ) {
                 composable<Screen.Auth> {
                     AuthScreen(koinViewModel<AuthViewModel>()) {
                         navController.navigate(Screen.LogList)

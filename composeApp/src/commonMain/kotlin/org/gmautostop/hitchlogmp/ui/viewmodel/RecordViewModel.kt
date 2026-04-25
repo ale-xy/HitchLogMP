@@ -1,12 +1,12 @@
 package org.gmautostop.hitchlogmp.ui.viewmodel
 
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.format.FormatStringsInDatetimeFormats
@@ -15,6 +15,14 @@ import org.gmautostop.hitchlogmp.domain.HitchLogRecord
 import org.gmautostop.hitchlogmp.domain.HitchLogRecordType
 import org.gmautostop.hitchlogmp.domain.Repository
 import org.gmautostop.hitchlogmp.domain.Response
+
+data class EditRecordUiState(
+    val record: HitchLogRecord = HitchLogRecord(),
+    val dateText: String = "",
+    val timeText: String = "",
+    val isLoading: Boolean = true,
+    val error: String? = null
+)
 
 @OptIn(FormatStringsInDatetimeFormats::class)
 class RecordViewModel(
@@ -27,36 +35,32 @@ class RecordViewModel(
     private val timeFormat = LocalDateTime.Format { byUnicodePattern("HH:mm") }
     private val dateTimeFormat = LocalDateTime.Format { byUnicodePattern("dd.MM.yyyy HH:mm") }
 
-    private val _state = MutableStateFlow<ViewState<HitchLogRecord>>(ViewState.Loading)
-    val state = _state.asStateFlow()
-
-    val record = mutableStateOf(HitchLogRecord())
-
-    val date = mutableStateOf<String>("")
-    val time = mutableStateOf<String>("")
+    val uiState: StateFlow<EditRecordUiState>
+        field = MutableStateFlow(EditRecordUiState())
 
     init {
         if (recordId.isNullOrEmpty()) {
-            record.value = HitchLogRecord(type = itemType).also {
-                date.value = dateFormat.format(it.time)
-                time.value = timeFormat.format(it.time)
-            }
-            _state.value = ViewState.Show(record.value)
+            val newRecord = HitchLogRecord(type = itemType)
+            uiState.value = EditRecordUiState(
+                record = newRecord,
+                dateText = dateFormat.format(newRecord.time),
+                timeText = timeFormat.format(newRecord.time),
+                isLoading = false
+            )
         } else {
             viewModelScope.launch {
                 repository.getRecord(logId, recordId).distinctUntilChanged().collect { response ->
-                    when (response) {
-                        is Response.Loading -> _state.value = ViewState.Loading
-                        is Response.Success<HitchLogRecord> -> {
-                            response.data.let {
-                                _state.value = ViewState.Show(it)
-                                record.value = it
-                                date.value = dateFormat.format(it.time)
-                                time.value = timeFormat.format(it.time)
-                            }
+                    uiState.update { current ->
+                        when (response) {
+                            is Response.Loading -> current.copy(isLoading = true, error = null)
+                            is Response.Success -> EditRecordUiState(
+                                record = response.data,
+                                dateText = dateFormat.format(response.data.time),
+                                timeText = timeFormat.format(response.data.time),
+                                isLoading = false
+                            )
+                            is Response.Failure -> current.copy(isLoading = false, error = response.errorMessage)
                         }
-                        is Response.Failure -> _state.value =
-                            ViewState.Error(response.errorMessage)
                     }
                 }
             }
@@ -64,31 +68,27 @@ class RecordViewModel(
     }
 
     fun updateDate(date: String) {
-        this.date.value = date
+        uiState.update { it.copy(dateText = date) }
     }
 
     fun updateTime(time: String) {
-        this.time.value = time
+        uiState.update { it.copy(timeText = time) }
     }
 
-    private fun saveDate() {
-        try {
-            dateTimeFormat.parse("${date.value} ${time.value}").let {
-                record.value = record.value.copy(time = it)
-            }
-        } catch (e: IllegalArgumentException) {}
-    }
-
-    fun updateText(text:String) {
-        record.value = record.value.copy(text = text)
+    fun updateText(text: String) {
+        uiState.update { it.copy(record = it.record.copy(text = text)) }
     }
 
     fun save() {
-        saveDate()
-        _state.value = ViewState.Loading
-        repository.saveRecord(logId, record.value).launchIn(viewModelScope)
-        //todo error
+        val current = uiState.value
+        val recordToSave = try {
+            current.record.copy(time = dateTimeFormat.parse("${current.dateText} ${current.timeText}"))
+        } catch (e: IllegalArgumentException) {
+            current.record
+        }
+        uiState.update { it.copy(isLoading = true, error = null) }
+        repository.saveRecord(logId, recordToSave).launchIn(viewModelScope)
     }
 
-    fun delete() = repository.deleteRecord(logId, record.value).launchIn(viewModelScope)
+    fun delete() = repository.deleteRecord(logId, uiState.value.record).launchIn(viewModelScope)
 }
