@@ -23,7 +23,7 @@ class LogListViewModel(repository: Repository): ViewModel() {
                 .collect { response ->
                     _state.value = when(response) {
                         is Response.Loading -> ViewState.Loading
-                        is Response.Failure -> ViewState.Error(response.errorMessage)
+                        is Response.Failure -> ViewState.Error(response.error)
                         is Response.Success -> ViewState.Show(response.data)
                     }
                 }

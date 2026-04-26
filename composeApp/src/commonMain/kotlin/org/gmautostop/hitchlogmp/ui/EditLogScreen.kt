@@ -32,7 +32,7 @@ fun EditLogScreen(
 
     when (state) {
         is ViewState.Loading -> Loading()
-        is ViewState.Error -> Error((state as ViewState.Error).error)
+        is ViewState.Error -> Error((state as ViewState.Error).error.displayMessage)
         is ViewState.Show<HitchLog> ->
             Log(
                 (state as ViewState.Show<HitchLog>).value,

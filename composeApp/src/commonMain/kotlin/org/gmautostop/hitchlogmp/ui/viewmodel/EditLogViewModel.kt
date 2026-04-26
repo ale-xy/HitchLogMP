@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import org.gmautostop.hitchlogmp.data.AuthService
+import org.gmautostop.hitchlogmp.domain.AppError
 import org.gmautostop.hitchlogmp.domain.HitchLog
 import org.gmautostop.hitchlogmp.domain.Repository
 import org.gmautostop.hitchlogmp.domain.Response
@@ -33,7 +34,7 @@ class EditLogViewModel(
             val userId = authService.currentUser.value?.id
 
             when {
-                userId == null -> state.value = ViewState.Error("Not logged in!")
+                userId == null -> state.value = ViewState.Error(AppError.NotAuthenticated)
                 logId.isEmpty() -> state.value = ViewState.Show(HitchLog(userId = userId))
                 else -> {
                     watchJob = viewModelScope.launch {
@@ -43,8 +44,8 @@ class EditLogViewModel(
                                 is Response.Success -> ViewState.Show(response.data).also {
                                     name = response.data.name
                                 }
-                                is Response.Failure -> ViewState.Error(response.errorMessage).also {
-                                    logger.e { response.errorMessage }
+                                is Response.Failure -> ViewState.Error(response.error).also {
+                                    logger.e { response.error.displayMessage }
                                 }
                             }
                         }
@@ -79,8 +80,8 @@ class EditLogViewModel(
                         is Response.Loading -> Unit
                         is Response.Success -> _navigationEvent.send(Unit)
                         is Response.Failure -> {
-                            logger.e { response.errorMessage }
-                            state.value = ViewState.Error(response.errorMessage)
+                            logger.e { response.error.displayMessage }
+                            state.value = ViewState.Error(response.error)
                         }
                     }
                 }
@@ -100,8 +101,8 @@ class EditLogViewModel(
                         is Response.Loading -> Unit
                         is Response.Success -> _navigationEvent.send(Unit)
                         is Response.Failure -> {
-                            logger.e { response.errorMessage }
-                            state.value = ViewState.Error(response.errorMessage)
+                            logger.e { response.error.displayMessage }
+                            state.value = ViewState.Error(response.error)
                         }
                     }
                 }

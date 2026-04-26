@@ -10,17 +10,9 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import org.gmautostop.hitchlogmp.domain.HitchLog
-import org.gmautostop.hitchlogmp.domain.HitchLogRecord
 import org.gmautostop.hitchlogmp.domain.Repository
 import org.gmautostop.hitchlogmp.domain.Response
 import org.lighthousegames.logging.logging
-
-
-data class HitchLogState(
-    val log: HitchLog,
-    val records: List<HitchLogRecord>
-)
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class HitchLogViewModel(
@@ -37,11 +29,11 @@ class HitchLogViewModel(
                 .flatMapLatest { logResponse ->
                     when (logResponse) {
                         is Response.Loading -> flowOf(ViewState.Loading)
-                        is Response.Failure -> flowOf(ViewState.Error(logResponse.errorMessage))
+                        is Response.Failure -> flowOf(ViewState.Error(logResponse.error))
                         is Response.Success -> repository.getLogRecords(logId).map { recordResponse ->
                             when (recordResponse) {
                                 is Response.Loading -> ViewState.Loading
-                                is Response.Failure -> ViewState.Error(recordResponse.errorMessage)
+                                is Response.Failure -> ViewState.Error(recordResponse.error)
                                 is Response.Success -> ViewState.Show(
                                     HitchLogState(logResponse.data, recordResponse.data)
                                 )

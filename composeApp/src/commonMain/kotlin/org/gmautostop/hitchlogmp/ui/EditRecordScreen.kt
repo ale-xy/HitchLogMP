@@ -51,7 +51,7 @@ fun EditRecordScreen(
             label = { Text(stringResource(Res.string.text)) }
         )
 
-        uiState.error?.let { Text(it, color = MaterialTheme.colors.error) }
+        uiState.error?.let { Text(it.displayMessage, color = MaterialTheme.colors.error) }
 
         Row {
             Button(

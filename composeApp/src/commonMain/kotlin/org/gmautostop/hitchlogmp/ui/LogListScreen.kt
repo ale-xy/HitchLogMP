@@ -46,7 +46,7 @@ fun LogListScreen(
     when (state) {
         is ViewState.Loading -> Loading()
         is ViewState.Error -> {
-            Error((state as ViewState.Error).error)
+            Error((state as ViewState.Error).error.displayMessage)
         }
         is ViewState.Show<List<HitchLog>> -> LogList(
             list = (state as ViewState.Show<List<HitchLog>>).value,

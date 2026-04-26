@@ -38,21 +38,9 @@ class AuthService(
         }.await()
     }
 
-    suspend fun authenticate(email: String, password: String) {
-        launchWithAwait {
-            auth.signInWithEmailAndPassword(email, password)
-        }
-    }
-
-    suspend fun createUser(email: String, password: String) {
-        val result = launchWithAwait {
-            auth.createUserWithEmailAndPassword(email, password)
-        }
-    }
-
     suspend fun signInAnonymously() {
         launchWithAwait {
-            val result = auth.signInAnonymously()
+            auth.signInAnonymously()
         }
     }
 

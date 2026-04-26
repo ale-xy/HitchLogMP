@@ -12,6 +12,7 @@ import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.format.FormatStringsInDatetimeFormats
 import kotlinx.datetime.format.byUnicodePattern
+import org.gmautostop.hitchlogmp.domain.AppError
 import org.gmautostop.hitchlogmp.domain.HitchLogRecord
 import org.gmautostop.hitchlogmp.domain.HitchLogRecordType
 import org.gmautostop.hitchlogmp.domain.Repository
@@ -22,7 +23,7 @@ data class EditRecordUiState(
     val dateText: String = "",
     val timeText: String = "",
     val isLoading: Boolean = true,
-    val error: String? = null
+    val error: AppError? = null
 )
 
 @OptIn(FormatStringsInDatetimeFormats::class)
@@ -63,7 +64,7 @@ class RecordViewModel(
                                 timeText = timeFormat.format(response.data.time),
                                 isLoading = false
                             )
-                            is Response.Failure -> current.copy(isLoading = false, error = response.errorMessage)
+                            is Response.Failure -> current.copy(isLoading = false, error = response.error)
                         }
                     }
                 }
@@ -88,7 +89,8 @@ class RecordViewModel(
         val recordToSave = try {
             current.record.copy(time = dateTimeFormat.parse("${current.dateText} ${current.timeText}"))
         } catch (e: IllegalArgumentException) {
-            current.record
+            uiState.update { it.copy(isLoading = false, error = AppError.ParseError("date/time")) }
+            return
         }
         viewModelScope.launch {
             uiState.update { it.copy(isLoading = true, error = null) }
@@ -96,7 +98,7 @@ class RecordViewModel(
                 when (response) {
                     is Response.Loading -> Unit
                     is Response.Success -> _navigationEvent.send(Unit)
-                    is Response.Failure -> uiState.update { it.copy(isLoading = false, error = response.errorMessage) }
+                    is Response.Failure -> uiState.update { it.copy(isLoading = false, error = response.error) }
                 }
             }
         }
@@ -109,7 +111,7 @@ class RecordViewModel(
                 when (response) {
                     is Response.Loading -> Unit
                     is Response.Success -> _navigationEvent.send(Unit)
-                    is Response.Failure -> uiState.update { it.copy(isLoading = false, error = response.errorMessage) }
+                    is Response.Failure -> uiState.update { it.copy(isLoading = false, error = response.error) }
                 }
             }
         }

@@ -17,6 +17,7 @@ import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.plus
 import kotlinx.datetime.toInstant
+import org.gmautostop.hitchlogmp.domain.AppError
 import org.gmautostop.hitchlogmp.domain.HitchLog
 import org.gmautostop.hitchlogmp.domain.HitchLogRecord
 import org.gmautostop.hitchlogmp.domain.Repository
@@ -26,6 +27,9 @@ import org.gmautostop.hitchlogmp.toTimestamp
 import org.lighthousegames.logging.logging
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
+
+private class NotAuthenticatedException : Exception("Not authenticated")
+private class NotFoundException(id: String) : Exception("Document $id doesn't exist")
 
 @OptIn(ExperimentalUuidApi::class)
 class FirestoreRepository(
@@ -49,10 +53,13 @@ class FirestoreRepository(
             }
             emit(Response.Success(result))
         }.catch { error ->
-            error.message?.let { errorMessage ->
-                log.e(err = error) { errorMessage }
-                emit(Response.Failure(errorMessage))
+            val appError = when (error) {
+                is NotAuthenticatedException -> AppError.NotAuthenticated
+                is NotFoundException -> AppError.NotFound
+                else -> AppError.NetworkError(error.message ?: "Unknown error")
             }
+            log.e(err = error) { appError.displayMessage }
+            emit(Response.Failure(appError))
         }.flowOn(Dispatchers.IO)
 
     override fun getLogs() = logsRef
@@ -68,26 +75,30 @@ class FirestoreRepository(
             Response.Success(it)
         }.catch { error ->
             log.e(err = error) { error.message ?: "getLogs error" }
-            emit(Response.Failure(error.message ?: "getLogs error"))
+            emit(Response.Failure(AppError.NetworkError(error.message ?: "getLogs error")))
         }.flowOn(Dispatchers.IO)
 
 
     override fun getLog(logId: String): Flow<Response<HitchLog>> =
         logsRef.document(logId).snapshots
             .map { snapshot ->
-                if (!snapshot.exists) throw Exception("Document $logId doesn't exist")
+                if (!snapshot.exists) throw NotFoundException(logId)
                 snapshot.data<HitchLog>().also { log.d { "getLog $it" } }
             }
             .map<HitchLog, Response<HitchLog>> { Response.Success(it) }
             .catch { error ->
                 log.e(err = error) { error.message ?: "getLog error" }
-                emit(Response.Failure(error.message ?: "getLog error"))
+                val appError = when (error) {
+                    is NotFoundException -> AppError.NotFound
+                    else -> AppError.NetworkError(error.message ?: "getLog error")
+                }
+                emit(Response.Failure(appError))
             }
             .flowOn(Dispatchers.IO)
 
     override fun addLog(log: HitchLog) = repositoryFlow {
         val userId = authService.currentUser.value?.id
-            ?: throw Exception("Not authenticated")
+            ?: throw NotAuthenticatedException()
         val id = Uuid.random().toString()
         logsRef.document(id).set(log.copy(id = id, userId = userId))
     }
@@ -111,13 +122,13 @@ class FirestoreRepository(
             Response.Success(it)
         }.catch { error ->
             log.e(err = error) { error.message ?: "getLogRecords error" }
-            emit(Response.Failure(error.message ?: "getLogRecords error"))
+            emit(Response.Failure(AppError.NetworkError(error.message ?: "getLogRecords error")))
         }
 
     override fun getRecord(logId: String, recordId: String) = repositoryFlow {
         with(logRecordsRef(logId).document(recordId).get()) {
             when {
-                !exists -> throw Exception("Document $recordId doesn't exist")
+                !exists -> throw NotFoundException(recordId)
                 else -> data<FirestoreHitchLogRecord>().toHitchLogRecord().let {
                     log.d { "getRecord $it"}
                     return@repositoryFlow it
