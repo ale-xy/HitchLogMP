@@ -2,55 +2,67 @@ package org.gmautostop.hitchlogmp.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dev.gitlive.firebase.auth.FirebaseUser
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import org.gmautostop.hitchlogmp.data.AuthService
 import org.gmautostop.hitchlogmp.domain.User
 import org.lighthousegames.logging.logging
 
+data class AuthUiState(
+    val currentUser: User? = null,
+    val isLoading: Boolean = false,
+) {
+    val isAuthenticated: Boolean get() = currentUser != null
+}
+
 class AuthViewModel(
     private val authService: AuthService
 ) : ViewModel() {
 
-    private val _currentUser = MutableStateFlow<User?>(null)
-    val currentUser = _currentUser.asStateFlow()
+    private val _isLoading = MutableStateFlow(false)
 
-    private val _isAuthenticated = MutableStateFlow(false)
-    val isAuthenticated = _isAuthenticated.asStateFlow()
+    val uiState: StateFlow<AuthUiState> = combine(
+        authService.currentUser,
+        _isLoading
+    ) { user, isLoading ->
+        AuthUiState(currentUser = user, isLoading = isLoading)
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.Eagerly,
+        initialValue = AuthUiState(currentUser = authService.currentUser.value)
+    )
 
-    init {
-        viewModelScope.launch {
-            _isAuthenticated.value = false
-
-            authService.currentUser.collect {
-                log.d { "init currentUser ${it?.id} anon ${it?.isAnonymous} currentUserId ${authService.currentUserId}" }
-                _currentUser.value = it
-                _isAuthenticated.value = it != null
-            }
-        }
-    }
+    private val _navigationEvent = Channel<Unit>(Channel.CONFLATED)
+    val navigationEvent = _navigationEvent.receiveAsFlow()
 
     fun onAnonymousLogin() {
         viewModelScope.launch {
-            authService.signInAnonymously()
-
-            // todo error
-            val user = authService.currentUser.first { user ->
-                user?.isAnonymous == true
+            _isLoading.value = true
+            try {
+                authService.signInAnonymously()
+                // todo error
+                val user = authService.currentUser.first { user ->
+                    user?.isAnonymous == true
+                }
+                log.d { "onAnonymousLogin currentUser ${user?.id} anon ${user?.isAnonymous}" }
+                _navigationEvent.trySend(Unit)
+            } finally {
+                _isLoading.value = false
             }
-            log.d { "onAnonymousLogin currentUser ${user?.id} anon ${user?.isAnonymous}" }
-
-            _isAuthenticated.value = true
         }
     }
 
-    fun onLogin(user: User) {
-        _currentUser.value = user
-        log.d { "onLogin currentUser ${user.id} anon ${user.isAnonymous}" }
-
-        _isAuthenticated.value = true
+    fun onLogin(firebaseUser: FirebaseUser) {
+        log.d { "onLogin uid ${firebaseUser.uid} anon ${firebaseUser.isAnonymous}" }
+        _navigationEvent.trySend(Unit)
     }
 
     fun onSignOut() {
@@ -60,12 +72,7 @@ class AuthViewModel(
         }
     }
 
-//    fun onStart() {
-////        _isAuthenticated.value = false
-//    }
-
     companion object {
         val log = logging()
     }
-
 }

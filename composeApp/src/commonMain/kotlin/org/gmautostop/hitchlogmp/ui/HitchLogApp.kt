@@ -12,16 +12,21 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
+import org.gmautostop.hitchlogmp.data.AuthService
 import org.gmautostop.hitchlogmp.ui.viewmodel.AuthViewModel
 import org.gmautostop.hitchlogmp.ui.viewmodel.EditLogViewModel
 import org.gmautostop.hitchlogmp.ui.viewmodel.HitchLogViewModel
 import org.gmautostop.hitchlogmp.ui.viewmodel.LogListViewModel
 import org.gmautostop.hitchlogmp.ui.viewmodel.RecordViewModel
+import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 
 @Composable
 fun HitchLogApp(navController: NavHostController) {
+    val authService = koinInject<AuthService>()
+    val startDestination: Screen = if (authService.currentUser.value != null) Screen.LogList else Screen.Auth
+
     MaterialTheme {
         Surface(
             modifier = Modifier.fillMaxSize(),
@@ -29,20 +34,29 @@ fun HitchLogApp(navController: NavHostController) {
         ) {
             NavHost(
                 navController = navController,
-                startDestination = Screen.Auth,
+                startDestination = startDestination,
                 modifier = Modifier.windowInsetsPadding(WindowInsets.safeDrawing)
             ) {
                 composable<Screen.Auth> {
                     AuthScreen(koinViewModel<AuthViewModel>()) {
-                        navController.navigate(Screen.LogList)
+                        navController.navigate(Screen.LogList) {
+                            popUpTo(Screen.Auth) { inclusive = true }
+                        }
                     }
                 }
                 composable<Screen.LogList> {
+                    val authViewModel = koinViewModel<AuthViewModel>()
                     LogListScreen(
                         koinViewModel<LogListViewModel>(),
                         openLog = { id -> navController.navigate(Screen.Log(id)) },
                         createLog = { navController.navigate(Screen.EditLog()) },
-                        editLog = { id -> navController.navigate(Screen.EditLog(id)) }
+                        editLog = { id -> navController.navigate(Screen.EditLog(id)) },
+                        signOut = {
+                            authViewModel.onSignOut()
+                            navController.navigate(Screen.Auth) {
+                                popUpTo(Screen.LogList) { inclusive = true }
+                            }
+                        }
                     )
                 }
                 composable<Screen.EditLog> { backStackEntry ->

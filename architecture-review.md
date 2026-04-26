@@ -186,7 +186,52 @@ Or have `AuthScreen` auto-navigate immediately if already authenticated (it alre
 
 ---
 
-### 11. Error model is raw strings throughout — MEDIUM
+### 11. Auth navigation flow is broken — MEDIUM
+
+`Screen.Auth` is hardcoded as `startDestination` and is never popped from the back stack after login. This causes three problems:
+- Every cold start while already signed in routes through Auth (covered partly by #10, but the fix there alone is not enough)
+- Pressing back from `LogList` returns to Auth, which immediately auto-forwards to `LogList` again because `LaunchedEffect(uiState.isAuthenticated)` re-fires on re-entry — visible blink
+- There is no explicit sign-out path; the only way to reach Auth after login is the broken back-press loop above
+
+**Depends on:** #9 resolved first.
+
+**Recommendation:**
+
+1. Remove the broken `navController` field and `onSaveInstanceState` from `MainActivity` (Issue #9). `rememberNavController()` already restores the back stack on process death via `SavedStateHandle` — no manual implementation needed.
+
+2. Make `startDestination` conditional on current auth state (subsumes #10):
+```kotlin
+val startDestination = if (authService.currentUser.value != null) Screen.LogList else Screen.Auth
+```
+
+3. Replace `LaunchedEffect(uiState.isAuthenticated)` in `AuthScreen` with a one-shot `Channel<Unit>` in `AuthViewModel` that fires only on an active login event, not on re-entry while already authenticated:
+```kotlin
+private val _navigationEvent = Channel<Unit>(Channel.CONFLATED)
+val navigationEvent = _navigationEvent.receiveAsFlow()
+```
+Emit in `onLogin` and `onAnonymousLogin`. `AuthScreen` collects via `LaunchedEffect(Unit)`.
+
+4. Pop `Screen.Auth` on successful login in `HitchLogApp.kt`:
+```kotlin
+navController.navigate(Screen.LogList) {
+    popUpTo(Screen.Auth) { inclusive = true }
+}
+```
+
+5. Add an explicit sign-out action in `LogListScreen` that navigates to `Screen.Auth` and clears the app stack:
+```kotlin
+navController.navigate(Screen.Auth) {
+    popUpTo(Screen.LogList) { inclusive = true }
+}
+```
+
+**Result:** Cold start while signed in → `LogList` directly. Back from `LogList` → exits app. Sign out via explicit action → `Auth`. Process death with back stack `[LogList, Log(...)]` → restored automatically.
+
+**Files:** `androidMain/MainActivity.kt`, `ui/HitchLogApp.kt`, `ui/viewmodel/AuthViewModel.kt`, `ui/AuthScreen.kt`, `ui/screens/LogListScreen.kt`
+
+---
+
+### 12. Error model is raw strings throughout — MEDIUM
 
 `Response.Failure(errorMessage: String)`, `ViewState.Error(error: String)`, and direct string display in UI. There is no error type hierarchy. Callers cannot distinguish network errors from auth errors from "not found" errors. Parse errors in `RecordViewModel.saveDate()` are completely silenced with an empty `catch` block.
 
@@ -194,7 +239,7 @@ Or have `AuthScreen` auto-navigate immediately if already authenticated (it alre
 
 ---
 
-### 12. `HitchLogViewModel` data-loading chain is fragile — MEDIUM
+### 13. `HitchLogViewModel` data-loading chain is fragile — MEDIUM
 
 ```kotlin
 repository.getLog(logId)
@@ -224,7 +269,7 @@ repository.getLog(logId)
 
 ---
 
-### 13. `AuthService` has dead API surface — LOW
+### 14. `AuthService` has dead API surface — LOW
 
 `authenticate(email, password)` and `createUser(email, password)` are implemented but never called anywhere in the codebase.
 
@@ -232,13 +277,13 @@ repository.getLog(logId)
 
 ---
 
-### 14. `HitchLogState` defined inside a ViewModel file — LOW
+### 15. `HitchLogState` defined inside a ViewModel file — LOW
 
 `HitchLogState(log, records)` is defined at the top of `HitchLogViewModel.kt`. UI models used as ViewModel output belong in a dedicated model file or alongside the screen they serve.
 
 ---
 
-### 15. Timestamp nanoseconds always zero — LOW
+### 16. Timestamp nanoseconds always zero — LOW
 
 `LocalDateTime.toTimestamp()` in `Utils.kt` always passes `nanoseconds = 0`. The collision-resolution logic in `getNextTime()` uses nanosecond-precision Timestamps for ordering. Records created within the same second will collide after a round-trip through `LocalDateTime`.
 
@@ -258,11 +303,12 @@ repository.getLog(logId)
 | 8 | Inconsistent real-time vs one-shot reads | Medium |
 | 9 | Nav state restoration broken in `MainActivity` | Medium |
 | 10 | No session restoration at startup | Medium |
-| 11 | Error model is raw strings / parse errors silenced | Medium |
-| 12 | `flatMapLatest` needed in `HitchLogViewModel` | Medium |
-| 13 | Dead methods in `AuthService` | Low |
-| 14 | `HitchLogState` in ViewModel file | Low |
-| 15 | Nanoseconds lost in timestamp conversion | Low |
+| 11 | Auth navigation flow broken (blink, no sign-out path) | Medium |
+| 12 | Error model is raw strings / parse errors silenced | Medium |
+| 13 | `flatMapLatest` needed in `HitchLogViewModel` | Medium |
+| 14 | Dead methods in `AuthService` | Low |
+| 15 | `HitchLogState` in ViewModel file | Low |
+| 16 | Nanoseconds lost in timestamp conversion | Low |
 
 ---
 

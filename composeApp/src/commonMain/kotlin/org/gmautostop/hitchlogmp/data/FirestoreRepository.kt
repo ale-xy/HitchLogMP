@@ -66,36 +66,13 @@ class FirestoreRepository(
                 log.d { "getUserLogs $document" }
                 document.data<HitchLog>()
             }
-        }.map {
+        }.map<List<HitchLog>, Response<List<HitchLog>>> {
             Response.Success(it)
+        }.catch { error ->
+            log.e(err = error) { error.message ?: "getLogs error" }
+            emit(Response.Failure(error.message ?: "getLogs error"))
         }.flowOn(Dispatchers.IO)
 
-    private fun <T> snapshotFlow(body:suspend () -> Flow<T>): Flow<Response<T>> =
-        flow {
-            body()
-                .catch { error ->
-                    error.message?.let { errorMessage ->
-                        log.e(err = error) { errorMessage }
-                        emit(Response.Failure(errorMessage))
-                    }
-            }.map { result ->
-                Response.Success(result)
-            }.flowOn(Dispatchers.IO)
-        }
-
-//    override fun getLogs() = snapshotFlow {
-//        logsRef
-//            .where { "userId" equalTo  userId() }
-//            .orderBy("creationTime", Direction.DESCENDING)
-//            .snapshots
-//            .map {
-//                log.d {"getUserLogs onEach" }
-//                it.documents.map { document ->
-//                    log.d { "getUserLogs $document" }
-//                    document.data<HitchLog>()
-//                }
-//            }
-//    }
 
     override fun getLog(logId: String) = repositoryFlow {
         with (logsRef.document(logId).get()) {
@@ -128,8 +105,11 @@ class FirestoreRepository(
                     log.d { "getLogRecords $it" }
                 }
             }
-        }.map {
+        }.map<List<HitchLogRecord>, Response<List<HitchLogRecord>>> {
             Response.Success(it)
+        }.catch { error ->
+            log.e(err = error) { error.message ?: "getLogRecords error" }
+            emit(Response.Failure(error.message ?: "getLogRecords error"))
         }
 
     override fun getRecord(logId: String, recordId: String) = repositoryFlow {

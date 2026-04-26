@@ -2,7 +2,6 @@ package org.gmautostop.hitchlogmp.ui
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -13,7 +12,9 @@ import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
+import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.runtime.Composable
@@ -37,8 +38,9 @@ fun LogListScreen(
     viewModel: LogListViewModel,
     openLog: (id: String) -> Unit,
     createLog: () -> Unit,
-    editLog: (id: String) -> Unit) {
-
+    editLog: (id: String) -> Unit,
+    signOut: () -> Unit,
+) {
     val state: ViewState<List<HitchLog>> by viewModel.state.collectAsStateWithLifecycle()
 
     when (state) {
@@ -50,7 +52,8 @@ fun LogListScreen(
             list = (state as ViewState.Show<List<HitchLog>>).value,
             openLog,
             createLog,
-            editLog
+            editLog,
+            signOut,
         )
     }
 }
@@ -60,15 +63,27 @@ fun LogList(
     list: List<HitchLog>,
     openLog: (id: String) -> Unit,
     createLog: () -> Unit,
-    editLog: (id: String) -> Unit
+    editLog: (id: String) -> Unit,
+    signOut: () -> Unit,
 ) {
-    Scaffold (
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text(stringResource(Res.string.my_logs)) },
+                actions = {
+                    IconButton(onClick = signOut) {
+                        Icon(Icons.AutoMirrored.Filled.ExitToApp, contentDescription = "Sign out")
+                    }
+                }
+            )
+        },
         floatingActionButton = {
             FloatingActionButton(onClick = { createLog() }) {
                 Icon(Icons.Filled.Add, stringResource(Res.string.create))
             }
-        }) {
-        if(list.isEmpty()) {
+        }
+    ) {
+        if (list.isEmpty()) {
             Box(Modifier.fillMaxSize()) {
                 Text(
                     modifier = Modifier.align(Alignment.Center),
@@ -76,24 +91,20 @@ fun LogList(
                 )
             }
         } else {
-            Column {
-                Text(text = stringResource(Res.string.my_logs))
-                LazyColumn {
-                    items(list) { item ->
-                        Row(Modifier.clickable { openLog(item.id) }) {
-                            Text(text = item.name,
-                                modifier = Modifier
-                                    .padding(vertical = Dp(5.0f))
-                            )
-                            IconButton(onClick = {
-                                editLog(item.id)
-                            }) {
-                                Icon(Icons.Filled.Edit, contentDescription = "Edit")
-                            }
-
+            LazyColumn {
+                items(list) { item ->
+                    Row(Modifier.clickable { openLog(item.id) }) {
+                        Text(
+                            text = item.name,
+                            modifier = Modifier.padding(vertical = Dp(5.0f))
+                        )
+                        IconButton(onClick = {
+                            editLog(item.id)
+                        }) {
+                            Icon(Icons.Filled.Edit, contentDescription = "Edit")
                         }
-                        //todo edit button
                     }
+                    //todo edit button
                 }
             }
         }
