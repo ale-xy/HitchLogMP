@@ -40,8 +40,6 @@ class FirestoreRepository(
         firestore.setLoggingEnabled(true)
     }
 
-    override fun userId() = authService.currentUser.value?.id
-
     private fun <T> repositoryFlow(body:suspend () -> T): Flow<Response<T>> =
         flow {
             log.d {"repositoryFlow loading" }
@@ -58,7 +56,7 @@ class FirestoreRepository(
         }.flowOn(Dispatchers.IO)
 
     override fun getLogs() = logsRef
-        .where { "userId" equalTo  userId() }
+        .where { "userId" equalTo authService.currentUser.value?.id }
         .orderBy("creationTime", Direction.DESCENDING)
         .snapshots.map {
             log.d {"getUserLogs onEach" }
@@ -74,20 +72,24 @@ class FirestoreRepository(
         }.flowOn(Dispatchers.IO)
 
 
-    override fun getLog(logId: String) = repositoryFlow {
-        with (logsRef.document(logId).get()) {
-            when {
-                !exists -> throw Exception("Document $logId doesn't exist")
-                else -> return@repositoryFlow (data<HitchLog>()).also {
-                    log.d { "log doc ${data<HitchLog>()}" }
-                }
+    override fun getLog(logId: String): Flow<Response<HitchLog>> =
+        logsRef.document(logId).snapshots
+            .map { snapshot ->
+                if (!snapshot.exists) throw Exception("Document $logId doesn't exist")
+                snapshot.data<HitchLog>().also { log.d { "getLog $it" } }
             }
-        }
-    }
+            .map<HitchLog, Response<HitchLog>> { Response.Success(it) }
+            .catch { error ->
+                log.e(err = error) { error.message ?: "getLog error" }
+                emit(Response.Failure(error.message ?: "getLog error"))
+            }
+            .flowOn(Dispatchers.IO)
 
     override fun addLog(log: HitchLog) = repositoryFlow {
+        val userId = authService.currentUser.value?.id
+            ?: throw Exception("Not authenticated")
         val id = Uuid.random().toString()
-        logsRef.document(id).set(log.copy(id = id))
+        logsRef.document(id).set(log.copy(id = id, userId = userId))
     }
 
     override fun updateLog(log: HitchLog) = repositoryFlow {

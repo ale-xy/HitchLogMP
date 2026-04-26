@@ -3,9 +3,11 @@ package org.gmautostop.hitchlogmp.ui
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.material.Button
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import hitchlogmp.composeapp.generated.resources.Res
@@ -23,6 +25,10 @@ fun EditRecordScreen(
     finish: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    LaunchedEffect(Unit) {
+        viewModel.navigationEvent.collect { finish() }
+    }
 
     Column {
         Text(text = stringResource(uiState.record.type.toStringResource()))
@@ -45,19 +51,21 @@ fun EditRecordScreen(
             label = { Text(stringResource(Res.string.text)) }
         )
 
+        uiState.error?.let { Text(it, color = MaterialTheme.colors.error) }
+
         Row {
-            Button(onClick = {
-                viewModel.save()
-                finish()
-            }) {
+            Button(
+                onClick = { viewModel.save() },
+                enabled = !uiState.isLoading
+            ) {
                 Text(stringResource(Res.string.ok))
             }
 
             if (uiState.record.id.isNotEmpty()) {
-                Button(onClick = {
-                    viewModel.delete()
-                    finish()
-                }) {
+                Button(
+                    onClick = { viewModel.delete() },
+                    enabled = !uiState.isLoading
+                ) {
                     Text(stringResource(Res.string.delete))
                 }
             }

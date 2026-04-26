@@ -3,7 +3,6 @@ package org.gmautostop.hitchlogmp.domain
 import kotlinx.coroutines.flow.Flow
 
 interface Repository {
-    fun userId(): String?
     fun getLogs(): Flow<Response<List<HitchLog>>>
     fun getLog(logId: String): Flow<Response<HitchLog>>
     fun addLog(log: HitchLog): Flow<Response<Unit>>

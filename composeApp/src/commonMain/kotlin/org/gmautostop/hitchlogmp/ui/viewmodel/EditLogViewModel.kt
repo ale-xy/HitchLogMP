@@ -2,40 +2,51 @@ package org.gmautostop.hitchlogmp.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
+import org.gmautostop.hitchlogmp.data.AuthService
 import org.gmautostop.hitchlogmp.domain.HitchLog
 import org.gmautostop.hitchlogmp.domain.Repository
 import org.gmautostop.hitchlogmp.domain.Response
 import org.lighthousegames.logging.logging
 
 class EditLogViewModel(
-    //savedStateHandle: SavedStateHandle,
     private val logId: String,
-    private val repository: Repository
+    private val repository: Repository,
+    private val authService: AuthService
 ): ViewModel() {
     val state: StateFlow<ViewState<HitchLog>>
         field = MutableStateFlow<ViewState<HitchLog>>(ViewState.Loading)
     private var name: String = ""
+    private var watchJob: Job? = null
+
+    private val _navigationEvent = Channel<Unit>(Channel.CONFLATED)
+    val navigationEvent = _navigationEvent.receiveAsFlow()
 
     init {
         viewModelScope.launch {
-            val userId = repository.userId()
+            val userId = authService.currentUser.value?.id
 
             when {
                 userId == null -> state.value = ViewState.Error("Not logged in!")
                 logId.isEmpty() -> state.value = ViewState.Show(HitchLog(userId = userId))
-                else -> repository.getLog(logId).distinctUntilChanged().collect { response ->
-                    state.value = when (response) {
-                        is Response.Loading -> ViewState.Loading
-                        is Response.Success -> ViewState.Show(response.data).also {
-                            name = response.data.name
-                        }
-                        is Response.Failure -> ViewState.Error(response.errorMessage).also {
-                            logger.e { response.errorMessage }
+                else -> {
+                    watchJob = viewModelScope.launch {
+                        repository.getLog(logId).distinctUntilChanged().collect { response ->
+                            state.value = when (response) {
+                                is Response.Loading -> ViewState.Loading
+                                is Response.Success -> ViewState.Show(response.data).also {
+                                    name = response.data.name
+                                }
+                                is Response.Failure -> ViewState.Error(response.errorMessage).also {
+                                    logger.e { response.errorMessage }
+                                }
+                            }
                         }
                     }
                 }
@@ -57,19 +68,44 @@ class EditLogViewModel(
 
     fun saveLog() {
         withLog { log ->
-            when {
-                log.id.isEmpty() ->
-                    repository.userId().let {
-                        repository.addLog(log.copy(name = name)).launchIn(viewModelScope)
+            viewModelScope.launch {
+                state.value = ViewState.Loading
+                val flow = when {
+                    log.id.isEmpty() -> repository.addLog(log.copy(name = name))
+                    else -> repository.updateLog(log.copy(name = name))
+                }
+                flow.collect { response ->
+                    when (response) {
+                        is Response.Loading -> Unit
+                        is Response.Success -> _navigationEvent.send(Unit)
+                        is Response.Failure -> {
+                            logger.e { response.errorMessage }
+                            state.value = ViewState.Error(response.errorMessage)
+                        }
                     }
-                else -> repository.updateLog(log.copy(name = name)).launchIn(viewModelScope)
+                }
             }
         }
     }
 
     fun deleteLog() {
-        withLog {
-            repository.deleteLog(it.id).launchIn(viewModelScope)
+        withLog { log ->
+            // Cancel the snapshot listener before deleting so Firestore's local "document
+            // doesn't exist" snapshot doesn't race with the delete confirmation.
+            watchJob?.cancel()
+            viewModelScope.launch {
+                state.value = ViewState.Loading
+                repository.deleteLog(log.id).collect { response ->
+                    when (response) {
+                        is Response.Loading -> Unit
+                        is Response.Success -> _navigationEvent.send(Unit)
+                        is Response.Failure -> {
+                            logger.e { response.errorMessage }
+                            state.value = ViewState.Error(response.errorMessage)
+                        }
+                    }
+                }
+            }
         }
     }
 

@@ -2,10 +2,11 @@ package org.gmautostop.hitchlogmp.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDateTime
@@ -37,6 +38,9 @@ class RecordViewModel(
 
     val uiState: StateFlow<EditRecordUiState>
         field = MutableStateFlow(EditRecordUiState())
+
+    private val _navigationEvent = Channel<Unit>(Channel.CONFLATED)
+    val navigationEvent = _navigationEvent.receiveAsFlow()
 
     init {
         if (recordId.isNullOrEmpty()) {
@@ -86,9 +90,28 @@ class RecordViewModel(
         } catch (e: IllegalArgumentException) {
             current.record
         }
-        uiState.update { it.copy(isLoading = true, error = null) }
-        repository.saveRecord(logId, recordToSave).launchIn(viewModelScope)
+        viewModelScope.launch {
+            uiState.update { it.copy(isLoading = true, error = null) }
+            repository.saveRecord(logId, recordToSave).collect { response ->
+                when (response) {
+                    is Response.Loading -> Unit
+                    is Response.Success -> _navigationEvent.send(Unit)
+                    is Response.Failure -> uiState.update { it.copy(isLoading = false, error = response.errorMessage) }
+                }
+            }
+        }
     }
 
-    fun delete() = repository.deleteRecord(logId, uiState.value.record).launchIn(viewModelScope)
+    fun delete() {
+        viewModelScope.launch {
+            uiState.update { it.copy(isLoading = true, error = null) }
+            repository.deleteRecord(logId, uiState.value.record).collect { response ->
+                when (response) {
+                    is Response.Loading -> Unit
+                    is Response.Success -> _navigationEvent.send(Unit)
+                    is Response.Failure -> uiState.update { it.copy(isLoading = false, error = response.errorMessage) }
+                }
+            }
+        }
+    }
 }

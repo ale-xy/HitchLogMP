@@ -6,6 +6,7 @@ import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import hitchlogmp.composeapp.generated.resources.Res
@@ -25,6 +26,10 @@ fun EditLogScreen(
 ) {
     val state: ViewState<HitchLog> by viewModel.state.collectAsStateWithLifecycle()
 
+    LaunchedEffect(Unit) {
+        viewModel.navigationEvent.collect { finish() }
+    }
+
     when (state) {
         is ViewState.Loading -> Loading()
         is ViewState.Error -> Error((state as ViewState.Error).error)
@@ -33,8 +38,7 @@ fun EditLogScreen(
                 (state as ViewState.Show<HitchLog>).value,
                 { name -> viewModel.updateName(name) },
                 { viewModel.saveLog() },
-                { viewModel.deleteLog() },
-                finish
+                { viewModel.deleteLog() }
             )
     }
 }
@@ -44,8 +48,7 @@ fun Log(
     log: HitchLog,
     updateName: (String) -> Unit,
     saveLog: () -> Unit,
-    deleteLog: () -> Unit,
-    finish: () -> Unit
+    deleteLog: () -> Unit
 ) {
     Column {
         TextField(value = log.name,
@@ -54,18 +57,12 @@ fun Log(
         )
 
         Row {
-            Button(onClick = {
-                saveLog()
-                finish()
-            }) {
+            Button(onClick = { saveLog() }) {
                 Text(stringResource(Res.string.ok))
             }
 
             if (log.id.isNotEmpty()) {
-                Button(onClick = {
-                    deleteLog()
-                    finish()
-                }) {
+                Button(onClick = { deleteLog() }) {
                     Text(stringResource(Res.string.delete))
                 }
             }
