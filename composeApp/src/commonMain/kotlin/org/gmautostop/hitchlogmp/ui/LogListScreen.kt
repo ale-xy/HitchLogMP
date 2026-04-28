@@ -1,5 +1,6 @@
 package org.gmautostop.hitchlogmp.ui
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -21,6 +22,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.Dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import hitchlogmp.composeapp.generated.resources.Res
@@ -28,6 +31,9 @@ import hitchlogmp.composeapp.generated.resources.create
 import hitchlogmp.composeapp.generated.resources.my_logs
 import hitchlogmp.composeapp.generated.resources.no_logs
 import org.gmautostop.hitchlogmp.domain.HitchLog
+import org.gmautostop.hitchlogmp.ui.designsystem.theme.HLTheme
+import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLColors
+import org.gmautostop.hitchlogmp.ui.preview.LogListStateProvider
 import org.gmautostop.hitchlogmp.ui.viewmodel.LogListViewModel
 import org.gmautostop.hitchlogmp.ui.viewmodel.ViewState
 import org.jetbrains.compose.resources.stringResource
@@ -106,6 +112,34 @@ fun LogList(
                     }
                     //todo edit button
                 }
+            }
+        }
+    }
+}
+
+// ── Previews ─────────────────────────────────────────────────────────────────
+
+@Preview
+@Composable
+private fun LogListScreenPreview(
+    @PreviewParameter(LogListStateProvider::class) state: ViewState<List<HitchLog>>
+) {
+    HLTheme {
+        Box(
+            Modifier
+                .fillMaxSize()
+                .background(HLColors.Background)
+        ) {
+            when (state) {
+                is ViewState.Loading -> Loading()
+                is ViewState.Error -> Error(state.error.displayMessage)
+                is ViewState.Show -> LogList(
+                    list = state.value,
+                    openLog = {},
+                    createLog = {},
+                    editLog = {},
+                    signOut = {}
+                )
             }
         }
     }
