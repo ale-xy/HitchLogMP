@@ -1,6 +1,5 @@
 package org.gmautostop.hitchlogmp.ui
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -33,6 +32,7 @@ import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.PauseCircle
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -63,15 +63,10 @@ import hitchlogmp.composeapp.generated.resources.retire
 import hitchlogmp.composeapp.generated.resources.start
 import hitchlogmp.composeapp.generated.resources.status_finished
 import hitchlogmp.composeapp.generated.resources.status_in_car
-import org.gmautostop.hitchlogmp.domain.HitchLog
-import org.gmautostop.hitchlogmp.domain.HitchLogRecord
 import org.gmautostop.hitchlogmp.domain.HitchLogRecordType
 import org.gmautostop.hitchlogmp.domain.LiveState
 import org.gmautostop.hitchlogmp.domain.LiveStatus
-import org.gmautostop.hitchlogmp.domain.computeLiveState
-import org.gmautostop.hitchlogmp.domain.computeRestMinutes
 import org.gmautostop.hitchlogmp.domain.formatMinutes
-import org.gmautostop.hitchlogmp.domain.nextActionLadder
 import org.gmautostop.hitchlogmp.timeFormat
 import org.gmautostop.hitchlogmp.ui.designsystem.components.ActionButtonSize
 import org.gmautostop.hitchlogmp.ui.designsystem.components.HLActionButton
@@ -88,6 +83,7 @@ import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLTypography
 import org.gmautostop.hitchlogmp.ui.preview.HitchLogStateProvider
 import org.gmautostop.hitchlogmp.ui.viewmodel.HitchLogState
 import org.gmautostop.hitchlogmp.ui.viewmodel.HitchLogViewModel
+import org.gmautostop.hitchlogmp.ui.viewmodel.SummaryCardState
 import org.gmautostop.hitchlogmp.ui.viewmodel.ViewState
 import org.jetbrains.compose.resources.stringResource
 
@@ -106,10 +102,9 @@ fun HitchLogScreen(
         is ViewState.Loading -> Loading()
         is ViewState.Error   -> Error((state as ViewState.Error).error.displayMessage)
         is ViewState.Show    -> {
-            val s = (state as ViewState.Show<HitchLogState>).value
+            val hitchLogState = (state as ViewState.Show<HitchLogState>).value
             HitchLog(
-                log = s.log,
-                records = s.records,
+                state = hitchLogState,
                 navigateUp = navigateUp,
                 createRecord = createRecord,
                 editRecord = editRecord,
@@ -120,43 +115,37 @@ fun HitchLogScreen(
 
 // ── Main content ─────────────────────────────────────────────────────────────
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun HitchLog(
-    log: HitchLog,
-    records: List<HitchLogRecord>,
+    state: HitchLogState,
     navigateUp: () -> Unit,
     createRecord: (HitchLogRecordType) -> Unit,
     editRecord: (id: String) -> Unit,
 ) {
     val listState = rememberLazyListState()
     val scrolled by remember { derivedStateOf { listState.firstVisibleItemIndex > 0 || listState.firstVisibleItemScrollOffset > 0 } }
-    val isEmpty = records.isEmpty()
+    val isEmpty = state.records.isEmpty()
 
     var quickCollapsed by remember { mutableStateOf(true) }
     var sheetOpen by remember { mutableStateOf(false) }
 
-    val groups = remember(records) {
-        records.sortedBy { it.time }.groupBy { it.time.date }.entries.toList()
+    val groups = remember(state.records) {
+        state.records.sortedBy { it.time }.groupBy { it.time.date }.entries.toList()
     }
 
-    LaunchedEffect(records.size) {
-        if (records.isNotEmpty()) {
-            val summaryOffset = 1
-            val totalItems = summaryOffset + groups.size * 2
+    LaunchedEffect(state.records.size) {
+        if (state.records.isNotEmpty()) {
+            val totalItems = groups.size * 2
             listState.animateScrollToItem(totalItems - 1)
         }
     }
 
-    Box(
-        Modifier
-            .fillMaxSize()
-            .background(HLColors.Background)
-    ) {
-        Column(Modifier.fillMaxSize()) {
+    Scaffold(
+        containerColor = HLColors.Background,
+        topBar = {
             HLTopBar(
-                title = log.name,
-                subtitle = log.teamId.takeIf { it.isNotEmpty() },
+                title = state.logName,
+                subtitle = state.teamId.takeIf { it.isNotEmpty() },
                 scrolled = scrolled,
                 onNavigateUp = navigateUp,
                 actions = {
@@ -169,93 +158,93 @@ private fun HitchLog(
                     }
                 }
             )
-
-            Box(Modifier.weight(1f)) {
-                if (isEmpty) {
-                    HLEmptyState(
-                        icon = Icons.AutoMirrored.Filled.DirectionsWalk,
-                        message = stringResource(Res.string.chronicle_empty),
-                        primaryAction = stringResource(Res.string.start) to { createRecord(HitchLogRecordType.START) },
-                        secondaryAction = stringResource(Res.string.different_record_type) to { sheetOpen = true }
-                    )
-                } else {
-                    LazyColumn(
-                        state = listState,
-                        modifier = Modifier.fillMaxSize(),
-                    ) {
-                        item {
-                            SummaryCard(records = records)
-                        }
-                        groups.forEach { (date, items) ->
-                            stickyHeader(key = "header_${date}") {
-                                DateHeader(date = date)
+        }
+    ) { innerPadding ->
+        Box(
+            Modifier
+                .padding(innerPadding)
+                .fillMaxSize()
+                .background(HLColors.Background)
+        ) {
+            if (isEmpty) {
+                HLEmptyState(
+                    icon = Icons.AutoMirrored.Filled.DirectionsWalk,
+                    message = stringResource(Res.string.chronicle_empty),
+                    primaryAction = stringResource(Res.string.start) to { createRecord(HitchLogRecordType.START) },
+                    secondaryAction = stringResource(Res.string.different_record_type) to { sheetOpen = true }
+                )
+            } else {
+                Column(Modifier.fillMaxSize()) {
+                    SummaryCard(summary = state.summary)
+                    Box(Modifier.weight(1f)) {
+                        LazyColumn(
+                            state = listState,
+                            modifier = Modifier.fillMaxSize(),
+                        ) {
+                            groups.forEach { (date, items) ->
+                                item(key = "header_${date}") {
+                                    DateHeader(date = date)
+                                }
+                                item(key = "group_${date}") {
+                                    RecordGroupCard(
+                                        items = items,
+                                        editRecord = editRecord,
+                                    )
+                                }
                             }
-                            item(key = "group_${date}") {
-                                RecordGroupCard(
-                                    items = items,
-                                    editRecord = editRecord,
-                                )
+                            item {
+                                Spacer(Modifier.height(if (quickCollapsed) 88.dp else 240.dp))
                             }
                         }
-                        item {
-                            Spacer(Modifier.height(if (quickCollapsed) 88.dp else 240.dp))
-                        }
+                        QuickActions(
+                            ladder = state.ladder,
+                            collapsed = quickCollapsed,
+                            onToggle = { quickCollapsed = !quickCollapsed },
+                            onPick = { type -> createRecord(type) },
+                            onMore = { sheetOpen = true },
+                            modifier = Modifier.align(Alignment.BottomCenter),
+                        )
                     }
                 }
             }
-        }
 
-        if (!isEmpty) {
-            QuickActions(
-                records = records,
-                collapsed = quickCollapsed,
-                onToggle = { quickCollapsed = !quickCollapsed },
-                onPick = { type -> createRecord(type) },
-                onMore = { sheetOpen = true },
-                modifier = Modifier.align(Alignment.BottomCenter),
+            HLBottomSheet(
+                open = sheetOpen,
+                title = stringResource(Res.string.new_record),
+                onClose = { sheetOpen = false },
+                modifier = Modifier.zIndex(10f),
+                content = {
+                    Column(
+                        Modifier.padding(horizontal = HLSpacing.xl),
+                        verticalArrangement = Arrangement.spacedBy(HLSpacing.md)
+                    ) {
+                        HitchLogRecordType.entries.chunked(3).forEach { row ->
+                            Row(
+                                Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(HLSpacing.md)
+                            ) {
+                                row.forEach { type ->
+                                    HLActionButton(
+                                        type = type,
+                                        size = ActionButtonSize.SHEET,
+                                        onClick = { createRecord(type); sheetOpen = false },
+                                        modifier = Modifier.weight(1f)
+                                    )
+                                }
+                                repeat(3 - row.size) { Spacer(Modifier.weight(1f)) }
+                            }
+                        }
+                    }
+                }
             )
         }
-
-        HLBottomSheet(
-            open = sheetOpen,
-            title = stringResource(Res.string.new_record),
-            onClose = { sheetOpen = false },
-            modifier = Modifier.zIndex(10f),
-            content = {
-                Column(
-                    Modifier.padding(horizontal = HLSpacing.xl),
-                    verticalArrangement = Arrangement.spacedBy(HLSpacing.md)
-                ) {
-                    HitchLogRecordType.entries.chunked(3).forEach { row ->
-                        Row(
-                            Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(HLSpacing.md)
-                        ) {
-                            row.forEach { type ->
-                                HLActionButton(
-                                    type = type,
-                                    size = ActionButtonSize.SHEET,
-                                    onClick = { createRecord(type); sheetOpen = false },
-                                    modifier = Modifier.weight(1f)
-                                )
-                            }
-                            repeat(3 - row.size) { Spacer(Modifier.weight(1f)) }
-                        }
-                    }
-                }
-            }
-        )
     }
 }
 
 // ── SummaryCard ───────────────────────────────────────────────────────────────
 
 @Composable
-private fun SummaryCard(records: List<HitchLogRecord>) {
-    val lifts = remember(records) { records.count { it.type == HitchLogRecordType.LIFT } }
-    val checkpoints = remember(records) { records.count { it.type == HitchLogRecordType.CHECKPOINT } }
-    val restMin = remember(records) { computeRestMinutes(records) }
-    val liveState = remember(records) { computeLiveState(records) }
+private fun SummaryCard(summary: SummaryCardState) {
     var showUsed by remember { mutableStateOf(true) }
 
     Column(
@@ -269,17 +258,17 @@ private fun SummaryCard(records: List<HitchLogRecord>) {
         Row(Modifier.fillMaxWidth()) {
             HLStatCell(
                 icon = Icons.Filled.DirectionsCar,
-                value = "$lifts",
+                value = "${summary.lifts}",
                 modifier = Modifier.weight(1f)
             )
             HLStatCell(
                 icon = Icons.Filled.LocationOn,
-                value = "$checkpoints",
+                value = "${summary.checkpoints}",
                 modifier = Modifier.weight(1f)
             )
             HLStatCell(
                 icon = Icons.Filled.Hotel,
-                value = formatMinutes(restMin),
+                value = formatMinutes(summary.restMin),
                 label = if (showUsed) stringResource(Res.string.rest_used) else stringResource(Res.string.rest_left),
                 onClick = { showUsed = !showUsed },
                 modifier = Modifier.weight(1f),
@@ -287,10 +276,10 @@ private fun SummaryCard(records: List<HitchLogRecord>) {
             )
         }
 
-        if (liveState != null) {
+        if (summary.liveState != null) {
             Spacer(Modifier.height(HLSpacing.lg))
             Row(horizontalArrangement = Arrangement.spacedBy(HLSpacing.sm)) {
-                LiveStatusBadge(liveState)
+                LiveStatusBadge(summary.liveState)
             }
         }
     }
@@ -327,14 +316,13 @@ private data class BadgeStyle(
 
 @Composable
 private fun QuickActions(
-    records: List<HitchLogRecord>,
+    ladder: List<HitchLogRecordType>,
     collapsed: Boolean,
     onToggle: () -> Unit,
     onPick: (HitchLogRecordType) -> Unit,
     onMore: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val ladder = remember(records) { nextActionLadder(records) }
     val top = ladder.getOrNull(0)
     val second = ladder.getOrNull(1)
     val medium = ladder.drop(2).take(3)
@@ -508,10 +496,9 @@ private fun HitchLogScreenPreview(
                 is ViewState.Loading -> Loading()
                 is ViewState.Error -> Error(state.error.displayMessage)
                 is ViewState.Show -> {
-                    val s = state.value
+                    val hitchLogState = state.value
                     HitchLog(
-                        log = s.log,
-                        records = s.records,
+                        state = hitchLogState,
                         navigateUp = {},
                         createRecord = {},
                         editRecord = {}

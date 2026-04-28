@@ -10,8 +10,12 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import org.gmautostop.hitchlogmp.domain.HitchLogRecordType
 import org.gmautostop.hitchlogmp.domain.Repository
 import org.gmautostop.hitchlogmp.domain.Response
+import org.gmautostop.hitchlogmp.domain.computeLiveState
+import org.gmautostop.hitchlogmp.domain.computeRestMinutes
+import org.gmautostop.hitchlogmp.domain.nextActionLadder
 import org.lighthousegames.logging.logging
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -34,9 +38,23 @@ class HitchLogViewModel(
                             when (recordResponse) {
                                 is Response.Loading -> ViewState.Loading
                                 is Response.Failure -> ViewState.Error(recordResponse.error)
-                                is Response.Success -> ViewState.Show(
-                                    HitchLogState(logResponse.data, recordResponse.data)
-                                )
+                                is Response.Success -> {
+                                    val records = recordResponse.data
+                                    ViewState.Show(
+                                        HitchLogState(
+                                            logName = logResponse.data.name,
+                                            teamId = logResponse.data.teamId,
+                                            records = records,
+                                            summary = SummaryCardState(
+                                                lifts = records.count { it.type == HitchLogRecordType.LIFT },
+                                                checkpoints = records.count { it.type == HitchLogRecordType.CHECKPOINT },
+                                                restMin = computeRestMinutes(records),
+                                                liveState = computeLiveState(records)
+                                            ),
+                                            ladder = nextActionLadder(records)
+                                        )
+                                    )
+                                }
                             }
                         }
                     }

@@ -10,7 +10,11 @@ import org.gmautostop.hitchlogmp.domain.HitchLog
 import org.gmautostop.hitchlogmp.domain.HitchLogRecord
 import org.gmautostop.hitchlogmp.domain.HitchLogRecordType
 import org.gmautostop.hitchlogmp.domain.User
+import org.gmautostop.hitchlogmp.domain.computeLiveState
+import org.gmautostop.hitchlogmp.domain.computeRestMinutes
+import org.gmautostop.hitchlogmp.domain.nextActionLadder
 import org.gmautostop.hitchlogmp.ui.viewmodel.HitchLogState
+import org.gmautostop.hitchlogmp.ui.viewmodel.SummaryCardState
 import org.gmautostop.hitchlogmp.ui.viewmodel.ViewState
 import kotlin.time.Duration.Companion.minutes
 
@@ -131,4 +135,15 @@ fun <T : Any> sampleErrorState(message: String = "Ошибка загрузки 
 fun sampleHitchLogState(
     log: HitchLog = sampleHitchLog(),
     records: List<HitchLogRecord> = sampleHitchLogRecords()
-) = HitchLogState(log = log, records = records)
+) = HitchLogState(
+    logName = log.name,
+    teamId = log.teamId,
+    records = records,
+    summary = SummaryCardState(
+        lifts = records.count { it.type == HitchLogRecordType.LIFT },
+        checkpoints = records.count { it.type == HitchLogRecordType.CHECKPOINT },
+        restMin = computeRestMinutes(records),
+        liveState = computeLiveState(records)
+    ),
+    ladder = nextActionLadder(records)
+)
