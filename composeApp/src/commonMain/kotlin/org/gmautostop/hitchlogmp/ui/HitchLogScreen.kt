@@ -32,7 +32,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -97,15 +96,15 @@ private fun HitchLog(
     val isEmpty = state.records.isEmpty()
 
     // Measured heights of QuickActions panel (null until first measurement)
-    var collapsedHeight by remember { mutableStateOf<Dp?>(null) }
-    var expandedHeight by remember { mutableStateOf<Dp?>(null) }
+    var collapsedHeight by remember { mutableStateOf(0.dp) }
+    var expandedHeight by remember { mutableStateOf(0.dp) }
 
     var quickCollapsed by remember { mutableStateOf(false) }
     var sheetOpen by remember { mutableStateOf(false) }
 
     // Animated bottom padding based on panel height
     val animatedPanelHeight by animateDpAsState(
-        targetValue = if (quickCollapsed) (collapsedHeight ?: 0.dp) else (expandedHeight ?: 0.dp),
+        targetValue = if (quickCollapsed) collapsedHeight else expandedHeight,
         label = "panelHeight"
     )
 
@@ -191,7 +190,7 @@ private fun HitchLog(
                                 }
                             }
                             item {
-                                Spacer(Modifier.height(if (quickCollapsed) 88.dp else 240.dp))
+                                Spacer(Modifier.height(if (quickCollapsed) 88.dp else 200.dp))
                             }
                         }
                         QuickActions(
