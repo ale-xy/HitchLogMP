@@ -1,9 +1,9 @@
 package org.gmautostop.hitchlogmp.ui.preview
 
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
+import kotlinx.datetime.LocalDateTime
 import org.gmautostop.hitchlogmp.domain.AppError
 import org.gmautostop.hitchlogmp.domain.HitchLog
-import org.gmautostop.hitchlogmp.domain.HitchLogRecord
 import org.gmautostop.hitchlogmp.ui.designsystem.preview.sampleFinishedRecords
 import org.gmautostop.hitchlogmp.ui.designsystem.preview.sampleHitchLog
 import org.gmautostop.hitchlogmp.ui.designsystem.preview.sampleHitchLogRecords
@@ -15,7 +15,8 @@ import org.gmautostop.hitchlogmp.ui.designsystem.preview.sampleOffsideRecords
 import org.gmautostop.hitchlogmp.ui.designsystem.preview.sampleRecord
 import org.gmautostop.hitchlogmp.ui.designsystem.preview.sampleRestRecords
 import org.gmautostop.hitchlogmp.ui.designsystem.preview.sampleRetiredRecords
-import org.gmautostop.hitchlogmp.ui.viewmodel.HitchLogState
+import org.gmautostop.hitchlogmp.ui.hitchlog.HitchLogState
+import org.gmautostop.hitchlogmp.ui.recordedit.EditRecordUiState
 import org.gmautostop.hitchlogmp.ui.viewmodel.ViewState
 
 // LogList states
@@ -55,43 +56,71 @@ class EditLogStateProvider : PreviewParameterProvider<ViewState<HitchLog>> {
 }
 
 // EditRecord states
-data class RecordEditPreviewState(
-    val record: HitchLogRecord,
-    val dateText: String,
-    val timeText: String,
-    val error: AppError?,
-    val isLoading: Boolean
-)
-
-class RecordEditStateProvider : PreviewParameterProvider<RecordEditPreviewState> {
+class EditRecordStateProvider : PreviewParameterProvider<EditRecordUiState> {
     override val values = sequenceOf(
-        RecordEditPreviewState(
+        // New LIFT record
+        EditRecordUiState(
             record = sampleRecord(id = "", type = org.gmautostop.hitchlogmp.domain.HitchLogRecordType.LIFT),
-            dateText = "28.04.2026",
+            dateText = "29.04.2026",
             timeText = "14:30",
+            validationError = null,
+            isLoading = false,
             error = null,
-            isLoading = false
+            restOnTime = null,
+            restElapsedMinutes = null,
+            canSave = true
         ),
-        RecordEditPreviewState(
-            record = sampleRecord(type = org.gmautostop.hitchlogmp.domain.HitchLogRecordType.CHECKPOINT, text = "КП1 - Владимир"),
-            dateText = "28.04.2026",
-            timeText = "16:45",
+        // Existing CHECKPOINT record with delete button
+        EditRecordUiState(
+            record = sampleRecord(
+                id = "existing-id",
+                type = org.gmautostop.hitchlogmp.domain.HitchLogRecordType.CHECKPOINT,
+                text = "КП-1 Сестрорецк"
+            ),
+            dateText = "29.04.2026",
+            timeText = "14:30",
+            validationError = null,
+            isLoading = false,
             error = null,
-            isLoading = false
+            restOnTime = null,
+            restElapsedMinutes = null,
+            canSave = true
         ),
-        RecordEditPreviewState(
-            record = sampleRecord(type = org.gmautostop.hitchlogmp.domain.HitchLogRecordType.FREE_TEXT),
-            dateText = "28.04.2026",
-            timeText = "18:00",
-            error = AppError.ParseError("дата"),
-            isLoading = false
+        // REST_OFF with banner
+        EditRecordUiState(
+            record = sampleRecord(id = "", type = org.gmautostop.hitchlogmp.domain.HitchLogRecordType.REST_OFF),
+            dateText = "29.04.2026",
+            timeText = "14:30",
+            validationError = null,
+            isLoading = false,
+            error = null,
+            restOnTime = LocalDateTime(2026, 4, 29, 13, 45),
+            restElapsedMinutes = 45,
+            canSave = true
         ),
-        RecordEditPreviewState(
+        // With validation errors
+        EditRecordUiState(
+            record = sampleRecord(id = "", type = org.gmautostop.hitchlogmp.domain.HitchLogRecordType.LIFT),
+            dateText = "32.13.2026",
+            timeText = "25:99",
+            validationError = "Неверный формат даты и времени",
+            isLoading = false,
+            error = null,
+            restOnTime = null,
+            restElapsedMinutes = null,
+            canSave = false
+        ),
+        // Loading state
+        EditRecordUiState(
             record = sampleRecord(),
-            dateText = "28.04.2026",
+            dateText = "29.04.2026",
             timeText = "14:30",
+            validationError = null,
+            isLoading = true,
             error = null,
-            isLoading = true
+            restOnTime = null,
+            restElapsedMinutes = null,
+            canSave = false
         )
     )
 }

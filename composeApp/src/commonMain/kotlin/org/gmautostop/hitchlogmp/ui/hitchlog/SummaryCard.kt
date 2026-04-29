@@ -1,4 +1,4 @@
-package org.gmautostop.hitchlogmp.ui
+package org.gmautostop.hitchlogmp.ui.hitchlog
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -23,6 +23,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import hitchlogmp.composeapp.generated.resources.Res
 import hitchlogmp.composeapp.generated.resources.offside_on
@@ -34,13 +35,12 @@ import hitchlogmp.composeapp.generated.resources.status_in_car
 import org.gmautostop.hitchlogmp.domain.LiveState
 import org.gmautostop.hitchlogmp.domain.LiveStatus
 import org.gmautostop.hitchlogmp.domain.formatMinutes
-import org.gmautostop.hitchlogmp.timeFormat
+import org.gmautostop.hitchlogmp.timeFormatForDisplay
 import org.gmautostop.hitchlogmp.ui.designsystem.components.HLStatCell
 import org.gmautostop.hitchlogmp.ui.designsystem.components.HLStatusBadge
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLColors
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLShapes
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLSpacing
-import org.gmautostop.hitchlogmp.ui.viewmodel.SummaryCardState
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
@@ -94,7 +94,7 @@ private fun LiveStatusBadge(state: LiveState) {
         LiveStatus.FINISH  -> BadgeStyle(HLColors.Primary, HLColors.OnPrimary, Icons.Filled.Flag, stringResource(Res.string.status_finished))
         LiveStatus.RETIRE  -> BadgeStyle(HLColors.Error, HLColors.OnError, Icons.Filled.Cancel, stringResource(Res.string.retire))
     }
-    val sinceLabel = state.since?.let { "· с ${timeFormat.format(it)}" }
+    val sinceLabel = state.since?.let { "· с ${timeFormatForDisplay.format(it)}" }
 
     HLStatusBadge(
         icon = icon,
@@ -106,8 +106,8 @@ private fun LiveStatusBadge(state: LiveState) {
 }
 
 private data class BadgeStyle(
-    val bg: androidx.compose.ui.graphics.Color,
-    val fg: androidx.compose.ui.graphics.Color,
+    val bg: Color,
+    val fg: Color,
     val icon: ImageVector,
     val label: String
 )

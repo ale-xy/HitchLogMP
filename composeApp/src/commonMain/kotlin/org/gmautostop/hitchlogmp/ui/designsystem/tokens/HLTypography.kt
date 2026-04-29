@@ -31,6 +31,11 @@ object HLTypography {
         fontWeight = FontWeight.Normal
     )
 
+    val bodySmall = TextStyle(
+        fontSize = 12.sp,
+        fontWeight = FontWeight.Normal
+    )
+
     // Label styles - used for buttons, badges, and UI labels
     val labelLarge = TextStyle(
         fontSize = 15.sp,

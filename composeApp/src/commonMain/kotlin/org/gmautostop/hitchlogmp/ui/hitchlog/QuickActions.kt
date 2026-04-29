@@ -1,4 +1,4 @@
-package org.gmautostop.hitchlogmp.ui
+package org.gmautostop.hitchlogmp.ui.hitchlog
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -40,6 +40,7 @@ import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLColors
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLShapes
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLSpacing
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLTypography
+import org.gmautostop.hitchlogmp.ui.toStringResource
 import org.jetbrains.compose.resources.stringResource
 
 @Composable

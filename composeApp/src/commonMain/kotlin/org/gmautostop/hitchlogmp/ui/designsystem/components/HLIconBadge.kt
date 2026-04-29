@@ -39,7 +39,7 @@ import org.gmautostop.hitchlogmp.ui.designsystem.tokens.chipColorsForRole
  * Size variants for icon badges.
  */
 enum class IconBadgeSize(val iconSize: Dp, val badgeSize: Dp) {
-    SMALL(14.dp, 24.dp),
+    SMALL(18.dp, 28.dp),
     MEDIUM(18.dp, 32.dp),
     LARGE(22.dp, 40.dp)
 }

@@ -1,4 +1,4 @@
-package org.gmautostop.hitchlogmp.ui.viewmodel
+package org.gmautostop.hitchlogmp.ui.hitchlog
 
 import org.gmautostop.hitchlogmp.domain.HitchLogRecord
 import org.gmautostop.hitchlogmp.domain.HitchLogRecordType

@@ -1,4 +1,4 @@
-package org.gmautostop.hitchlogmp.ui
+package org.gmautostop.hitchlogmp.ui.hitchlog
 
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.background
@@ -41,6 +41,8 @@ import hitchlogmp.composeapp.generated.resources.different_record_type
 import hitchlogmp.composeapp.generated.resources.new_record
 import hitchlogmp.composeapp.generated.resources.start
 import org.gmautostop.hitchlogmp.domain.HitchLogRecordType
+import org.gmautostop.hitchlogmp.ui.Error
+import org.gmautostop.hitchlogmp.ui.Loading
 import org.gmautostop.hitchlogmp.ui.designsystem.components.ActionButtonSize
 import org.gmautostop.hitchlogmp.ui.designsystem.components.HLActionButton
 import org.gmautostop.hitchlogmp.ui.designsystem.components.HLBottomSheet
@@ -50,8 +52,6 @@ import org.gmautostop.hitchlogmp.ui.designsystem.theme.HLTheme
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLColors
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLSpacing
 import org.gmautostop.hitchlogmp.ui.preview.HitchLogStateProvider
-import org.gmautostop.hitchlogmp.ui.viewmodel.HitchLogState
-import org.gmautostop.hitchlogmp.ui.viewmodel.HitchLogViewModel
 import org.gmautostop.hitchlogmp.ui.viewmodel.ViewState
 import org.jetbrains.compose.resources.stringResource
 

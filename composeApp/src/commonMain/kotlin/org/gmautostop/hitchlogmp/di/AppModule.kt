@@ -5,11 +5,11 @@ import dev.gitlive.firebase.auth.auth
 import org.gmautostop.hitchlogmp.data.AuthService
 import org.gmautostop.hitchlogmp.data.FirestoreRepository
 import org.gmautostop.hitchlogmp.domain.Repository
+import org.gmautostop.hitchlogmp.ui.hitchlog.HitchLogViewModel
+import org.gmautostop.hitchlogmp.ui.recordedit.EditRecordViewModel
 import org.gmautostop.hitchlogmp.ui.viewmodel.AuthViewModel
 import org.gmautostop.hitchlogmp.ui.viewmodel.EditLogViewModel
-import org.gmautostop.hitchlogmp.ui.viewmodel.HitchLogViewModel
 import org.gmautostop.hitchlogmp.ui.viewmodel.LogListViewModel
-import org.gmautostop.hitchlogmp.ui.viewmodel.RecordViewModel
 import org.koin.core.module.dsl.singleOf
 import org.koin.core.module.dsl.viewModel
 import org.koin.core.module.dsl.viewModelOf
@@ -28,6 +28,6 @@ val appModule = module {
     viewModelOf(::EditLogViewModel)
     viewModel { HitchLogViewModel(get(), get()) }
     viewModel { params ->
-        RecordViewModel( get(), params[0], params[1], params[2],)
+        EditRecordViewModel( get(), params[0], params[1], params[2],)
     }
 }

@@ -1,4 +1,4 @@
-package org.gmautostop.hitchlogmp.ui
+package org.gmautostop.hitchlogmp.ui.hitchlog
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -28,7 +28,7 @@ import kotlinx.datetime.LocalDate
 import org.gmautostop.hitchlogmp.domain.HitchLogRecord
 import org.gmautostop.hitchlogmp.domain.HitchLogRecordType
 import org.gmautostop.hitchlogmp.formatDateLocale
-import org.gmautostop.hitchlogmp.timeFormat
+import org.gmautostop.hitchlogmp.timeFormatForDisplay
 import org.gmautostop.hitchlogmp.ui.designsystem.components.HLCard
 import org.gmautostop.hitchlogmp.ui.designsystem.components.HLIconBadge
 import org.gmautostop.hitchlogmp.ui.designsystem.components.HLSectionHeader
@@ -38,6 +38,8 @@ import org.gmautostop.hitchlogmp.ui.designsystem.theme.HLTheme
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLColors
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLTypography
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.chipColorsForRole
+import org.gmautostop.hitchlogmp.ui.toStringResource
+import org.gmautostop.hitchlogmp.ui.toUi
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
@@ -116,7 +118,7 @@ internal fun RecordItem(
             }
 
             Text(
-                text = timeFormat.format(record.time),
+                text = timeFormatForDisplay.format(record.time),
                 style = HLTypography.labelMedium.copy(fontWeight = FontWeight.Medium),
                 color = HLColors.OnSurfaceVariant,
             )

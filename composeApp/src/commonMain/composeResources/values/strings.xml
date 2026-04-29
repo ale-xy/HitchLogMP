@@ -37,4 +37,52 @@
     <string name="status_finished">Финишировали</string>
     <string name="rest_used">использовано</string>
     <string name="rest_left">остаток</string>
+
+    <!-- EditRecordScreen -->
+    <string name="new_record_title">Новая запись</string>
+    <string name="edit_record_title">Редактирование</string>
+    <string name="save">Сохранить</string>
+    <string name="close">Закрыть</string>
+    <string name="time_label">Время</string>
+
+    <!-- Field labels by type -->
+    <string name="field_label_note">Заметка</string>
+    <string name="field_label_car_brand">Марка автомобиля</string>
+    <string name="field_label_dropoff_location">Место выгрузки</string>
+    <string name="field_label_walk_destination">Куда идём</string>
+    <string name="field_label_location">Место</string>
+    <string name="field_label_checkpoint_number">Номер КП</string>
+    <string name="field_label_participant_number">Номер участника</string>
+    <string name="field_label_offside_reason">Место и причина</string>
+
+    <!-- Placeholders by type -->
+    <string name="placeholder_optional">Не обязательно</string>
+    <string name="placeholder_car_example">Например: Volvo XC60, Михаил, до Зеленогорска</string>
+    <string name="placeholder_dropoff_example">Развязка у Зеленогорска</string>
+    <string name="placeholder_walk_example">Выход к трассе А-181 «Скандинавия»</string>
+    <string name="placeholder_checkpoint_example">КП-1 / КП Сестрорецк</string>
+    <string name="placeholder_participant_example">№ 7, команда «Север-2»</string>
+    <string name="placeholder_offside_example">Заехали к родственникам водителя</string>
+    <string name="placeholder_finish_example">КП финиш / Дворцовая площадь</string>
+    <string name="placeholder_retire_example">Травма, ст. Удельная</string>
+    <string name="placeholder_free_text">Свободный текст</string>
+
+    <!-- REST_OFF hint banner -->
+    <string name="rest_started_at">Rest с %1$s · прошло %2$d мин</string>
+
+    <!-- Validation errors -->
+    <string name="error_invalid_date">Неверный формат даты</string>
+    <string name="error_invalid_time">Неверный формат времени</string>
+    <string name="error_invalid_date_and_time">Неверный формат даты и времени</string>
+
+    <!-- Stepper buttons -->
+    <string name="subtract">Вычесть</string>
+    <string name="add">Добавить</string>
+
+    <!-- Time shortcuts -->
+    <string name="time_shortcut_minus_10">−10</string>
+    <string name="time_shortcut_minus_5">−5</string>
+    <string name="time_shortcut_now">0</string>
+    <string name="time_shortcut_plus_5">+5</string>
+    <string name="time_shortcut_plus_10">+10</string>
 </resources>

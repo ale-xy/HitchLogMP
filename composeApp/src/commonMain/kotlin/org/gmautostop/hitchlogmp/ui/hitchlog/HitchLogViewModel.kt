@@ -1,4 +1,4 @@
-package org.gmautostop.hitchlogmp.ui.viewmodel
+package org.gmautostop.hitchlogmp.ui.hitchlog
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -23,8 +23,8 @@ class HitchLogViewModel(
     private val logId: String,
     repository: Repository
 ) : ViewModel() {
-    val state: StateFlow<ViewState<HitchLogState>>
-        field = MutableStateFlow<ViewState<HitchLogState>>(ViewState.Loading)
+    val state: StateFlow<org.gmautostop.hitchlogmp.ui.viewmodel.ViewState<HitchLogState>>
+        field = MutableStateFlow<org.gmautostop.hitchlogmp.ui.viewmodel.ViewState<HitchLogState>>(_root_ide_package_.org.gmautostop.hitchlogmp.ui.viewmodel.ViewState.Loading)
 
     init {
         viewModelScope.launch {
@@ -32,15 +32,15 @@ class HitchLogViewModel(
                 .distinctUntilChanged()
                 .flatMapLatest { logResponse ->
                     when (logResponse) {
-                        is Response.Loading -> flowOf(ViewState.Loading)
-                        is Response.Failure -> flowOf(ViewState.Error(logResponse.error))
+                        is Response.Loading -> flowOf(_root_ide_package_.org.gmautostop.hitchlogmp.ui.viewmodel.ViewState.Loading)
+                        is Response.Failure -> flowOf(_root_ide_package_.org.gmautostop.hitchlogmp.ui.viewmodel.ViewState.Error(logResponse.error))
                         is Response.Success -> repository.getLogRecords(logId).map { recordResponse ->
                             when (recordResponse) {
-                                is Response.Loading -> ViewState.Loading
-                                is Response.Failure -> ViewState.Error(recordResponse.error)
+                                is Response.Loading -> _root_ide_package_.org.gmautostop.hitchlogmp.ui.viewmodel.ViewState.Loading
+                                is Response.Failure -> _root_ide_package_.org.gmautostop.hitchlogmp.ui.viewmodel.ViewState.Error(recordResponse.error)
                                 is Response.Success -> {
                                     val records = recordResponse.data
-                                    ViewState.Show(
+                                    _root_ide_package_.org.gmautostop.hitchlogmp.ui.viewmodel.ViewState.Show(
                                         HitchLogState(
                                             logName = logResponse.data.name,
                                             teamId = logResponse.data.teamId,

@@ -20,12 +20,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import org.gmautostop.hitchlogmp.ui.designsystem.theme.HLTheme
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLColors
-import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLSpacing
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLTypography
 
 /**
@@ -36,6 +36,7 @@ import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLTypography
  * @param subtitle Optional subtitle text (e.g., team name)
  * @param scrolled Whether the content is scrolled (triggers background animation)
  * @param onNavigateUp Back button click handler
+ * @param navigationIcon Icon to display in navigation button (default: back arrow)
  * @param actions Optional trailing actions (e.g., menu button)
  */
 @Composable
@@ -44,6 +45,7 @@ fun HLTopBar(
     subtitle: String? = null,
     scrolled: Boolean = false,
     onNavigateUp: () -> Unit,
+    navigationIcon: ImageVector = Icons.AutoMirrored.Filled.ArrowBack,
     actions: @Composable RowScope.() -> Unit = {}
 ) {
     val bg by animateColorAsState(
@@ -60,13 +62,13 @@ fun HLTopBar(
         Row(
             Modifier
                 .fillMaxWidth()
-                .height(64.dp)
-                .padding(horizontal = HLSpacing.xs),
+                .height(56.dp)
+                .padding(horizontal = 4.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             IconButton(onClick = onNavigateUp) {
                 Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                    imageVector = navigationIcon,
                     contentDescription = "Назад",
                     tint = HLColors.OnSurfaceVariant
                 )
@@ -75,7 +77,7 @@ fun HLTopBar(
             Column(
                 Modifier
                     .weight(1f)
-                    .padding(start = HLSpacing.xs)
+                    .padding(start = 4.dp)
             ) {
                 Text(
                     text = title,
@@ -98,12 +100,10 @@ fun HLTopBar(
             actions()
         }
 
-        if (scrolled) {
-            HorizontalDivider(
-                color = HLColors.OutlineVariant,
-                thickness = 1.dp
-            )
-        }
+        HorizontalDivider(
+            color = HLColors.OutlineVariant,
+            thickness = 1.dp
+        )
     }
 }
 

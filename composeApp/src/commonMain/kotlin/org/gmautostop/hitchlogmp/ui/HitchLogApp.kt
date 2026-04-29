@@ -13,11 +13,13 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
 import org.gmautostop.hitchlogmp.data.AuthService
+import org.gmautostop.hitchlogmp.ui.hitchlog.HitchLogScreen
+import org.gmautostop.hitchlogmp.ui.hitchlog.HitchLogViewModel
+import org.gmautostop.hitchlogmp.ui.recordedit.EditRecordScreen
+import org.gmautostop.hitchlogmp.ui.recordedit.EditRecordViewModel
 import org.gmautostop.hitchlogmp.ui.viewmodel.AuthViewModel
 import org.gmautostop.hitchlogmp.ui.viewmodel.EditLogViewModel
-import org.gmautostop.hitchlogmp.ui.viewmodel.HitchLogViewModel
 import org.gmautostop.hitchlogmp.ui.viewmodel.LogListViewModel
-import org.gmautostop.hitchlogmp.ui.viewmodel.RecordViewModel
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
@@ -82,7 +84,7 @@ fun HitchLogApp(navController: NavHostController) {
                 composable<Screen.EditRecord> { backStackEntry ->
                     val editRecord: Screen.EditRecord = backStackEntry.toRoute()
                     EditRecordScreen(
-                        koinViewModel<RecordViewModel> {
+                        koinViewModel<EditRecordViewModel> {
                             parametersOf(editRecord.logId, editRecord.recordId, editRecord.recordType)
                         },
                         finish = { navController.popBackStack() }
