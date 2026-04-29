@@ -27,6 +27,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import hitchlogmp.composeapp.generated.resources.Res
 import hitchlogmp.composeapp.generated.resources.offside_on
+import hitchlogmp.composeapp.generated.resources.rest
 import hitchlogmp.composeapp.generated.resources.rest_left
 import hitchlogmp.composeapp.generated.resources.rest_used
 import hitchlogmp.composeapp.generated.resources.retire
@@ -89,7 +90,7 @@ internal fun SummaryCard(summary: SummaryCardState) {
 private fun LiveStatusBadge(state: LiveState) {
     val (bg, fg, icon, label) = when (state.status) {
         LiveStatus.IN_CAR  -> BadgeStyle(HLColors.Secondary, HLColors.OnSecondary, Icons.Filled.DirectionsCar, stringResource(Res.string.status_in_car))
-        LiveStatus.REST    -> BadgeStyle(HLColors.SurfaceVariant, HLColors.OnSurfaceVariant, Icons.Filled.Hotel, "Отдых")
+        LiveStatus.REST    -> BadgeStyle(HLColors.SurfaceVariant, HLColors.OnSurfaceVariant, Icons.Filled.Hotel, stringResource(Res.string.rest))
         LiveStatus.OFFSIDE -> BadgeStyle(HLColors.ErrorContainer, HLColors.OnErrorContainer, Icons.Filled.PauseCircle, stringResource(Res.string.offside_on))
         LiveStatus.FINISH  -> BadgeStyle(HLColors.Primary, HLColors.OnPrimary, Icons.Filled.Flag, stringResource(Res.string.status_finished))
         LiveStatus.RETIRE  -> BadgeStyle(HLColors.Error, HLColors.OnError, Icons.Filled.Cancel, stringResource(Res.string.retire))

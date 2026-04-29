@@ -28,6 +28,7 @@ import hitchlogmp.composeapp.generated.resources.Res
 import hitchlogmp.composeapp.generated.resources.delete
 import hitchlogmp.composeapp.generated.resources.edit_record_title
 import hitchlogmp.composeapp.generated.resources.new_record_title
+import hitchlogmp.composeapp.generated.resources.record_placeholder
 import hitchlogmp.composeapp.generated.resources.save
 import org.gmautostop.hitchlogmp.ui.designsystem.components.DateFieldRow
 import org.gmautostop.hitchlogmp.ui.designsystem.components.HLRestHintBanner
@@ -160,7 +161,7 @@ private fun EditRecordContent(
                 // Note row - fills remaining space
                 NoteFieldRow(
                     label = stringResource(recordFieldLabel(state.record.type)),
-                    placeholder = stringResource(recordFieldPlaceholder(state.record.type)),
+                    placeholder = stringResource(Res.string.record_placeholder),
                     text = state.record.text,
                     onTextChange = { callbacks.updateText(it) },
                     focusRequester = focusRequester,

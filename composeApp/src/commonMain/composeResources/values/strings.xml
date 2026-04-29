@@ -23,6 +23,7 @@
     <string name="meet">Встреча</string>
     <string name="rest_on">Rest on</string>
     <string name="rest_off">Rest off</string>
+    <string name="rest">Rest</string>
     <string name="offside_on">Вне игры</string>
     <string name="offside_off">Вне игры off</string>
     <string name="finish">Финиш</string>
@@ -55,17 +56,8 @@
     <string name="field_label_participant_number">Номер участника</string>
     <string name="field_label_offside_reason">Место и причина</string>
 
-    <!-- Placeholders by type -->
-    <string name="placeholder_optional">Не обязательно</string>
-    <string name="placeholder_car_example">Например: Volvo XC60, Михаил, до Зеленогорска</string>
-    <string name="placeholder_dropoff_example">Развязка у Зеленогорска</string>
-    <string name="placeholder_walk_example">Выход к трассе А-181 «Скандинавия»</string>
-    <string name="placeholder_checkpoint_example">КП-1 / КП Сестрорецк</string>
-    <string name="placeholder_participant_example">№ 7, команда «Север-2»</string>
-    <string name="placeholder_offside_example">Заехали к родственникам водителя</string>
-    <string name="placeholder_finish_example">КП финиш / Дворцовая площадь</string>
-    <string name="placeholder_retire_example">Травма, ст. Удельная</string>
-    <string name="placeholder_free_text">Свободный текст</string>
+    <!-- Placeholders -->
+    <string name="record_placeholder">Комментарий</string>
 
     <!-- REST_OFF hint banner -->
     <string name="rest_started_at">Rest с %1$s · прошло %2$d мин</string>
