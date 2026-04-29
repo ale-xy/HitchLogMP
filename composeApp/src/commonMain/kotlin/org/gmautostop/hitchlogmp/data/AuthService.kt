@@ -11,11 +11,14 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import org.gmautostop.hitchlogmp.domain.User
+import org.lighthousegames.logging.logging
 
 class AuthService(
     val auth: FirebaseAuth,
     val scope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 ) {
+
+    private val log = logging("AuthService")
 
     val currentUserId: String
         get() = auth.currentUser?.uid.toString()
@@ -25,6 +28,7 @@ class AuthService(
 
     val currentUser: StateFlow<User?> =
         auth.authStateChanged.map {
+            log.d { "Auth state changed: uid=${it?.uid}, isAnonymous=${it?.isAnonymous}" }
             it?.toUser()
         }.stateIn(
             scope = scope,
@@ -41,6 +45,13 @@ class AuthService(
     suspend fun signInAnonymously() {
         launchWithAwait {
             auth.signInAnonymously()
+        }
+    }
+
+    suspend fun refreshAuthState() {
+        launchWithAwait {
+            auth.currentUser?.reload()
+            log.d { "Auth state refreshed: uid=${auth.currentUser?.uid}" }
         }
     }
 

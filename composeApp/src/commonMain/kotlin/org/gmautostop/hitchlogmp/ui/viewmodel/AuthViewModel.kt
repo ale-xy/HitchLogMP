@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeout
 import org.gmautostop.hitchlogmp.data.AuthService
 import org.gmautostop.hitchlogmp.domain.User
 import org.lighthousegames.logging.logging
@@ -61,8 +62,31 @@ class AuthViewModel(
     }
 
     fun onLogin(firebaseUser: FirebaseUser) {
-        log.d { "onLogin uid ${firebaseUser.uid} anon ${firebaseUser.isAnonymous}" }
-        _navigationEvent.trySend(Unit)
+        viewModelScope.launch {
+            _isLoading.value = true
+            try {
+                log.d { "onLogin started: uid=${firebaseUser.uid}, isAnonymous=${firebaseUser.isAnonymous}" }
+                
+                // Refresh auth state to ensure it propagates
+                authService.refreshAuthState()
+                
+                // Wait for currentUser flow to update with the new user (10 second timeout)
+                withTimeout(10_000) {
+                    val user = authService.currentUser.first { user ->
+                        user != null && user.id == firebaseUser.uid
+                    }
+                    log.d { "Auth state confirmed: userId=${user?.id}, isAnonymous=${user?.isAnonymous}" }
+                }
+                
+                _navigationEvent.trySend(Unit)
+            } catch (e: Exception) {
+                log.e { "Login failed: ${e.message}" }
+                log.e { "Stack trace: ${e.stackTraceToString()}" }
+                // Error will be visible in logs, user stays on auth screen
+            } finally {
+                _isLoading.value = false
+            }
+        }
     }
 
     fun onSignOut() {

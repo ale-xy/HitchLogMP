@@ -2,7 +2,7 @@
   "project_info": {
     "project_number": "869765129540",
     "project_id": "hitchlogmp",
-    "storage_bucket": "hitchlogmp.appspot.com"
+    "storage_bucket": "hitchlogmp.firebasestorage.app"
   },
   "client": [
     {
@@ -14,11 +14,11 @@
       },
       "oauth_client": [
         {
-          "client_id": "869765129540-1ibmdpt4vatcmgg6c58jl7taogt3mjpb.apps.googleusercontent.com",
+          "client_id": "869765129540-i0k1u56h11h8bakkq8si8dd8m3sk2r8f.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "org.gmautostop.hitchlogmp",
-            "certificate_hash": "52822db23344dab8371622507d11b252643e7677"
+            "certificate_hash": "bbd08e8e3bb303ead12f1d835ae141c9858ff49c"
           }
         },
         {
