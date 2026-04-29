@@ -7,8 +7,11 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.relocation.BringIntoViewRequester
+import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -21,6 +24,8 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -41,6 +46,7 @@ import hitchlogmp.composeapp.generated.resources.time_shortcut_minus_5
 import hitchlogmp.composeapp.generated.resources.time_shortcut_now
 import hitchlogmp.composeapp.generated.resources.time_shortcut_plus_10
 import hitchlogmp.composeapp.generated.resources.time_shortcut_plus_5
+import kotlinx.coroutines.launch
 import org.gmautostop.hitchlogmp.ui.designsystem.theme.HLTheme
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLColors
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLTypography
@@ -262,6 +268,9 @@ fun NoteFieldRow(
     focusRequester: FocusRequester? = null,
     modifier: Modifier = Modifier
 ) {
+    val bringIntoViewRequester = remember { BringIntoViewRequester() }
+    val coroutineScope = rememberCoroutineScope()
+    
     Column(
         modifier = modifier
             .fillMaxWidth()
@@ -270,8 +279,7 @@ fun NoteFieldRow(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 20.dp, vertical = 14.dp)
-                .weight(1f, fill = false),
+                .padding(horizontal = 20.dp, vertical = 14.dp),
             verticalAlignment = Alignment.Top,
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
@@ -293,15 +301,23 @@ fun NoteFieldRow(
                 
                 BasicTextField(
                     value = text,
-                    onValueChange = onTextChange,
+                    onValueChange = { newText ->
+                        onTextChange(newText)
+                        coroutineScope.launch {
+                            bringIntoViewRequester.bringIntoView()
+                        }
+                    },
                     modifier = Modifier
                         .fillMaxWidth()
+                        .heightIn(min = 100.dp)
+                        .bringIntoViewRequester(bringIntoViewRequester)
                         .then(focusRequester?.let { Modifier.focusRequester(it) } ?: Modifier),
                     textStyle = TextStyle(
                         fontSize = 18.sp,
                         lineHeight = 25.sp,
                         color = HLColors.OnSurface
                     ),
+                    maxLines = Int.MAX_VALUE,
                     cursorBrush = SolidColor(HLColors.Primary),
                     decorationBox = { innerTextField ->
                         if (text.isEmpty()) {

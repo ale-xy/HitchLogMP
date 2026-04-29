@@ -5,7 +5,10 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
@@ -89,7 +92,11 @@ private fun EditRecordContent(
             .fillMaxSize()
             .background(HLColors.Background)
     ) {
-        Column(modifier = Modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .imePadding()
+        ) {
             // Top bar
             HLTopBar(
                 title = title,
@@ -119,72 +126,81 @@ private fun EditRecordContent(
                     CircularProgressIndicator(color = HLColors.Primary)
                 }
             } else {
-                // Type chip strip
-                Box(
+                // Scrollable content area
+                Column(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .background(HLColors.SurfaceContainerLow)
-                        .padding(horizontal = 20.dp, vertical = 12.dp)
+                        .weight(1f)
+                        .verticalScroll(rememberScrollState())
                 ) {
-                    HLTypeChip(type = state.record.type)
-                }
-                
-                // REST_OFF banner (conditional)
-                if (state.restOnTime != null && state.restElapsedMinutes != null) {
-                    HLRestHintBanner(
-                        restOnTime = state.restOnTime,
-                        elapsedMinutes = state.restElapsedMinutes
-                    )
-                }
-                
-                // Date row
-                DateFieldRow(
-                    dateText = state.dateText,
-                    onDateChange = { callbacks.updateDate(it) },
-                    onSubtract = { callbacks.adjustDate(-1) },
-                    onAdd = { callbacks.adjustDate(1) }
-                )
-                
-                // Time row
-                TimeFieldRow(
-                    timeText = state.timeText,
-                    timeError = null,
-                    onTimeChange = { callbacks.updateTime(it) },
-                    onSubtract = { callbacks.adjustTime(-1) },
-                    onAdd = { callbacks.adjustTime(1) },
-                    onShortcut = { minutes ->
-                        if (minutes == 0) callbacks.setTimeToNow()
-                        else callbacks.adjustTime(minutes)
-                    }
-                )
-                
-                // Note row - fills remaining space
-                NoteFieldRow(
-                    label = stringResource(recordFieldLabel(state.record.type)),
-                    placeholder = stringResource(Res.string.record_placeholder),
-                    text = state.record.text,
-                    onTextChange = { callbacks.updateText(it) },
-                    focusRequester = focusRequester,
-                    modifier = Modifier.weight(1f)
-                )
-                
-                // Date/Time error message
-                if (state.validationError != null) {
+                    // Type chip strip
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .background(HLColors.ErrorContainer)
+                            .background(HLColors.SurfaceContainerLow)
                             .padding(horizontal = 20.dp, vertical = 12.dp)
                     ) {
-                        Text(
-                            text = state.validationError,
-                            style = HLTypography.bodyMedium,
-                            color = HLColors.OnErrorContainer
+                        HLTypeChip(type = state.record.type)
+                    }
+                    
+                    // REST_OFF banner (conditional)
+                    if (state.restOnTime != null && state.restElapsedMinutes != null) {
+                        HLRestHintBanner(
+                            restOnTime = state.restOnTime,
+                            elapsedMinutes = state.restElapsedMinutes
                         )
+                    }
+                    
+                    // Date row
+                    DateFieldRow(
+                        dateText = state.dateText,
+                        onDateChange = { callbacks.updateDate(it) },
+                        onSubtract = { callbacks.adjustDate(-1) },
+                        onAdd = { callbacks.adjustDate(1) }
+                    )
+                    
+                    // Time row
+                    TimeFieldRow(
+                        timeText = state.timeText,
+                        timeError = null,
+                        onTimeChange = { callbacks.updateTime(it) },
+                        onSubtract = { callbacks.adjustTime(-1) },
+                        onAdd = { callbacks.adjustTime(1) },
+                        onShortcut = { minutes ->
+                            if (minutes == 0) callbacks.setTimeToNow()
+                            else callbacks.adjustTime(minutes)
+                        }
+                    )
+                    
+                    // Note row
+                    NoteFieldRow(
+                        label = stringResource(recordFieldLabel(state.record.type)),
+                        placeholder = stringResource(Res.string.record_placeholder),
+                        text = state.record.text,
+                        onTextChange = { callbacks.updateText(it) },
+                        focusRequester = focusRequester,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = HLSpacing.xxxl)
+                    )
+                    
+                    // Date/Time error message
+                    if (state.validationError != null) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(HLColors.ErrorContainer)
+                                .padding(horizontal = 20.dp, vertical = 12.dp)
+                        ) {
+                            Text(
+                                text = state.validationError,
+                                style = HLTypography.bodyMedium,
+                                color = HLColors.OnErrorContainer
+                            )
+                        }
                     }
                 }
                 
-                // Save bar
+                // Save bar - fixed at bottom
                 HLSaveBar(
                     label = stringResource(Res.string.save),
                     enabled = state.canSave,
