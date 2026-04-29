@@ -3,8 +3,10 @@ package org.gmautostop.hitchlogmp.ui.recordedit
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
@@ -178,25 +180,26 @@ private fun EditRecordContent(
                         text = state.record.text,
                         onTextChange = { callbacks.updateText(it) },
                         focusRequester = focusRequester,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(bottom = HLSpacing.xxxl)
+                        modifier = Modifier.fillMaxWidth()
                     )
                     
-                    // Date/Time error message
-                    if (state.validationError != null) {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .background(HLColors.ErrorContainer)
-                                .padding(horizontal = 20.dp, vertical = 12.dp)
-                        ) {
-                            Text(
-                                text = state.validationError,
-                                style = HLTypography.bodyMedium,
-                                color = HLColors.OnErrorContainer
-                            )
-                        }
+                    // Bottom padding to ensure content can scroll above keyboard
+                    Spacer(modifier = Modifier.height(HLSpacing.xxxl))
+                }
+                
+                // Date/Time error message - attached above save bar
+                if (state.validationError != null) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(HLColors.ErrorContainer)
+                            .padding(horizontal = 20.dp, vertical = 12.dp)
+                    ) {
+                        Text(
+                            text = state.validationError,
+                            style = HLTypography.bodyMedium,
+                            color = HLColors.OnErrorContainer
+                        )
                     }
                 }
                 
