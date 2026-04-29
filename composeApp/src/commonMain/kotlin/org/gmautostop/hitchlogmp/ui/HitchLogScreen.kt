@@ -1,8 +1,7 @@
 package org.gmautostop.hitchlogmp.ui
 
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,28 +11,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.DirectionsWalk
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Apps
-import androidx.compose.material.icons.filled.Cancel
-import androidx.compose.material.icons.filled.DirectionsCar
-import androidx.compose.material.icons.filled.Flag
-import androidx.compose.material.icons.filled.Hotel
-import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material.icons.filled.KeyboardArrowUp
-import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material.icons.filled.PauseCircle
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
@@ -41,49 +26,33 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import hitchlogmp.composeapp.generated.resources.Res
 import hitchlogmp.composeapp.generated.resources.chronicle_empty
 import hitchlogmp.composeapp.generated.resources.different_record_type
-import hitchlogmp.composeapp.generated.resources.more_actions
 import hitchlogmp.composeapp.generated.resources.new_record
-import hitchlogmp.composeapp.generated.resources.offside_on
-import hitchlogmp.composeapp.generated.resources.rest_left
-import hitchlogmp.composeapp.generated.resources.rest_used
-import hitchlogmp.composeapp.generated.resources.retire
 import hitchlogmp.composeapp.generated.resources.start
-import hitchlogmp.composeapp.generated.resources.status_finished
-import hitchlogmp.composeapp.generated.resources.status_in_car
 import org.gmautostop.hitchlogmp.domain.HitchLogRecordType
-import org.gmautostop.hitchlogmp.domain.LiveState
-import org.gmautostop.hitchlogmp.domain.LiveStatus
-import org.gmautostop.hitchlogmp.domain.formatMinutes
-import org.gmautostop.hitchlogmp.timeFormat
 import org.gmautostop.hitchlogmp.ui.designsystem.components.ActionButtonSize
 import org.gmautostop.hitchlogmp.ui.designsystem.components.HLActionButton
 import org.gmautostop.hitchlogmp.ui.designsystem.components.HLBottomSheet
 import org.gmautostop.hitchlogmp.ui.designsystem.components.HLEmptyState
-import org.gmautostop.hitchlogmp.ui.designsystem.components.HLStatCell
-import org.gmautostop.hitchlogmp.ui.designsystem.components.HLStatusBadge
 import org.gmautostop.hitchlogmp.ui.designsystem.components.HLTopBar
 import org.gmautostop.hitchlogmp.ui.designsystem.theme.HLTheme
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLColors
-import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLShapes
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLSpacing
-import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLTypography
 import org.gmautostop.hitchlogmp.ui.preview.HitchLogStateProvider
 import org.gmautostop.hitchlogmp.ui.viewmodel.HitchLogState
 import org.gmautostop.hitchlogmp.ui.viewmodel.HitchLogViewModel
-import org.gmautostop.hitchlogmp.ui.viewmodel.SummaryCardState
 import org.gmautostop.hitchlogmp.ui.viewmodel.ViewState
 import org.jetbrains.compose.resources.stringResource
 
@@ -122,15 +91,44 @@ private fun HitchLog(
     createRecord: (HitchLogRecordType) -> Unit,
     editRecord: (id: String) -> Unit,
 ) {
+    val density = LocalDensity.current
     val listState = rememberLazyListState()
     val scrolled by remember { derivedStateOf { listState.firstVisibleItemIndex > 0 || listState.firstVisibleItemScrollOffset > 0 } }
     val isEmpty = state.records.isEmpty()
 
-    var quickCollapsed by remember { mutableStateOf(true) }
+    // Measured heights of QuickActions panel (null until first measurement)
+    var collapsedHeight by remember { mutableStateOf<Dp?>(null) }
+    var expandedHeight by remember { mutableStateOf<Dp?>(null) }
+
+    var quickCollapsed by remember { mutableStateOf(false) }
     var sheetOpen by remember { mutableStateOf(false) }
+
+    // Animated bottom padding based on panel height
+    val animatedPanelHeight by animateDpAsState(
+        targetValue = if (quickCollapsed) (collapsedHeight ?: 0.dp) else (expandedHeight ?: 0.dp),
+        label = "panelHeight"
+    )
+
+    // Scroll tracking for panel-expand compensation
+    var wasAtBottom by remember { mutableStateOf(false) }
+    var lastPanelHeight by remember { mutableStateOf(0.dp) }
 
     val groups = remember(state.records) {
         state.records.sortedBy { it.time }.groupBy { it.time.date }.entries.toList()
+    }
+
+    // Frame-accurate scroll compensation while panel expands
+    LaunchedEffect(Unit) {
+        snapshotFlow { animatedPanelHeight }
+            .collect { newHeight ->
+                val delta = newHeight - lastPanelHeight
+                if (delta > 0.dp && wasAtBottom) {
+                    listState.scroll { scrollBy(with(density) { delta.toPx() }) }
+                } else if (delta <= 0.dp) {
+                    wasAtBottom = false
+                }
+                lastPanelHeight = newHeight
+            }
     }
 
     LaunchedEffect(state.records.size) {
@@ -199,9 +197,19 @@ private fun HitchLog(
                         QuickActions(
                             ladder = state.ladder,
                             collapsed = quickCollapsed,
-                            onToggle = { quickCollapsed = !quickCollapsed },
+                            onToggle = {
+                                wasAtBottom = !listState.canScrollForward
+                                quickCollapsed = !quickCollapsed
+                            },
                             onPick = { type -> createRecord(type) },
                             onMore = { sheetOpen = true },
+                            onHeightMeasured = { isCollapsed, height ->
+                                if (isCollapsed) {
+                                    collapsedHeight = height
+                                } else {
+                                    expandedHeight = height
+                                }
+                            },
                             modifier = Modifier.align(Alignment.BottomCenter),
                         )
                     }
@@ -238,244 +246,6 @@ private fun HitchLog(
                 }
             )
         }
-    }
-}
-
-// ── SummaryCard ───────────────────────────────────────────────────────────────
-
-@Composable
-private fun SummaryCard(summary: SummaryCardState) {
-    var showUsed by remember { mutableStateOf(true) }
-
-    Column(
-        Modifier
-            .padding(start = HLSpacing.xl, end = HLSpacing.xl, top = HLSpacing.lg, bottom = HLSpacing.xs)
-            .fillMaxWidth()
-            .clip(HLShapes.medium)
-            .background(HLColors.PrimaryContainer)
-            .padding(HLSpacing.xl)
-    ) {
-        Row(Modifier.fillMaxWidth()) {
-            HLStatCell(
-                icon = Icons.Filled.DirectionsCar,
-                value = "${summary.lifts}",
-                modifier = Modifier.weight(1f)
-            )
-            HLStatCell(
-                icon = Icons.Filled.LocationOn,
-                value = "${summary.checkpoints}",
-                modifier = Modifier.weight(1f)
-            )
-            HLStatCell(
-                icon = Icons.Filled.Hotel,
-                value = formatMinutes(summary.restMin),
-                label = if (showUsed) stringResource(Res.string.rest_used) else stringResource(Res.string.rest_left),
-                onClick = { showUsed = !showUsed },
-                modifier = Modifier.weight(1f),
-                align = Alignment.End
-            )
-        }
-
-        if (summary.liveState != null) {
-            Spacer(Modifier.height(HLSpacing.lg))
-            Row(horizontalArrangement = Arrangement.spacedBy(HLSpacing.sm)) {
-                LiveStatusBadge(summary.liveState)
-            }
-        }
-    }
-}
-
-@Composable
-private fun LiveStatusBadge(state: LiveState) {
-    val (bg, fg, icon, label) = when (state.status) {
-        LiveStatus.IN_CAR  -> BadgeStyle(HLColors.Secondary, HLColors.OnSecondary, Icons.Filled.DirectionsCar, stringResource(Res.string.status_in_car))
-        LiveStatus.REST    -> BadgeStyle(HLColors.SurfaceVariant, HLColors.OnSurfaceVariant, Icons.Filled.Hotel, "Отдых")
-        LiveStatus.OFFSIDE -> BadgeStyle(HLColors.ErrorContainer, HLColors.OnErrorContainer, Icons.Filled.PauseCircle, stringResource(Res.string.offside_on))
-        LiveStatus.FINISH  -> BadgeStyle(HLColors.Primary, HLColors.OnPrimary, Icons.Filled.Flag, stringResource(Res.string.status_finished))
-        LiveStatus.RETIRE  -> BadgeStyle(HLColors.Error, HLColors.OnError, Icons.Filled.Cancel, stringResource(Res.string.retire))
-    }
-    val sinceLabel = state.since?.let { "· с ${timeFormat.format(it)}" }
-
-    HLStatusBadge(
-        icon = icon,
-        label = label,
-        backgroundColor = bg,
-        foregroundColor = fg,
-        subtitle = sinceLabel
-    )
-}
-
-private data class BadgeStyle(
-    val bg: androidx.compose.ui.graphics.Color,
-    val fg: androidx.compose.ui.graphics.Color,
-    val icon: ImageVector,
-    val label: String
-)
-
-// ── QuickActions ──────────────────────────────────────────────────────────────
-
-@Composable
-private fun QuickActions(
-    ladder: List<HitchLogRecordType>,
-    collapsed: Boolean,
-    onToggle: () -> Unit,
-    onPick: (HitchLogRecordType) -> Unit,
-    onMore: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    val top = ladder.getOrNull(0)
-    val second = ladder.getOrNull(1)
-    val medium = ladder.drop(2).take(3)
-
-    Box(modifier.fillMaxWidth()) {
-        if (collapsed) {
-            if (top != null) {
-                val topLabel = stringResource(top.toStringResource())
-                Row(
-                    Modifier
-                        .align(Alignment.BottomEnd)
-                        .padding(end = HLSpacing.lg, bottom = HLSpacing.lg)
-                        .clip(HLShapes.large)
-                        .background(HLColors.Primary),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Row(
-                        Modifier
-                            .clickable { onPick(top) }
-                            .padding(start = 18.dp, end = 14.dp, top = HLSpacing.xl, bottom = HLSpacing.xl),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(10.dp)
-                    ) {
-                        Icon(
-                            Icons.Filled.Add,
-                            contentDescription = null,
-                            tint = HLColors.OnPrimary,
-                            modifier = Modifier.size(22.dp)
-                        )
-                        Text(
-                            topLabel,
-                            style = HLTypography.labelLarge,
-                            color = HLColors.OnPrimary
-                        )
-                    }
-                    Box(
-                        Modifier
-                            .width(1.dp)
-                            .height(36.dp)
-                            .background(HLColors.OnPrimary.copy(alpha = 0.25f))
-                    )
-                    Box(
-                        Modifier
-                            .size(48.dp)
-                            .clickable { onToggle() },
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            Icons.Filled.KeyboardArrowUp,
-                            contentDescription = "Развернуть",
-                            tint = HLColors.OnPrimary,
-                            modifier = Modifier.size(22.dp)
-                        )
-                    }
-                }
-            }
-        } else {
-            Column(
-                Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp))
-                    .background(HLColors.Surface)
-                    .border(
-                        width = 1.dp,
-                        color = HLColors.OutlineVariant,
-                        shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)
-                    )
-                    .padding(start = HLSpacing.lg, end = HLSpacing.lg, bottom = HLSpacing.lg)
-            ) {
-                Row(
-                    Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.End
-                ) {
-                    IconButton(onClick = onToggle) {
-                        Icon(
-                            Icons.Filled.KeyboardArrowDown,
-                            contentDescription = "Свернуть",
-                            tint = HLColors.OnSurfaceVariant
-                        )
-                    }
-                }
-
-                Row(
-                    Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(HLSpacing.md)
-                ) {
-                    if (top != null) {
-                        HLActionButton(
-                            type = top,
-                            size = ActionButtonSize.BIG,
-                            highlight = true,
-                            onClick = { onPick(top) },
-                            modifier = Modifier.weight(1f)
-                        )
-                    }
-                    if (second != null) {
-                        HLActionButton(
-                            type = second,
-                            size = ActionButtonSize.BIG,
-                            onClick = { onPick(second) },
-                            modifier = Modifier.weight(1f)
-                        )
-                    }
-                }
-
-                Spacer(Modifier.height(HLSpacing.md))
-
-                Row(
-                    Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(HLSpacing.md)
-                ) {
-                    medium.forEach { type ->
-                        HLActionButton(
-                            type = type,
-                            size = ActionButtonSize.MEDIUM,
-                            onClick = { onPick(type) },
-                            modifier = Modifier.weight(1f)
-                        )
-                    }
-                    MoreTile(
-                        onClick = onMore,
-                        modifier = Modifier.weight(1f)
-                    )
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun MoreTile(onClick: () -> Unit, modifier: Modifier = Modifier) {
-    Row(
-        modifier
-            .height(44.dp)
-            .clip(HLShapes.medium)
-            .background(HLColors.PrimaryContainer)
-            .clickable(onClick = onClick)
-            .padding(horizontal = HLSpacing.md),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.Center
-    ) {
-        Icon(
-            Icons.Filled.Apps,
-            contentDescription = null,
-            tint = HLColors.Primary,
-            modifier = Modifier.size(18.dp)
-        )
-        Spacer(Modifier.width(HLSpacing.sm))
-        Text(
-            stringResource(Res.string.more_actions),
-            style = HLTypography.labelMedium.copy(fontWeight = FontWeight.Medium),
-            color = HLColors.OnPrimaryContainer
-        )
     }
 }
 
