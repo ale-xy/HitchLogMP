@@ -51,6 +51,22 @@ actual fun shareFile(content: String, mimeType: String, fileName: String) {
 }
 
 @OptIn(ExperimentalForeignApi::class)
+actual fun shareFileBytes(content: ByteArray, mimeType: String, fileName: String) {
+    val filePath = NSTemporaryDirectory() + fileName
+    val data = content.toNSData()
+    data.writeToFile(filePath, atomically = true)
+    
+    val url = NSURL.fileURLWithPath(filePath)
+    val activityVC = UIActivityViewController(listOf(url), null)
+    
+    // Get the key window and present from its root view controller
+    val keyWindow = UIApplication.sharedApplication.keyWindow
+    val rootVC = keyWindow?.rootViewController() as? UIViewController
+    
+    rootVC?.presentViewController(activityVC, animated = true, completion = null)
+}
+
+@OptIn(ExperimentalForeignApi::class)
 private fun ByteArray.toNSData(): NSData {
     return this.usePinned { pinned ->
         NSData.create(bytes = pinned.addressOf(0), length = this.size.toULong())

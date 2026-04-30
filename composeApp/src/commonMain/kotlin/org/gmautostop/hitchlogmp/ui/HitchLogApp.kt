@@ -71,7 +71,7 @@ fun HitchLogApp(navController: NavHostController) {
                 composable<Screen.Log> { backStackEntry ->
                     val hitchLog: Screen.Log = backStackEntry.toRoute()
                     HitchLogScreen(
-                        koinViewModel<HitchLogViewModel> { parametersOf(hitchLog.logId) },
+                        viewModel = koinViewModel<HitchLogViewModel> { parametersOf(hitchLog.logId) },
                         navigateUp = { navController.navigateUp() },
                         createRecord = { type ->
                             navController.navigate(Screen.EditRecord(logId = hitchLog.logId, recordType = type))

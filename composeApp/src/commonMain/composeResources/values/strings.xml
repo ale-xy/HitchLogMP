@@ -80,6 +80,7 @@
     <string name="export_text">Текст</string>
     <string name="export_csv">CSV</string>
     <string name="export_html">HTML</string>
+    <string name="export_xlsx">XLSX</string>
     <string name="export_preparing">Подготовка...</string>
     <string name="export_error">Ошибка: %1$s</string>
 </resources>

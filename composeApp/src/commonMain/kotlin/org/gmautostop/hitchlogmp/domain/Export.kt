@@ -20,14 +20,23 @@ import kotlinx.html.thead
 import kotlinx.html.title
 import kotlinx.html.tr
 import kotlinx.html.unsafe
+import kotlinx.serialization.Serializable
 import org.gmautostop.hitchlogmp.dateFormat
 import org.gmautostop.hitchlogmp.formatDateLocale
 import org.gmautostop.hitchlogmp.timeFormatForDisplay
+
+/**
+ * Annotation to specify Excel column name for XLSX export.
+ */
+@Target(AnnotationTarget.PROPERTY)
+@Retention(AnnotationRetention.RUNTIME)
+annotation class ExcelColumn(val name: String, val ignore: Boolean = false)
 
 object MimeTypes {
     const val TEXT_PLAIN = "text/plain"
     const val TEXT_CSV = "text/csv"
     const val TEXT_HTML = "text/html"
+    const val APPLICATION_XLSX = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
 }
 
 private val moscowTZ = TimeZone.of("Europe/Moscow")
@@ -51,6 +60,34 @@ private val typeLabels = mapOf(
     HitchLogRecordType.RETIRE to "Сход",
     HitchLogRecordType.FREE_TEXT to "Прочее",
 )
+
+/**
+ * DTO for XLSX export with column headers defined via @ExcelColumn annotations.
+ */
+@Serializable
+data class HitchLogRecordExportRow(
+    @ExcelColumn("Дата") val date: String,
+    @ExcelColumn("Время") val time: String,
+    @ExcelColumn("Тип") val type: String,
+    @ExcelColumn("Примечание") val note: String
+)
+
+/**
+ * Formats hitchhiking records as XLSX export rows.
+ * Converts times to Moscow timezone and sorts chronologically.
+ */
+fun formatAsXlsxRows(records: List<HitchLogRecord>): List<HitchLogRecordExportRow> =
+    records
+        .map { it.copy(time = toMoscow(it.time)) }
+        .sortedBy { it.time }
+        .map { record ->
+            HitchLogRecordExportRow(
+                date = dateFormat.format(record.time.date),
+                time = timeFormatForDisplay.format(record.time),
+                type = typeLabels[record.type] ?: record.type.name,
+                note = record.text
+            )
+        }
 
 fun formatAsTxt(log: HitchLog, records: List<HitchLogRecord>): String = buildString {
     append(log.name)

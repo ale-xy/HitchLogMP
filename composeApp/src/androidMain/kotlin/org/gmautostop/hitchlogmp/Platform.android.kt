@@ -82,6 +82,51 @@ actual fun shareFile(content: String, mimeType: String, fileName: String) {
     }
 }
 
+actual fun shareFileBytes(content: ByteArray, mimeType: String, fileName: String) {
+    val context = AndroidShareHelper.getContext()
+    val file = File(context.cacheDir, fileName)
+    
+    file.writeBytes(content)
+    
+    val uri = FileProvider.getUriForFile(
+        context,
+        "${context.packageName}.fileprovider",
+        file
+    )
+    
+    // For XLSX files, offer both VIEW and SEND options
+    if (mimeType == MimeTypes.APPLICATION_XLSX) {
+        val viewIntent = Intent(Intent.ACTION_VIEW).apply {
+            setDataAndType(uri, mimeType)
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        }
+
+        val sendIntent = Intent(Intent.ACTION_SEND).apply {
+            type = mimeType
+            putExtra(Intent.EXTRA_STREAM, uri)
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        }
+        
+        val chooser = Intent.createChooser(viewIntent, null).apply {
+            putExtra(Intent.EXTRA_INITIAL_INTENTS, arrayOf(sendIntent))
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
+        
+        context.startActivity(chooser)
+    } else {
+        val intent = Intent(Intent.ACTION_SEND).apply {
+            type = mimeType
+            putExtra(Intent.EXTRA_STREAM, uri)
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
+        
+        context.startActivity(Intent.createChooser(intent, null).apply {
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        })
+    }
+}
+
 private object AndroidShareHelper : KoinComponent {
     fun getContext(): Context {
         val context: Context by inject()

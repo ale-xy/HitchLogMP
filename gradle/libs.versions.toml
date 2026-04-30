@@ -10,11 +10,13 @@ compose-plugin = "1.10.3"
 firebaseBom = "34.12.0"
 foundation = "1.10.3"
 kmpauth = "2.3.1"
+kmp-zip = "0.10.0"
 kotlin = "2.3.21"
 gradlePlugins-google-services = "4.4.4"
 firebase-gitlive-sdk = "2.4.0"
 kotlinxDatetime = "0.7.1"
 kotlinxHtml = "0.12.0"
+kotlinxSerializationJson = "1.7.3"
 logging = "1.5.0"
 material = "1.10.3"
 material3 = "1.9.0"
@@ -31,6 +33,7 @@ uiToolingPreview = "1.10.3"
 components-resources = { module = "org.jetbrains.compose.components:components-resources", version.ref = "componentsResources" }
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
 foundation = { module = "org.jetbrains.compose.foundation:foundation", version.ref = "foundation" }
+kmp-zip = { module = "no.synth:kmp-zip", version.ref = "kmp-zip" }
 kmpauth-firebase = { module = "io.github.mirzemehdi:kmpauth-firebase", version.ref = "kmpauth" }
 kmpauth-google = { module = "io.github.mirzemehdi:kmpauth-google", version.ref = "kmpauth" }
 kmpauth-uihelper = { module = "io.github.mirzemehdi:kmpauth-uihelper", version.ref = "kmpauth" }
@@ -44,6 +47,7 @@ gitlive-firebase-auth = { module = "dev.gitlive:firebase-auth", version.ref = "f
 gitlive-firebase-firestore = { module = "dev.gitlive:firebase-firestore", version.ref = "firebase-gitlive-sdk" }
 kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinxDatetime" }
 kotlinx-html = { module = "org.jetbrains.kotlinx:kotlinx-html", version.ref = "kotlinxHtml" }
+kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
 logging = { module = "org.lighthousegames:logging", version.ref = "logging" }
 material = { module = "org.jetbrains.compose.material:material", version.ref = "material" }
 material-icons-extended = { module = "org.jetbrains.compose.material:material-icons-extended", version.ref = "materialIconsExtended" }

@@ -49,6 +49,7 @@ import hitchlogmp.composeapp.generated.resources.export_html
 import hitchlogmp.composeapp.generated.resources.export_preparing
 import hitchlogmp.composeapp.generated.resources.export_text
 import hitchlogmp.composeapp.generated.resources.export_title
+import hitchlogmp.composeapp.generated.resources.export_xlsx
 import hitchlogmp.composeapp.generated.resources.new_record
 import hitchlogmp.composeapp.generated.resources.start
 import org.gmautostop.hitchlogmp.domain.HitchLogRecordType
@@ -112,6 +113,7 @@ fun HitchLogScreen(
                 onExportTxt = { viewModel.exportAsTxt() },
                 onExportCsv = { viewModel.exportAsCsv() },
                 onExportHtml = { viewModel.exportAsHtml() },
+                onExportXlsx = { viewModel.exportAsXlsx() },
             )
         }
     }
@@ -129,6 +131,7 @@ private fun HitchLog(
     onExportTxt: () -> Unit,
     onExportCsv: () -> Unit,
     onExportHtml: () -> Unit,
+    onExportXlsx: () -> Unit,
 ) {
     val density = LocalDensity.current
     val listState = rememberLazyListState()
@@ -227,6 +230,14 @@ private fun HitchLog(
                                 onClick = {
                                     menuExpanded = false
                                     onExportHtml()
+                                },
+                                enabled = !isEmpty
+                            )
+                            DropdownMenuItem(
+                                text = { Text(stringResource(Res.string.export_xlsx)) },
+                                onClick = {
+                                    menuExpanded = false
+                                    onExportXlsx()
                                 },
                                 enabled = !isEmpty
                             )
@@ -354,6 +365,7 @@ private fun HitchLogScreenPreview(
                         onExportTxt = {},
                         onExportCsv = {},
                         onExportHtml = {},
+                        onExportXlsx = {},
                     )
                 }
             }

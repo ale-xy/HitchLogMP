@@ -41,7 +41,6 @@ kotlin {
     }
     
     listOf(
-        iosX64(),
         iosArm64(),
         iosSimulatorArm64()
     ).forEach { iosTarget ->
@@ -87,6 +86,8 @@ kotlin {
             api(libs.logging)
             implementation(libs.kotlinx.datetime)
             implementation(libs.kotlinx.html)
+            implementation(libs.kotlinx.serialization.json)
+            implementation(libs.kmp.zip)
         }
     }
 }

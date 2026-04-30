@@ -26,8 +26,11 @@ import org.gmautostop.hitchlogmp.domain.computeRestMinutes
 import org.gmautostop.hitchlogmp.domain.formatAsCsv
 import org.gmautostop.hitchlogmp.domain.formatAsHtml
 import org.gmautostop.hitchlogmp.domain.formatAsTxt
+import org.gmautostop.hitchlogmp.domain.formatAsXlsxRows
+import org.gmautostop.hitchlogmp.domain.generateXlsxBytes
 import org.gmautostop.hitchlogmp.domain.nextActionLadder
 import org.gmautostop.hitchlogmp.shareFile
+import org.gmautostop.hitchlogmp.shareFileBytes
 import org.gmautostop.hitchlogmp.ui.viewmodel.ViewState
 import org.lighthousegames.logging.logging
 
@@ -85,16 +88,27 @@ class HitchLogViewModel(
         }
     }
 
-    fun exportAsTxt() = exportAs(MimeTypes.TEXT_PLAIN, "txt", ::formatAsTxt)
+    fun exportAsTxt() = exportAs(MimeTypes.TEXT_PLAIN, "txt") { log, records ->
+        formatAsTxt(log, records)
+    }
     
-    fun exportAsCsv() = exportAs(MimeTypes.TEXT_CSV, "csv", ::formatAsCsv)
+    fun exportAsCsv() = exportAs(MimeTypes.TEXT_CSV, "csv") { log, records ->
+        formatAsCsv(log, records)
+    }
     
-    fun exportAsHtml() = exportAs(MimeTypes.TEXT_HTML, "html", ::formatAsHtml)
+    fun exportAsHtml() = exportAs(MimeTypes.TEXT_HTML, "html") { log, records ->
+        formatAsHtml(log, records)
+    }
+
+    fun exportAsXlsx() = exportAs(MimeTypes.APPLICATION_XLSX, "xlsx") { log, records ->
+        val rows = formatAsXlsxRows(records)
+        generateXlsxBytes(rows)
+    }
 
     private fun exportAs(
         mimeType: String,
         extension: String,
-        formatter: (HitchLog, List<HitchLogRecord>) -> String
+        formatter: suspend (HitchLog, List<HitchLogRecord>) -> Any
     ) {
         viewModelScope.launch {
             try {
@@ -110,13 +124,27 @@ class HitchLogViewModel(
                     val content = withContext(Dispatchers.Default) {
                         formatter(log, hitchLogState.records)
                     }
-                    shareFile(content, mimeType, "${log.name}.$extension")
+                    val fileName = sanitizeFileName(log.name)
+                    when (content) {
+                        is String -> shareFile(content, mimeType, "$fileName.$extension")
+                        is ByteArray -> shareFileBytes(content, mimeType, "$fileName.$extension")
+                        else -> throw IllegalStateException("Unsupported export format: ${content::class}")
+                    }
                 }
             } catch (e: Exception) {
                 logger.e(e) { "Export $extension failed" }
                 _exportEvents.emit(ExportEvent.Error(e.message ?: "Unknown error"))
             }
         }
+    }
+
+    /**
+     * Sanitizes a file name by trimming whitespace and replacing invalid characters.
+     */
+    private fun sanitizeFileName(name: String): String {
+        return name.trim()
+            .replace(Regex("[/\\\\:*?\"<>|]"), "_")
+            .ifEmpty { "export" }
     }
 
     companion object {
