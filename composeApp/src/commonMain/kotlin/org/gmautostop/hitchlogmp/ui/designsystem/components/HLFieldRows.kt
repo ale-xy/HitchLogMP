@@ -4,7 +4,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
@@ -249,10 +248,9 @@ fun TimeFieldRow(
 }
 
 /**
- * Note field row with icon, label, and multiline text field.
+ * Note field row with icon and multiline text field.
  * Used in EditRecordScreen for free-form text input.
  *
- * @param label Field label (type-aware)
  * @param placeholder Placeholder text (type-aware)
  * @param text Current text value
  * @param onTextChange Callback when text changes
@@ -261,7 +259,6 @@ fun TimeFieldRow(
  */
 @Composable
 fun NoteFieldRow(
-    label: String,
     placeholder: String,
     text: String,
     onTextChange: (String) -> Unit,
@@ -291,49 +288,40 @@ fun NoteFieldRow(
                     .size(24.dp)
                     .padding(top = 2.dp)
             )
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = label,
-                    style = HLTypography.labelSmall,
-                    color = HLColors.OnSurfaceVariant
-                )
-                Spacer(Modifier.height(4.dp))
-                
-                BasicTextField(
-                    value = text,
-                    onValueChange = { newText ->
-                        onTextChange(newText)
-                        coroutineScope.launch {
-                            bringIntoViewRequester.bringIntoView()
-                        }
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .heightIn(min = 100.dp)
-                        .bringIntoViewRequester(bringIntoViewRequester)
-                        .then(focusRequester?.let { Modifier.focusRequester(it) } ?: Modifier),
-                    textStyle = TextStyle(
-                        fontSize = 18.sp,
-                        lineHeight = 25.sp,
-                        color = HLColors.OnSurface
-                    ),
-                    maxLines = Int.MAX_VALUE,
-                    cursorBrush = SolidColor(HLColors.Primary),
-                    decorationBox = { innerTextField ->
-                        if (text.isEmpty()) {
-                            Text(
-                                text = placeholder,
-                                style = TextStyle(
-                                    fontSize = 18.sp,
-                                    lineHeight = 25.sp,
-                                    color = HLColors.OutlineVariant
-                                )
-                            )
-                        }
-                        innerTextField()
+            BasicTextField(
+                value = text,
+                onValueChange = { newText ->
+                    onTextChange(newText)
+                    coroutineScope.launch {
+                        bringIntoViewRequester.bringIntoView()
                     }
-                )
-            }
+                },
+                modifier = Modifier
+                    .weight(1f)
+                    .heightIn(min = 100.dp)
+                    .bringIntoViewRequester(bringIntoViewRequester)
+                    .then(focusRequester?.let { Modifier.focusRequester(it) } ?: Modifier),
+                textStyle = TextStyle(
+                    fontSize = 18.sp,
+                    lineHeight = 25.sp,
+                    color = HLColors.OnSurface
+                ),
+                maxLines = Int.MAX_VALUE,
+                cursorBrush = SolidColor(HLColors.Primary),
+                decorationBox = { innerTextField ->
+                    if (text.isEmpty()) {
+                        Text(
+                            text = placeholder,
+                            style = TextStyle(
+                                fontSize = 18.sp,
+                                lineHeight = 25.sp,
+                                color = HLColors.OutlineVariant
+                            )
+                        )
+                    }
+                    innerTextField()
+                }
+            )
         }
     }
 }
@@ -395,8 +383,7 @@ private fun NoteFieldRowPreview() {
     HLTheme {
         Column(Modifier.padding(16.dp)) {
             NoteFieldRow(
-                label = "Марка автомобиля",
-                placeholder = "Например: Volvo XC60, Михаил, до Зеленогорска",
+                placeholder = "Марка автомобиля",
                 text = "",
                 onTextChange = { }
             )
