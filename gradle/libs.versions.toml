@@ -14,6 +14,7 @@ kotlin = "2.3.21"
 gradlePlugins-google-services = "4.4.4"
 firebase-gitlive-sdk = "2.4.0"
 kotlinxDatetime = "0.7.1"
+kotlinxHtml = "0.12.0"
 logging = "1.5.0"
 material = "1.10.3"
 material3 = "1.9.0"
@@ -42,6 +43,7 @@ androidx-lifecycle-runtime-compose = { group = "org.jetbrains.androidx.lifecycle
 gitlive-firebase-auth = { module = "dev.gitlive:firebase-auth", version.ref = "firebase-gitlive-sdk" }
 gitlive-firebase-firestore = { module = "dev.gitlive:firebase-firestore", version.ref = "firebase-gitlive-sdk" }
 kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinxDatetime" }
+kotlinx-html = { module = "org.jetbrains.kotlinx:kotlinx-html", version.ref = "kotlinxHtml" }
 logging = { module = "org.lighthousegames:logging", version.ref = "logging" }
 material = { module = "org.jetbrains.compose.material:material", version.ref = "material" }
 material-icons-extended = { module = "org.jetbrains.compose.material:material-icons-extended", version.ref = "materialIconsExtended" }

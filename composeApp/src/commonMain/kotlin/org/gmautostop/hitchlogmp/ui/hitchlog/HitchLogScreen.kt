@@ -16,9 +16,14 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.DirectionsWalk
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
@@ -38,6 +43,12 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import hitchlogmp.composeapp.generated.resources.Res
 import hitchlogmp.composeapp.generated.resources.chronicle_empty
 import hitchlogmp.composeapp.generated.resources.different_record_type
+import hitchlogmp.composeapp.generated.resources.export_csv
+import hitchlogmp.composeapp.generated.resources.export_error
+import hitchlogmp.composeapp.generated.resources.export_html
+import hitchlogmp.composeapp.generated.resources.export_preparing
+import hitchlogmp.composeapp.generated.resources.export_text
+import hitchlogmp.composeapp.generated.resources.export_title
 import hitchlogmp.composeapp.generated.resources.new_record
 import hitchlogmp.composeapp.generated.resources.start
 import org.gmautostop.hitchlogmp.domain.HitchLogRecordType
@@ -65,6 +76,27 @@ fun HitchLogScreen(
     editRecord: (id: String) -> Unit,
 ) {
     val state: ViewState<HitchLogState> by viewModel.state.collectAsStateWithLifecycle()
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    // Get string resources in composable context
+    val preparingMessage = stringResource(Res.string.export_preparing)
+    val errorMessageFormat = stringResource(Res.string.export_error, "")
+
+    // Collect export events
+    LaunchedEffect(Unit) {
+        viewModel.exportEvents.collect { event ->
+            when (event) {
+                is HitchLogViewModel.ExportEvent.Preparing -> {
+                    snackbarHostState.showSnackbar(preparingMessage)
+                }
+                is HitchLogViewModel.ExportEvent.Error -> {
+                    snackbarHostState.showSnackbar(
+                        errorMessageFormat.replace("%1\$s", event.message)
+                    )
+                }
+            }
+        }
+    }
 
     when (state) {
         is ViewState.Loading -> Loading()
@@ -76,6 +108,10 @@ fun HitchLogScreen(
                 navigateUp = navigateUp,
                 createRecord = createRecord,
                 editRecord = editRecord,
+                snackbarHostState = snackbarHostState,
+                onExportTxt = { viewModel.exportAsTxt() },
+                onExportCsv = { viewModel.exportAsCsv() },
+                onExportHtml = { viewModel.exportAsHtml() },
             )
         }
     }
@@ -89,11 +125,17 @@ private fun HitchLog(
     navigateUp: () -> Unit,
     createRecord: (HitchLogRecordType) -> Unit,
     editRecord: (id: String) -> Unit,
+    snackbarHostState: SnackbarHostState,
+    onExportTxt: () -> Unit,
+    onExportCsv: () -> Unit,
+    onExportHtml: () -> Unit,
 ) {
     val density = LocalDensity.current
     val listState = rememberLazyListState()
     val scrolled by remember { derivedStateOf { listState.firstVisibleItemIndex > 0 || listState.firstVisibleItemScrollOffset > 0 } }
     val isEmpty = state.records.isEmpty()
+
+    var menuExpanded by remember { mutableStateOf(false) }
 
     // Measured heights of QuickActions panel (null until first measurement)
     var collapsedHeight by remember { mutableStateOf(0.dp) }
@@ -139,6 +181,7 @@ private fun HitchLog(
 
     Scaffold(
         containerColor = HLColors.Background,
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             HLTopBar(
                 title = state.logName,
@@ -146,12 +189,48 @@ private fun HitchLog(
                 scrolled = scrolled,
                 onNavigateUp = navigateUp,
                 actions = {
-                    IconButton(onClick = {}) {
-                        Icon(
-                            imageVector = Icons.Filled.MoreVert,
-                            contentDescription = null,
-                            tint = HLColors.OnSurfaceVariant
-                        )
+                    Box {
+                        IconButton(onClick = { menuExpanded = true }) {
+                            Icon(
+                                imageVector = Icons.Filled.MoreVert,
+                                contentDescription = null,
+                                tint = HLColors.OnSurfaceVariant
+                            )
+                        }
+                        DropdownMenu(
+                            expanded = menuExpanded,
+                            onDismissRequest = { menuExpanded = false }
+                        ) {
+                            DropdownMenuItem(
+                                text = { Text(stringResource(Res.string.export_title)) },
+                                onClick = {},
+                                enabled = false
+                            )
+                            DropdownMenuItem(
+                                text = { Text(stringResource(Res.string.export_text)) },
+                                onClick = {
+                                    menuExpanded = false
+                                    onExportTxt()
+                                },
+                                enabled = !isEmpty
+                            )
+                            DropdownMenuItem(
+                                text = { Text(stringResource(Res.string.export_csv)) },
+                                onClick = {
+                                    menuExpanded = false
+                                    onExportCsv()
+                                },
+                                enabled = !isEmpty
+                            )
+                            DropdownMenuItem(
+                                text = { Text(stringResource(Res.string.export_html)) },
+                                onClick = {
+                                    menuExpanded = false
+                                    onExportHtml()
+                                },
+                                enabled = !isEmpty
+                            )
+                        }
                     }
                 }
             )
@@ -270,7 +349,11 @@ private fun HitchLogScreenPreview(
                         state = hitchLogState,
                         navigateUp = {},
                         createRecord = {},
-                        editRecord = {}
+                        editRecord = {},
+                        snackbarHostState = remember { SnackbarHostState() },
+                        onExportTxt = {},
+                        onExportCsv = {},
+                        onExportHtml = {},
                     )
                 }
             }

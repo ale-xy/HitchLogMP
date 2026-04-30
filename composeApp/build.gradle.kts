@@ -86,6 +86,7 @@ kotlin {
 
             api(libs.logging)
             implementation(libs.kotlinx.datetime)
+            implementation(libs.kotlinx.html)
         }
     }
 }

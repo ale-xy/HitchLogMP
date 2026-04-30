@@ -4,6 +4,7 @@ import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import kotlinx.datetime.LocalDateTime
 import org.gmautostop.hitchlogmp.domain.AppError
 import org.gmautostop.hitchlogmp.domain.HitchLog
+import org.gmautostop.hitchlogmp.domain.HitchLogRecordType
 import org.gmautostop.hitchlogmp.ui.designsystem.preview.sampleFinishedRecords
 import org.gmautostop.hitchlogmp.ui.designsystem.preview.sampleHitchLog
 import org.gmautostop.hitchlogmp.ui.designsystem.preview.sampleHitchLogRecords
@@ -60,7 +61,7 @@ class EditRecordStateProvider : PreviewParameterProvider<EditRecordUiState> {
     override val values = sequenceOf(
         // New LIFT record
         EditRecordUiState(
-            record = sampleRecord(id = "", type = org.gmautostop.hitchlogmp.domain.HitchLogRecordType.LIFT),
+            record = sampleRecord(id = "", type = HitchLogRecordType.LIFT),
             dateText = "29.04.2026",
             timeText = "14:30",
             validationError = null,
@@ -74,7 +75,7 @@ class EditRecordStateProvider : PreviewParameterProvider<EditRecordUiState> {
         EditRecordUiState(
             record = sampleRecord(
                 id = "existing-id",
-                type = org.gmautostop.hitchlogmp.domain.HitchLogRecordType.CHECKPOINT,
+                type = HitchLogRecordType.CHECKPOINT,
                 text = "КП-1 Сестрорецк"
             ),
             dateText = "29.04.2026",
@@ -88,7 +89,7 @@ class EditRecordStateProvider : PreviewParameterProvider<EditRecordUiState> {
         ),
         // REST_OFF with banner
         EditRecordUiState(
-            record = sampleRecord(id = "", type = org.gmautostop.hitchlogmp.domain.HitchLogRecordType.REST_OFF),
+            record = sampleRecord(id = "", type = HitchLogRecordType.REST_OFF),
             dateText = "29.04.2026",
             timeText = "14:30",
             validationError = null,
@@ -100,7 +101,7 @@ class EditRecordStateProvider : PreviewParameterProvider<EditRecordUiState> {
         ),
         // With validation errors
         EditRecordUiState(
-            record = sampleRecord(id = "", type = org.gmautostop.hitchlogmp.domain.HitchLogRecordType.LIFT),
+            record = sampleRecord(id = "", type = HitchLogRecordType.LIFT),
             dateText = "32.13.2026",
             timeText = "25:99",
             validationError = "Неверный формат даты и времени",

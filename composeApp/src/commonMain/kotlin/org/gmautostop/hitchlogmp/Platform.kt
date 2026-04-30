@@ -9,3 +9,5 @@ interface Platform {
 expect fun getPlatform(): Platform
 
 expect fun formatDateLocale(date: LocalDate): String
+
+expect fun shareFile(content: String, mimeType: String, fileName: String)

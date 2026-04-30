@@ -85,7 +85,7 @@ fun AuthScreen(
                         } else {
                             val error = result.exceptionOrNull()
                             log.e { "Google sign-in failed: ${error?.message}" }
-                            log.e { "Error type: ${error?.javaClass?.simpleName}" }
+                            log.e { "Error type: ${error?.let { it::class.simpleName }}" }
                             log.e { "Stack trace: ${error?.stackTraceToString()}" }
                             
                             scope.launch {
