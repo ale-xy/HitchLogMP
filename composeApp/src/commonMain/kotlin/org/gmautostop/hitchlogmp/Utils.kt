@@ -1,6 +1,7 @@
 package org.gmautostop.hitchlogmp
 
 import dev.gitlive.firebase.firestore.Timestamp
+import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.LocalTime
@@ -9,7 +10,6 @@ import kotlinx.datetime.format.FormatStringsInDatetimeFormats
 import kotlinx.datetime.format.byUnicodePattern
 import kotlinx.datetime.toInstant
 import kotlinx.datetime.toLocalDateTime
-import kotlin.time.Instant
 
 fun Instant.localTZDateTime() =
     toLocalDateTime(TimeZone.currentSystemDefault())

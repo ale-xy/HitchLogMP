@@ -14,7 +14,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
@@ -35,6 +34,7 @@ import hitchlogmp.composeapp.generated.resources.edit_record_title
 import hitchlogmp.composeapp.generated.resources.new_record_title
 import hitchlogmp.composeapp.generated.resources.save
 import org.gmautostop.hitchlogmp.ui.designsystem.components.DateFieldRow
+import org.gmautostop.hitchlogmp.ui.designsystem.components.HLLoadingState
 import org.gmautostop.hitchlogmp.ui.designsystem.components.HLRestHintBanner
 import org.gmautostop.hitchlogmp.ui.designsystem.components.HLSaveBar
 import org.gmautostop.hitchlogmp.ui.designsystem.components.HLTopBar
@@ -118,14 +118,9 @@ private fun EditRecordContent(
             
             // Loading state
             if (state.isLoading) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .weight(1f),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator(color = HLColors.Primary)
-                }
+                HLLoadingState(
+                    modifier = Modifier.weight(1f)
+                )
             } else {
                 // Scrollable content area
                 Column(

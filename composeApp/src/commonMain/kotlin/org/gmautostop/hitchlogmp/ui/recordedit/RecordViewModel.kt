@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
@@ -77,7 +78,7 @@ class EditRecordViewModel(
     val uiState: StateFlow<EditRecordUiState> = _uiState
 
     private val _navigationEvent = Channel<Unit>(Channel.CONFLATED)
-    val navigationEvent = _navigationEvent.receiveAsFlow()
+    val navigationEvent: Flow<Unit> = _navigationEvent.receiveAsFlow()
 
     // For REST_OFF real-time clock
     private val _currentTime = MutableStateFlow(Clock.System.now())
@@ -187,10 +188,10 @@ class EditRecordViewModel(
         }
         
         val canSave = validationError == null && !_uiState.value.isLoading
-        
+
         log.d { "Validation result: dateValid=$dateValid, timeValid=$timeValid, isLoading=${_uiState.value.isLoading}, canSave=$canSave" }
-        
-        _uiState.update { 
+
+        _uiState.update {
             it.copy(
                 validationError = validationError,
                 canSave = canSave

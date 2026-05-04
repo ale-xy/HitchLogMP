@@ -8,7 +8,6 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
@@ -40,16 +39,16 @@ class HitchLogViewModel(
     private val repository: Repository
 ) : ViewModel() {
     
-    private val _state = MutableStateFlow<ViewState<HitchLogState>>(ViewState.Loading)
-    val state: StateFlow<ViewState<HitchLogState>> = _state
+    val state: StateFlow<ViewState<HitchLogState>>
+        field = MutableStateFlow<ViewState<HitchLogState>>(ViewState.Loading)
 
     sealed interface ExportEvent {
         data object Preparing : ExportEvent
         data class Error(val message: String) : ExportEvent
     }
 
-    private val _exportEvents = MutableSharedFlow<ExportEvent>()
-    val exportEvents: SharedFlow<ExportEvent> = _exportEvents.asSharedFlow()
+    val exportEvents: SharedFlow<ExportEvent>
+        field = MutableSharedFlow()
 
     init {
         viewModelScope.launch {
@@ -84,7 +83,7 @@ class HitchLogViewModel(
                         }
                     }
                 }
-                .collect { _state.value = it }
+                .collect { state.value = it }
         }
     }
 
@@ -101,7 +100,7 @@ class HitchLogViewModel(
     }
 
     fun exportAsXlsx() = exportAs(MimeTypes.APPLICATION_XLSX, "xlsx") { log, records ->
-        val rows = formatAsXlsxRows(records)
+        val rows = formatAsXlsxRows(log, records)
         generateXlsxBytes(rows)
     }
 
@@ -112,7 +111,7 @@ class HitchLogViewModel(
     ) {
         viewModelScope.launch {
             try {
-                _exportEvents.emit(ExportEvent.Preparing)
+                exportEvents.emit(ExportEvent.Preparing)
                 val currentState = state.value
                 if (currentState is ViewState.Show) {
                     val hitchLogState = currentState.value
@@ -133,7 +132,7 @@ class HitchLogViewModel(
                 }
             } catch (e: Exception) {
                 logger.e(e) { "Export $extension failed" }
-                _exportEvents.emit(ExportEvent.Error(e.message ?: "Unknown error"))
+                exportEvents.emit(ExportEvent.Error(e.message ?: "Unknown error"))
             }
         }
     }

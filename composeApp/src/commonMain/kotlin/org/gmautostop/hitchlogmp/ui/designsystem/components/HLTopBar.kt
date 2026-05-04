@@ -1,7 +1,5 @@
 package org.gmautostop.hitchlogmp.ui.designsystem.components
 
-import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -11,13 +9,12 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -43,21 +40,15 @@ import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLTypography
 fun HLTopBar(
     title: String,
     subtitle: String? = null,
-    scrolled: Boolean = false,
+    showNavigationButton: Boolean = true,
     onNavigateUp: () -> Unit,
     navigationIcon: ImageVector = Icons.AutoMirrored.Filled.ArrowBack,
     actions: @Composable RowScope.() -> Unit = {}
 ) {
-    val bg by animateColorAsState(
-        targetValue = if (scrolled) HLColors.SurfaceContainer else HLColors.Surface,
-        animationSpec = tween(200),
-        label = "topBarBg"
-    )
-
     Column(
         Modifier
             .fillMaxWidth()
-            .background(bg)
+            .background(HLColors.Surface)
     ) {
         Row(
             Modifier
@@ -66,18 +57,20 @@ fun HLTopBar(
                 .padding(horizontal = 4.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            IconButton(onClick = onNavigateUp) {
-                Icon(
-                    imageVector = navigationIcon,
-                    contentDescription = "Назад",
-                    tint = HLColors.OnSurfaceVariant
-                )
+            if (showNavigationButton) {
+                IconButton(onClick = onNavigateUp) {
+                    Icon(
+                        imageVector = navigationIcon,
+                        contentDescription = "Назад",
+                        tint = HLColors.OnSurfaceVariant
+                    )
+                }
             }
 
             Column(
                 Modifier
                     .weight(1f)
-                    .padding(start = 4.dp)
+                    .padding(start = if (showNavigationButton) 4.dp else 16.dp)
             ) {
                 Text(
                     text = title,
@@ -99,11 +92,6 @@ fun HLTopBar(
 
             actions()
         }
-
-        HorizontalDivider(
-            color = HLColors.OutlineVariant,
-            thickness = 1.dp
-        )
     }
 }
 
@@ -116,21 +104,6 @@ private fun TopBarDefaultPreview() {
         Column {
             HLTopBar(
                 title = "Москва → Санкт-Петербург",
-                scrolled = false,
-                onNavigateUp = { }
-            )
-        }
-    }
-}
-
-@Preview
-@Composable
-private fun TopBarScrolledPreview() {
-    HLTheme {
-        Column {
-            HLTopBar(
-                title = "Москва → Санкт-Петербург",
-                scrolled = true,
                 onNavigateUp = { }
             )
         }
@@ -145,7 +118,6 @@ private fun TopBarWithSubtitlePreview() {
             HLTopBar(
                 title = "Казань → Екатеринбург",
                 subtitle = "Команда №5",
-                scrolled = false,
                 onNavigateUp = { }
             )
         }
@@ -159,12 +131,34 @@ private fun TopBarWithActionsPreview() {
         Column {
             HLTopBar(
                 title = "Москва → Санкт-Петербург",
-                scrolled = false,
                 onNavigateUp = { },
                 actions = {
                     IconButton(onClick = { }) {
                         Icon(
                             imageVector = Icons.Filled.MoreVert,
+                            contentDescription = null,
+                            tint = HLColors.OnSurfaceVariant
+                        )
+                    }
+                }
+            )
+        }
+    }
+}
+
+@Preview
+@Composable
+private fun TopBarNoNavigationPreview() {
+    HLTheme {
+        Column {
+            HLTopBar(
+                title = "Мои хроники",
+                showNavigationButton = false,
+                onNavigateUp = { },
+                actions = {
+                    IconButton(onClick = { }) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.Logout,
                             contentDescription = null,
                             tint = HLColors.OnSurfaceVariant
                         )

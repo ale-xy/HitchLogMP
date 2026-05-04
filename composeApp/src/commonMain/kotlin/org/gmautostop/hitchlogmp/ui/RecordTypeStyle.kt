@@ -36,3 +36,5 @@ fun HitchLogRecordType.toUi(): RecordTypeUi = when (this) {
     HitchLogRecordType.RETIRE -> RecordTypeUi(Icons.Filled.Block, ColorRole.ERROR_BOLD)
     HitchLogRecordType.FREE_TEXT -> RecordTypeUi(Icons.AutoMirrored.Filled.Note, ColorRole.SURFACE)
 }
+
+fun recordTypeIcon(type: HitchLogRecordType): ImageVector = type.toUi().icon

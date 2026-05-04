@@ -26,7 +26,6 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -54,11 +53,11 @@ import hitchlogmp.composeapp.generated.resources.new_record
 import hitchlogmp.composeapp.generated.resources.start
 import org.gmautostop.hitchlogmp.domain.HitchLogRecordType
 import org.gmautostop.hitchlogmp.ui.Error
-import org.gmautostop.hitchlogmp.ui.Loading
 import org.gmautostop.hitchlogmp.ui.designsystem.components.ActionButtonSize
 import org.gmautostop.hitchlogmp.ui.designsystem.components.HLActionButton
 import org.gmautostop.hitchlogmp.ui.designsystem.components.HLBottomSheet
 import org.gmautostop.hitchlogmp.ui.designsystem.components.HLEmptyState
+import org.gmautostop.hitchlogmp.ui.designsystem.components.HLLoadingState
 import org.gmautostop.hitchlogmp.ui.designsystem.components.HLTopBar
 import org.gmautostop.hitchlogmp.ui.designsystem.theme.HLTheme
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLColors
@@ -100,7 +99,7 @@ fun HitchLogScreen(
     }
 
     when (state) {
-        is ViewState.Loading -> Loading()
+        is ViewState.Loading -> HLLoadingState()
         is ViewState.Error   -> Error((state as ViewState.Error).error.displayMessage)
         is ViewState.Show    -> {
             val hitchLogState = (state as ViewState.Show<HitchLogState>).value
@@ -135,7 +134,6 @@ private fun HitchLog(
 ) {
     val density = LocalDensity.current
     val listState = rememberLazyListState()
-    val scrolled by remember { derivedStateOf { listState.firstVisibleItemIndex > 0 || listState.firstVisibleItemScrollOffset > 0 } }
     val isEmpty = state.records.isEmpty()
 
     var menuExpanded by remember { mutableStateOf(false) }
@@ -189,7 +187,6 @@ private fun HitchLog(
             HLTopBar(
                 title = state.logName,
                 subtitle = state.teamId.takeIf { it.isNotEmpty() },
-                scrolled = scrolled,
                 onNavigateUp = navigateUp,
                 actions = {
                     Box {
@@ -352,7 +349,7 @@ private fun HitchLogScreenPreview(
                 .background(HLColors.Background)
         ) {
             when (state) {
-                is ViewState.Loading -> Loading()
+                is ViewState.Loading -> HLLoadingState()
                 is ViewState.Error -> Error(state.error.displayMessage)
                 is ViewState.Show -> {
                     val hitchLogState = state.value

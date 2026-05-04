@@ -76,7 +76,7 @@ data class HitchLogRecordExportRow(
  * Formats hitchhiking records as XLSX export rows.
  * Converts times to Moscow timezone and sorts chronologically.
  */
-fun formatAsXlsxRows(records: List<HitchLogRecord>): List<HitchLogRecordExportRow> =
+fun formatAsXlsxRows(log: HitchLog, records: List<HitchLogRecord>): List<HitchLogRecordExportRow> =
     records
         .map { it.copy(time = toMoscow(it.time)) }
         .sortedBy { it.time }

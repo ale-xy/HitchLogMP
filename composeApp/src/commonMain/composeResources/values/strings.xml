@@ -8,6 +8,34 @@
 
     <string name="create">Создать</string>
     <string name="delete">Удалить</string>
+    
+    <!-- LogListScreen -->
+    <string name="logout">Выход</string>
+    <string name="no_chronicles_icon_desc">Нет хроник</string>
+    <string name="edit_chronicle">Редактировать</string>
+    
+    <!-- EditLogScreen -->
+    <string name="new_chronicle">Новая хроника</string>
+    <string name="edit_chronicle_title">Редактирование</string>
+    <string name="chronicle_name_label">Название хроники</string>
+    
+    <!-- Logout Dialog -->
+    <string name="logout_title">Выйти из аккаунта?</string>
+    <string name="logout_message_regular">Данные хроник сохранятся на сервере. Вы сможете войти снова в любое время.</string>
+    <string name="logout_message_anonymous">Вы используете анонимный вход. После выхода доступ к хроникам будет утерян навсегда.</string>
+    <string name="logout_confirm">Выйти</string>
+    <string name="cancel">Отмена</string>
+    
+    <!-- Delete Dialog -->
+    <string name="delete_chronicle_title">Удалить хронику?</string>
+    <string name="delete_chronicle_message">Хроника «%1$s» и все её записи будут удалены без возможности восстановления.</string>
+    <string name="delete_confirm">Удалить</string>
+    
+    <!-- Empty State -->
+    <string name="create_chronicle">Создать хронику</string>
+    
+    <!-- Date format (used in ChronicleCard subtitle) -->
+    <string name="created_format">Создано %1$s</string>
 
     <string name="name">Название</string>
     <string name="date">Дата</string>

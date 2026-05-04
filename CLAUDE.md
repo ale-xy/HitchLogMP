@@ -145,6 +145,8 @@ App built for **Guild hitchhiking races** (Гильдия спортивного
 
 **Timestamps:** `getNextTime()` uses `Source.CACHE` for collision detection — offline records with same minute may order incorrectly until synced.
 
+**Explicit Backing Fields (Kotlin 2.3+):** When exposing read-only types backed by mutable implementations (StateFlow, LiveData, Collections), prefer explicit backing field syntax over traditional backing properties. Enable with `-Xexplicit-backing-fields` compiler flag. Use `val property: PublicType field = PrivateType()` instead of separate `_property` + `property` declarations. This provides cleaner code with automatic smart casting within the declaring scope.
+
 ---
 
 ## Skills
@@ -164,6 +166,7 @@ Use the appropriate skill when working on specific aspects of the codebase:
 - `android-data-layer` — repositories, data sources, DTOs, mappers
 - `android-di-koin` — Koin DI setup and module definitions
 - `android-error-handling` — Result wrapper, error types, error flows
+- `kotlin-explicit-backing-fields` — Kotlin 2.3+ explicit backing field syntax for read-only/mutable type pairs
 
 **Quality & Maintenance:**
 - `kotlin-project-code-review` — code review for architecture, correctness
