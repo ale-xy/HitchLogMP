@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
@@ -47,8 +48,8 @@ class HitchLogViewModel(
         data class Error(val message: String) : ExportEvent
     }
 
-    val exportEvents: SharedFlow<ExportEvent>
-        field = MutableSharedFlow()
+    private val _exportEvents = MutableSharedFlow<ExportEvent>()
+    val exportEvents: SharedFlow<ExportEvent> = _exportEvents.asSharedFlow()
 
     init {
         viewModelScope.launch {
@@ -111,7 +112,7 @@ class HitchLogViewModel(
     ) {
         viewModelScope.launch {
             try {
-                exportEvents.emit(ExportEvent.Preparing)
+                _exportEvents.emit(ExportEvent.Preparing)
                 val currentState = state.value
                 if (currentState is ViewState.Show) {
                     val hitchLogState = currentState.value
@@ -132,7 +133,7 @@ class HitchLogViewModel(
                 }
             } catch (e: Exception) {
                 logger.e(e) { "Export $extension failed" }
-                exportEvents.emit(ExportEvent.Error(e.message ?: "Unknown error"))
+                _exportEvents.emit(ExportEvent.Error(e.message ?: "Unknown error"))
             }
         }
     }

@@ -145,7 +145,17 @@ App built for **Guild hitchhiking races** (Гильдия спортивного
 
 **Timestamps:** `getNextTime()` uses `Source.CACHE` for collision detection — offline records with same minute may order incorrectly until synced.
 
-**Explicit Backing Fields (Kotlin 2.3+):** When exposing read-only types backed by mutable implementations (StateFlow, LiveData, Collections), prefer explicit backing field syntax over traditional backing properties. Enable with `-Xexplicit-backing-fields` compiler flag. Use `val property: PublicType field = PrivateType()` instead of separate `_property` + `property` declarations. This provides cleaner code with automatic smart casting within the declaring scope.
+**Explicit Backing Fields (Kotlin 2.3+):** Use `field = value` syntax for simple read-only/mutable type pairs (e.g., `StateFlow`/`MutableStateFlow`). Syntax is `field = value`, NOT `field: Type = value`. Don't use with transformations (`.receiveAsFlow()`, `.asSharedFlow()`). See `kotlin-explicit-backing-fields` skill for details.
+
+```kotlin
+// ✅ Correct
+val state: StateFlow<T>
+    field = MutableStateFlow(value)
+
+// Use traditional backing property when transformation applied
+private val _events = Channel<T>()
+val events: Flow<T> = _events.receiveAsFlow()
+```
 
 ---
 

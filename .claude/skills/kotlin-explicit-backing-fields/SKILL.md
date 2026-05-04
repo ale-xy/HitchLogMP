@@ -37,21 +37,15 @@ fun update(value: T) {
 }
 ```
 
-### Three Syntax Variants
+### Two Syntax Variants
 
-**1. Inferred field type (recommended):**
+**1. Inline initialization (recommended):**
 ```kotlin
 val items: List<Item>
     field = mutableListOf()
 ```
 
-**2. Explicit field type:**
-```kotlin
-val state: StateFlow<UiState>
-    field: MutableStateFlow<UiState> = MutableStateFlow(UiState())
-```
-
-**3. Deferred initialization:**
+**2. Deferred initialization:**
 ```kotlin
 val data: LiveData<String>
     field: MutableLiveData<String>
@@ -60,6 +54,8 @@ init {
     data = MutableLiveData("")
 }
 ```
+
+**IMPORTANT:** The syntax is `field = value`, NOT `field: Type = value`. The compiler infers the field type from the initialization expression.
 
 ---
 
@@ -168,8 +164,14 @@ class DataViewModel : ViewModel() {
 ### ❌ Use Traditional Backing Properties When:
 - **Transformation needed:**
   ```kotlin
-  private val _state = MutableStateFlow(initial)
-  val state: StateFlow<T> get() = _state.asStateFlow() // Returns wrapper
+  private val _events = Channel<T>()
+  val events: Flow<T> = _events.receiveAsFlow() // Transformation applied
+  ```
+
+- **Wrapping needed:**
+  ```kotlin
+  private val _state = MutableSharedFlow<T>()
+  val state: SharedFlow<T> = _state.asSharedFlow() // Returns wrapper
   ```
 
 - **Custom getter logic:**
@@ -397,17 +399,26 @@ val _users: List<User>
 ```
 
 ### Type Inference
-- ✅ Let compiler infer field type when obvious
-- ✅ Specify explicitly for clarity in complex cases
+- ✅ Compiler always infers field type from initialization
+- ✅ Cannot explicitly specify field type in inline initialization
+- ✅ Only specify type when using deferred initialization
 
 ```kotlin
-// ✅ Good (obvious)
+// ✅ Good (compiler infers MutableList<Item>)
 val items: List<Item>
     field = mutableListOf()
 
-// ✅ Good (explicit for clarity)
+// ❌ Wrong (syntax error - cannot specify type with inline init)
+val items: List<Item>
+    field: MutableList<Item> = mutableListOf()
+
+// ✅ Good (explicit type for deferred init)
 val state: StateFlow<ComplexType>
-    field: MutableStateFlow<ComplexType> = MutableStateFlow(initial)
+    field: MutableStateFlow<ComplexType>
+
+init {
+    state = MutableStateFlow(initial)
+}
 ```
 
 ### Initialization

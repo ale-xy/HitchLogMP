@@ -48,8 +48,7 @@ class EditLogViewModel(
         field = MutableStateFlow(EditLogState(isNewMode = logId.isEmpty()))
 
     private val _events = Channel<EditLogEvent>()
-    val events: Flow<EditLogEvent>
-        field = _events.receiveAsFlow()
+    val events: Flow<EditLogEvent> = _events.receiveAsFlow()
 
     private var watchJob: Job? = null
 

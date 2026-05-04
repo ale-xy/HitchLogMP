@@ -57,7 +57,7 @@ sealed interface NoteListEvent {
 ---
  
 ## ViewModel
- 
+
 ```kotlin
 class NoteListViewModel(
     private val noteRepository: NoteRepository
@@ -67,8 +67,7 @@ class NoteListViewModel(
         field = MutableStateFlow(NoteListState())
 
     private val _events = Channel<NoteListEvent>()
-    val events: Flow<NoteListEvent>
-        field = _events.receiveAsFlow()
+    val events: Flow<NoteListEvent> = _events.receiveAsFlow()
  
     fun onAction(action: NoteListAction) {
         when (action) {
@@ -83,13 +82,13 @@ class NoteListViewModel(
  
     private fun loadNotes() {
         viewModelScope.launch {
-            state.update {it.copy(isLoading = true) }
+            state.update { it.copy(isLoading = true) }
             noteRepository.getNotes()
                 .onSuccess { notes ->
-                    state.update {it.copy(notes = notes.map { it.toNoteUi() }, isLoading = false) }
+                    state.update { it.copy(notes = notes.map { it.toNoteUi() }, isLoading = false) }
                 }
                 .onFailure { error ->
-                    state.update {it.copy(isLoading = false) }
+                    state.update { it.copy(isLoading = false) }
                     _events.send(NoteListEvent.ShowSnackbar(error.toUiText()))
                 }
         }

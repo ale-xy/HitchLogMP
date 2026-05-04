@@ -74,19 +74,19 @@ class EditRecordViewModel(
     private val itemType: HitchLogRecordType = HitchLogRecordType.FREE_TEXT
 ): ViewModel(), EditRecordCallbacks {
 
-    private val _uiState = MutableStateFlow(EditRecordUiState())
-    val uiState: StateFlow<EditRecordUiState> = _uiState
+    val uiState: StateFlow<EditRecordUiState>
+        field = MutableStateFlow(EditRecordUiState())
 
-    private val _navigationEvent = Channel<Unit>(Channel.CONFLATED)
-    val navigationEvent: Flow<Unit> = _navigationEvent.receiveAsFlow()
-
+    private val navigationEventChannel = Channel<Unit>(Channel.CONFLATED)
+    val navigationEvent: Flow<Unit> = navigationEventChannel.receiveAsFlow()
+    
     // For REST_OFF real-time clock
     private val _currentTime = MutableStateFlow(Clock.System.now())
 
     init {
         if (recordId.isNullOrEmpty()) {
             val newRecord = HitchLogRecord(type = itemType)
-            _uiState.value = EditRecordUiState(
+            uiState.value = EditRecordUiState(
                 record = newRecord,
                 dateText = dateFormat.format(newRecord.time.date),
                 timeText = timeFormat.format(newRecord.time.time),
@@ -97,7 +97,7 @@ class EditRecordViewModel(
         } else {
             viewModelScope.launch {
                 repository.getRecord(logId, recordId).distinctUntilChanged().collect { response ->
-                    _uiState.update { current ->
+                    uiState.update { current ->
                         when (response) {
                             is Response.Loading -> current.copy(isLoading = true, error = null)
                             is Response.Success -> EditRecordUiState(
@@ -138,16 +138,16 @@ class EditRecordViewModel(
                                 }
                                 
                                 // Combine restOn + currentTime to compute elapsed
-                                combine(_currentTime, _uiState) { now, state ->
+                                combine(_currentTime, uiState) { now, state ->
                                     val nowLocal = now.localTZDateTime()
-                                    val elapsed = restOnRecord.time.toInstant(TimeZone.currentSystemDefault())
-                                        .until(nowLocal.toInstant(TimeZone.currentSystemDefault()), DateTimeUnit.MINUTE)
-                                    _uiState.update { 
-                                        it.copy(
-                                            restOnTime = restOnRecord.time,
-                                            restElapsedMinutes = elapsed.toInt()
-                                        )
-                                    }
+                                val elapsed = restOnRecord.time.toInstant(TimeZone.currentSystemDefault())
+                                    .until(nowLocal.toInstant(TimeZone.currentSystemDefault()), DateTimeUnit.MINUTE)
+                                uiState.update { 
+                                    it.copy(
+                                        restOnTime = restOnRecord.time,
+                                        restElapsedMinutes = elapsed.toInt()
+                                    )
+                                }
                                     Unit
                                 }.launchIn(viewModelScope)
                             }
@@ -160,10 +160,10 @@ class EditRecordViewModel(
     }
 
     private fun validateAndUpdateState() {
-        log.d { "validateAndUpdateState() called - dateText=${_uiState.value.dateText}, timeText=${_uiState.value.timeText}, isLoading=${_uiState.value.isLoading}" }
+        log.d { "validateAndUpdateState() called - dateText=${uiState.value.dateText}, timeText=${uiState.value.timeText}, isLoading=${uiState.value.isLoading}" }
         
         val dateValid = try {
-            LocalDate.parse(_uiState.value.dateText, dateFormat)
+            LocalDate.parse(uiState.value.dateText, dateFormat)
             log.d { "Date parsed successfully" }
             true
         } catch (e: Exception) {
@@ -172,7 +172,7 @@ class EditRecordViewModel(
         }
         
         val timeValid = try {
-            LocalTime.parse(_uiState.value.timeText, timeFormat)
+            LocalTime.parse(uiState.value.timeText, timeFormat)
             log.d { "Time parsed successfully" }
             true
         } catch (e: Exception) {
@@ -187,37 +187,37 @@ class EditRecordViewModel(
             else -> null
         }
         
-        val canSave = validationError == null && !_uiState.value.isLoading
+        val canSave = validationError == null && !uiState.value.isLoading
 
-        log.d { "Validation result: dateValid=$dateValid, timeValid=$timeValid, isLoading=${_uiState.value.isLoading}, canSave=$canSave" }
+        log.d { "Validation result: dateValid=$dateValid, timeValid=$timeValid, isLoading=${uiState.value.isLoading}, canSave=$canSave" }
 
-        _uiState.update {
+        uiState.update {
             it.copy(
                 validationError = validationError,
                 canSave = canSave
             )
         }
         
-        log.d { "State updated: canSave=${_uiState.value.canSave}" }
+        log.d { "State updated: canSave=${uiState.value.canSave}" }
     }
 
     override fun updateDate(date: String) {
-        _uiState.update { it.copy(dateText = date) }
+        uiState.update { it.copy(dateText = date) }
         validateAndUpdateState()
     }
 
     override fun updateTime(time: String) {
-        _uiState.update { it.copy(timeText = time) }
+        uiState.update { it.copy(timeText = time) }
         validateAndUpdateState()
     }
 
     override fun updateText(text: String) {
-        _uiState.update { it.copy(record = it.record.copy(text = text)) }
+        uiState.update { it.copy(record = it.record.copy(text = text)) }
     }
 
     override fun adjustDate(days: Int) {
         val current = try {
-            dateTimeFormat.parse("${_uiState.value.dateText} ${_uiState.value.timeText}")
+            dateTimeFormat.parse("${uiState.value.dateText} ${uiState.value.timeText}")
         } catch (e: Exception) {
             Clock.System.now().localTZDateTime()
         }
@@ -225,7 +225,7 @@ class EditRecordViewModel(
         val adjusted = current.date.plus(days, DateTimeUnit.DAY)
         val newDateTime = LocalDateTime(adjusted, current.time)
         
-        _uiState.update { 
+        uiState.update { 
             it.copy(dateText = dateFormat.format(newDateTime.date))
         }
         validateAndUpdateState()
@@ -233,7 +233,7 @@ class EditRecordViewModel(
 
     override fun adjustTime(minutes: Int) {
         val current = try {
-            dateTimeFormat.parse("${_uiState.value.dateText} ${_uiState.value.timeText}")
+            dateTimeFormat.parse("${uiState.value.dateText} ${uiState.value.timeText}")
         } catch (e: Exception) {
             Clock.System.now().localTZDateTime()
         }
@@ -242,7 +242,7 @@ class EditRecordViewModel(
             .plus(minutes, DateTimeUnit.MINUTE, TimeZone.currentSystemDefault())
             .localTZDateTime()
         
-        _uiState.update { 
+        uiState.update { 
             it.copy(
                 dateText = dateFormat.format(adjusted.date),
                 timeText = timeFormat.format(adjusted.time)
@@ -252,7 +252,7 @@ class EditRecordViewModel(
     }
 
     override fun setTimeToNow() {
-        val current = _uiState.value
+        val current = uiState.value
         val targetTime = if (current.originalTime != null) {
             // Editing existing record - reset to original time
             current.originalTime
@@ -261,7 +261,7 @@ class EditRecordViewModel(
             Clock.System.now().localTZDateTime()
         }
         
-        _uiState.update { 
+        uiState.update { 
             it.copy(
                 dateText = dateFormat.format(targetTime.date),
                 timeText = timeFormat.format(targetTime.time)
@@ -272,21 +272,21 @@ class EditRecordViewModel(
 
     override fun save() {
         log.d { "save() called" }
-        val current = _uiState.value
+        val current = uiState.value
         log.d { "Current state: canSave=${current.canSave}, dateText=${current.dateText}, timeText=${current.timeText}, recordId=${current.record.id}" }
         
         val recordToSave = try {
             current.record.copy(time = dateTimeFormat.parse("${current.dateText} ${current.timeText}"))
         } catch (e: IllegalArgumentException) {
             log.e(err = e) { "Failed to parse date/time: ${current.dateText} ${current.timeText}" }
-            _uiState.update { it.copy(isLoading = false, error = AppError.ParseError("date/time")) }
+            uiState.update { it.copy(isLoading = false, error = AppError.ParseError("date/time")) }
             return
         }
         
         log.d { "Record to save: $recordToSave" }
         
         viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true, error = null) }
+            uiState.update { it.copy(isLoading = true, error = null) }
             log.d { "Starting saveRecord flow for logId=$logId" }
             repository.saveRecord(logId, recordToSave).collect { response ->
                 log.d { "saveRecord response: $response" }
@@ -296,11 +296,11 @@ class EditRecordViewModel(
                     }
                     is Response.Success -> {
                         log.d { "saveRecord Success - sending navigation event" }
-                        _navigationEvent.send(Unit)
+                        navigationEventChannel.send(Unit)
                     }
                     is Response.Failure -> {
                         log.e { "saveRecord Failure: ${response.error}" }
-                        _uiState.update { it.copy(isLoading = false, error = response.error) }
+                        uiState.update { it.copy(isLoading = false, error = response.error) }
                     }
                 }
             }
@@ -309,12 +309,12 @@ class EditRecordViewModel(
 
     override fun delete() {
         viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true, error = null) }
-            repository.deleteRecord(logId, _uiState.value.record).collect { response ->
+            uiState.update { it.copy(isLoading = true, error = null) }
+            repository.deleteRecord(logId, uiState.value.record).collect { response ->
                 when (response) {
                     is Response.Loading -> Unit
-                    is Response.Success -> _navigationEvent.send(Unit)
-                    is Response.Failure -> _uiState.update { it.copy(isLoading = false, error = response.error) }
+                    is Response.Success -> navigationEventChannel.send(Unit)
+                    is Response.Failure -> uiState.update { it.copy(isLoading = false, error = response.error) }
                 }
             }
         }
