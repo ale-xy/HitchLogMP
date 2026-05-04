@@ -40,11 +40,13 @@ fun HitchLogApp(navController: NavHostController) {
                 modifier = Modifier.windowInsetsPadding(WindowInsets.safeDrawing)
             ) {
                 composable<Screen.Auth> {
-                    AuthScreen(koinViewModel<AuthViewModel>()) {
-                        navController.navigate(Screen.LogList) {
-                            popUpTo(Screen.Auth) { inclusive = true }
+                    AuthScreen(
+                        onAuthenticated = {
+                            navController.navigate(Screen.LogList) {
+                                popUpTo(Screen.Auth) { inclusive = true }
+                            }
                         }
-                    }
+                    )
                 }
                 composable<Screen.LogList> {
                     val authViewModel = koinViewModel<AuthViewModel>()

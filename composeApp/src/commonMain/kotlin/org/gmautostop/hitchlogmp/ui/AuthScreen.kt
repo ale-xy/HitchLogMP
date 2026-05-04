@@ -1,110 +1,321 @@
 package org.gmautostop.hitchlogmp.ui
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.Button
-import androidx.compose.material.CircularProgressIndicator
-import androidx.compose.material.Scaffold
-import androidx.compose.material.SnackbarHost
-import androidx.compose.material.SnackbarHostState
-import androidx.compose.material.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.PersonOff
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mmk.kmpauth.firebase.google.GoogleButtonUiContainerFirebase
-import com.mmk.kmpauth.uihelper.google.GoogleSignInButton
+import hitchlogmp.composeapp.generated.resources.Res
+import hitchlogmp.composeapp.generated.resources.auth_anonymous_icon_desc
+import hitchlogmp.composeapp.generated.resources.auth_anonymous_login
+import hitchlogmp.composeapp.generated.resources.auth_apple_icon_desc
+import hitchlogmp.composeapp.generated.resources.auth_apple_login
+import hitchlogmp.composeapp.generated.resources.auth_divider_or
+import hitchlogmp.composeapp.generated.resources.auth_email_icon_desc
+import hitchlogmp.composeapp.generated.resources.auth_email_login
+import hitchlogmp.composeapp.generated.resources.auth_google_icon_desc
+import hitchlogmp.composeapp.generated.resources.auth_google_login
+import hitchlogmp.composeapp.generated.resources.auth_logo_desc
+import hitchlogmp.composeapp.generated.resources.auth_subtitle
+import hitchlogmp.composeapp.generated.resources.auth_title
+import hitchlogmp.composeapp.generated.resources.gma_logo
+import hitchlogmp.composeapp.generated.resources.ic_apple
+import hitchlogmp.composeapp.generated.resources.ic_google
 import kotlinx.coroutines.launch
+import org.gmautostop.hitchlogmp.ui.designsystem.components.ButtonVariant
+import org.gmautostop.hitchlogmp.ui.designsystem.components.HLButton
+import org.gmautostop.hitchlogmp.ui.designsystem.theme.HLTheme
+import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLColors
+import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLTypography
+import org.gmautostop.hitchlogmp.ui.viewmodel.AuthAction
+import org.gmautostop.hitchlogmp.ui.viewmodel.AuthButtonLoading
+import org.gmautostop.hitchlogmp.ui.viewmodel.AuthEvent
+import org.gmautostop.hitchlogmp.ui.viewmodel.AuthState
 import org.gmautostop.hitchlogmp.ui.viewmodel.AuthViewModel
-import org.lighthousegames.logging.logging
+import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
+import org.koin.compose.viewmodel.koinViewModel
 
+/**
+ * Root composable - holds ViewModel and observes events.
+ */
 @Composable
 fun AuthScreen(
-    viewModel: AuthViewModel,
     onAuthenticated: () -> Unit,
+    viewModel: AuthViewModel = koinViewModel()
 ) {
-    val log = logging("AuthScreen")
-    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    
+    val state by viewModel.state.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
 
-    LaunchedEffect(Unit) {
-        viewModel.navigationEvent.collect {
-            onAuthenticated()
+    ObserveAsEvents(viewModel.events) { event ->
+        when (event) {
+            is AuthEvent.NavigateToLogList -> onAuthenticated()
+            is AuthEvent.ShowError -> {
+                scope.launch {
+                    snackbarHostState.showSnackbar(event.message)
+                }
+            }
         }
     }
 
+    AuthScreen(
+        state = state,
+        onAction = viewModel::onAction,
+        snackbarHostState = snackbarHostState
+    )
+}
+
+/**
+ * Stateless screen composable - pure state + onAction.
+ */
+@Composable
+fun AuthScreen(
+    state: AuthState,
+    onAction: (AuthAction) -> Unit,
+    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() }
+) {
     Scaffold(
+        containerColor = HLColors.Background,
         snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { paddingValues ->
-        Column(
-            modifier = Modifier.padding(paddingValues),
-            verticalArrangement = Arrangement.spacedBy(10.dp)
+        Box(
+            modifier = Modifier
+                .padding(paddingValues)
+                .fillMaxSize()
         ) {
-            if (uiState.currentUser == null) {
-                Button(
-                    onClick = { viewModel.onAnonymousLogin() },
-                    enabled = !uiState.isLoading,
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                // Top section: Logo + Title + Subtitle
+                Spacer(Modifier.height(80.dp))
+                
+                Image(
+                    painter = painterResource(Res.drawable.gma_logo),
+                    contentDescription = stringResource(Res.string.auth_logo_desc),
+                    modifier = Modifier.size(64.dp)
+                )
+                
+                Spacer(Modifier.height(16.dp))
+                
+                Text(
+                    text = stringResource(Res.string.auth_title),
+                    style = HLTypography.displaySmall,
+                    color = HLColors.OnSurface
+                )
+                
+                Spacer(Modifier.height(6.dp))
+                
+                Text(
+                    text = stringResource(Res.string.auth_subtitle),
+                    style = HLTypography.bodyMedium,
+                    color = HLColors.OnSurfaceVariant
+                )
+                
+                Spacer(Modifier.weight(1f))
+                
+                // Bottom section: Auth buttons
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 24.dp, vertical = 40.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    if (uiState.isLoading) {
-                        CircularProgressIndicator(
-                            modifier = Modifier.size(16.dp), 
-                            strokeWidth = 2.dp
-                        )
-                    } else {
-                        Text("Анонимус")
-                    }
-                }
-            }
-
-            if (uiState.currentUser == null || uiState.currentUser?.isAnonymous == true) {
-                GoogleButtonUiContainerFirebase(
-                    modifier = Modifier,
-                    linkAccount = true,
-                    onResult = { result ->
-                        if (result.isSuccess) {
-                            val firebaseUser = result.getOrNull()
-                            log.d { "Google sign-in success: uid=${firebaseUser?.uid}" }
-                            
-                            firebaseUser?.let {
-                                viewModel.onLogin(it)
-                            } ?: run {
-                                log.e { "FirebaseUser is null despite success result" }
-                                scope.launch {
-                                    snackbarHostState.showSnackbar("Ошибка входа: пользователь не найден")
-                                }
-                            }
-                        } else {
-                            val error = result.exceptionOrNull()
-                            log.e { "Google sign-in failed: ${error?.message}" }
-                            log.e { "Error type: ${error?.let { it::class.simpleName }}" }
-                            log.e { "Stack trace: ${error?.stackTraceToString()}" }
-                            
-                            scope.launch {
-                                snackbarHostState.showSnackbar(
-                                    "Ошибка входа через Google: ${error?.message ?: "Неизвестная ошибка"}"
-                                )
-                            }
-                        }
-                    }
-                ) {
-                    GoogleSignInButton(
+                    // Email button (tonal, placeholder)
+                    HLButton(
+                        onClick = { onAction(AuthAction.OnEmailLoginClick) },
+                        variant = ButtonVariant.Tonal,
+                        enabled = state.loadingButton == null,
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Default.Email,
+                                contentDescription = stringResource(Res.string.auth_email_icon_desc),
+                                modifier = Modifier.size(20.dp)
+                            )
+                        },
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        if (!uiState.isLoading) {
-                            this.onClick()
+                        Text(
+                            text = stringResource(Res.string.auth_email_login),
+                            style = HLTypography.labelLarge
+                        )
+                    }
+                    
+                    // Google button (outlined, use KMPAuth)
+                    GoogleButtonUiContainerFirebase(
+                        modifier = Modifier.fillMaxWidth(),
+                        linkAccount = true,
+                        onResult = { result ->
+                            val firebaseUser = if (result.isSuccess) result.getOrNull() else null
+                            onAction(AuthAction.OnGoogleLoginResult(firebaseUser))
+                            
+                            // Handle error case
+                            if (result.isFailure) {
+                                val error = result.exceptionOrNull()
+                                onAction(AuthAction.OnGoogleLoginResult(null))
+                            }
                         }
+                    ) {
+                        HLButton(
+                            onClick = {
+                                onAction(AuthAction.OnGoogleLoginClick)
+                                this.onClick()
+                            },
+                            variant = ButtonVariant.Outlined,
+                            enabled = state.loadingButton == null,
+                            leadingIcon = {
+                                if (state.loadingButton == AuthButtonLoading.GOOGLE) {
+                                    CircularProgressIndicator(
+                                        modifier = Modifier.size(20.dp),
+                                        strokeWidth = 2.dp,
+                                        color = HLColors.OnSurface
+                                    )
+                                } else {
+                                    Image(
+                                        painter = painterResource(Res.drawable.ic_google),
+                                        contentDescription = stringResource(Res.string.auth_google_icon_desc),
+                                        modifier = Modifier.size(20.dp)
+                                    )
+                                }
+                            },
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text(
+                                text = stringResource(Res.string.auth_google_login),
+                                style = HLTypography.labelLarge
+                            )
+                        }
+                    }
+                    
+                    // Apple button (outlined, placeholder)
+                    HLButton(
+                        onClick = { onAction(AuthAction.OnAppleLoginClick) },
+                        variant = ButtonVariant.Outlined,
+                        enabled = state.loadingButton == null,
+                        leadingIcon = {
+                            Image(
+                                painter = painterResource(Res.drawable.ic_apple),
+                                contentDescription = stringResource(Res.string.auth_apple_icon_desc),
+                                modifier = Modifier.size(20.dp)
+                            )
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(
+                            text = stringResource(Res.string.auth_apple_login),
+                            style = HLTypography.labelLarge
+                        )
+                    }
+                    
+                    // Divider with "или"
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 4.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        HorizontalDivider(
+                            modifier = Modifier.weight(1f),
+                            thickness = 1.dp,
+                            color = HLColors.OutlineVariant
+                        )
+                        Text(
+                            text = stringResource(Res.string.auth_divider_or),
+                            style = HLTypography.bodySmall,
+                            color = HLColors.OnSurfaceVariant
+                        )
+                        HorizontalDivider(
+                            modifier = Modifier.weight(1f),
+                            thickness = 1.dp,
+                            color = HLColors.OutlineVariant
+                        )
+                    }
+                    
+                    // Anonymous button (text variant)
+                    HLButton(
+                        onClick = { onAction(AuthAction.OnAnonymousLoginClick) },
+                        variant = ButtonVariant.Text,
+                        enabled = state.loadingButton == null,
+                        leadingIcon = {
+                            if (state.loadingButton == AuthButtonLoading.ANONYMOUS) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.size(20.dp),
+                                    strokeWidth = 2.dp
+                                )
+                            } else {
+                                Icon(
+                                    imageVector = Icons.Default.PersonOff,
+                                    contentDescription = stringResource(Res.string.auth_anonymous_icon_desc),
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            }
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(
+                            text = stringResource(Res.string.auth_anonymous_login),
+                            style = HLTypography.labelLarge
+                        )
                     }
                 }
             }
         }
+    }
+}
+
+// ── Previews ─────────────────────────────────────────────────────────────────
+
+/**
+ * Preview parameter provider for AuthState.
+ * Provides different states for preview: default, loading Google, loading Anonymous.
+ */
+private class AuthStatePreviewProvider : PreviewParameterProvider<AuthState> {
+    override val values: Sequence<AuthState> = sequenceOf(
+        AuthState(),
+        AuthState(loadingButton = AuthButtonLoading.GOOGLE),
+        AuthState(loadingButton = AuthButtonLoading.ANONYMOUS)
+    )
+}
+
+@Preview
+@Composable
+private fun AuthScreenPreview(
+    @PreviewParameter(AuthStatePreviewProvider::class) state: AuthState
+) {
+    HLTheme {
+        AuthScreen(
+            state = state,
+            onAction = {}
+        )
     }
 }

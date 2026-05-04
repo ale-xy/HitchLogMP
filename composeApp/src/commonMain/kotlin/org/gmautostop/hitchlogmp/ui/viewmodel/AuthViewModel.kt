@@ -17,55 +17,87 @@ import org.gmautostop.hitchlogmp.data.AuthService
 import org.gmautostop.hitchlogmp.domain.User
 import org.lighthousegames.logging.logging
 
-data class AuthUiState(
+/**
+ * Represents which authentication button is currently loading.
+ */
+enum class AuthButtonLoading {
+    EMAIL,
+    GOOGLE,
+    APPLE,
+    ANONYMOUS
+}
+
+data class AuthState(
     val currentUser: User? = null,
-    val isLoading: Boolean = false,
+    val loadingButton: AuthButtonLoading? = null,
 ) {
     val isAuthenticated: Boolean get() = currentUser != null
+}
+
+sealed interface AuthAction {
+    data object OnEmailLoginClick : AuthAction
+    data object OnGoogleLoginClick : AuthAction
+    data class OnGoogleLoginResult(val firebaseUser: FirebaseUser?) : AuthAction
+    data object OnAppleLoginClick : AuthAction
+    data object OnAnonymousLoginClick : AuthAction
+}
+
+sealed interface AuthEvent {
+    data object NavigateToLogList : AuthEvent
+    data class ShowError(val message: String) : AuthEvent
 }
 
 class AuthViewModel(
     private val authService: AuthService
 ) : ViewModel() {
 
-    private val _isLoading = MutableStateFlow(false)
+    private val _loadingButton = MutableStateFlow<AuthButtonLoading?>(null)
 
-    val uiState: StateFlow<AuthUiState> = combine(
+    val state: StateFlow<AuthState> = combine(
         authService.currentUser,
-        _isLoading
-    ) { user, isLoading ->
-        AuthUiState(currentUser = user, isLoading = isLoading)
+        _loadingButton
+    ) { user, loadingButton ->
+        AuthState(currentUser = user, loadingButton = loadingButton)
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.Eagerly,
-        initialValue = AuthUiState(currentUser = authService.currentUser.value)
+        initialValue = AuthState(currentUser = authService.currentUser.value)
     )
 
-    private val _navigationEvent = Channel<Unit>(Channel.CONFLATED)
-    val navigationEvent = _navigationEvent.receiveAsFlow()
+    private val _events = Channel<AuthEvent>()
+    val events = _events.receiveAsFlow()
 
-    fun onAnonymousLogin() {
-        viewModelScope.launch {
-            _isLoading.value = true
-            try {
-                authService.signInAnonymously()
-                // todo error
-                val user = authService.currentUser.first { user ->
-                    user?.isAnonymous == true
-                }
-                log.d { "onAnonymousLogin currentUser ${user?.id} anon ${user?.isAnonymous}" }
-                _navigationEvent.trySend(Unit)
-            } finally {
-                _isLoading.value = false
+    fun onAction(action: AuthAction) {
+        when (action) {
+            is AuthAction.OnEmailLoginClick -> {
+                // TODO: Implement email login
+            }
+            is AuthAction.OnGoogleLoginClick -> {
+                _loadingButton.value = AuthButtonLoading.GOOGLE
+            }
+            is AuthAction.OnGoogleLoginResult -> {
+                handleGoogleLoginResult(action.firebaseUser)
+            }
+            is AuthAction.OnAppleLoginClick -> {
+                // TODO: Implement Apple login
+            }
+            is AuthAction.OnAnonymousLoginClick -> {
+                handleAnonymousLogin()
             }
         }
     }
 
-    fun onLogin(firebaseUser: FirebaseUser) {
+    private fun handleGoogleLoginResult(firebaseUser: FirebaseUser?) {
         viewModelScope.launch {
-            _isLoading.value = true
             try {
-                log.d { "onLogin started: uid=${firebaseUser.uid}, isAnonymous=${firebaseUser.isAnonymous}" }
+                if (firebaseUser == null) {
+                    log.e { "FirebaseUser is null despite success result" }
+                    _events.send(AuthEvent.ShowError("Пользователь не найден"))
+                    _loadingButton.value = null
+                    return@launch
+                }
+
+                log.d { "Google sign-in success: uid=${firebaseUser.uid}" }
                 
                 // Refresh auth state to ensure it propagates
                 authService.refreshAuthState()
@@ -78,13 +110,31 @@ class AuthViewModel(
                     log.d { "Auth state confirmed: userId=${user?.id}, isAnonymous=${user?.isAnonymous}" }
                 }
                 
-                _navigationEvent.trySend(Unit)
+                _events.send(AuthEvent.NavigateToLogList)
             } catch (e: Exception) {
-                log.e { "Login failed: ${e.message}" }
-                log.e { "Stack trace: ${e.stackTraceToString()}" }
-                // Error will be visible in logs, user stays on auth screen
+                log.e { "Google login failed: ${e.message}" }
+                _events.send(AuthEvent.ShowError(e.message ?: "Неизвестная ошибка"))
             } finally {
-                _isLoading.value = false
+                _loadingButton.value = null
+            }
+        }
+    }
+
+    private fun handleAnonymousLogin() {
+        viewModelScope.launch {
+            _loadingButton.value = AuthButtonLoading.ANONYMOUS
+            try {
+                authService.signInAnonymously()
+                val user = authService.currentUser.first { user ->
+                    user?.isAnonymous == true
+                }
+                log.d { "onAnonymousLogin currentUser ${user?.id} anon ${user?.isAnonymous}" }
+                _events.send(AuthEvent.NavigateToLogList)
+            } catch (e: Exception) {
+                log.e { "Anonymous login failed: ${e.message}" }
+                _events.send(AuthEvent.ShowError("Ошибка анонимного входа"))
+            } finally {
+                _loadingButton.value = null
             }
         }
     }

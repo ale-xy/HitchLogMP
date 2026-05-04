@@ -10,7 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Book
+import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -64,7 +64,7 @@ fun ChronicleCard(
     ) {
         // Icon badge
         HLIconBadge(
-            icon = Icons.Default.Book,
+            icon = Icons.AutoMirrored.Filled.MenuBook,
             colorRole = ColorRole.PRIMARY,
             size = org.gmautostop.hitchlogmp.ui.designsystem.components.IconBadgeSize.LARGE
         )

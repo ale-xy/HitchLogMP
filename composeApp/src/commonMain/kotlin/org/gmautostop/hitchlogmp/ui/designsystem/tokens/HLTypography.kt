@@ -9,6 +9,13 @@ import androidx.compose.ui.unit.sp
  * Extracted from HitchLogScreen design patterns.
  */
 object HLTypography {
+    // Display styles - used for large prominent text
+    val displaySmall = TextStyle(
+        fontSize = 28.sp,
+        fontWeight = FontWeight.Medium,
+        letterSpacing = (-0.5).sp
+    )
+
     // Title styles - used for screen titles and section headers
     val titleLarge = TextStyle(
         fontSize = 22.sp,

@@ -111,4 +111,20 @@
     <string name="export_xlsx">XLSX</string>
     <string name="export_preparing">Подготовка...</string>
     <string name="export_error">Ошибка: %1$s</string>
+    
+    <!-- Auth Screen -->
+    <string name="auth_title">HitchLog</string>
+    <string name="auth_subtitle">Гильдия Мастеров Автостопа</string>
+    <string name="auth_email_login">Войти через Email</string>
+    <string name="auth_google_login">Войти через Google</string>
+    <string name="auth_apple_login">Войти через Apple</string>
+    <string name="auth_anonymous_login">Войти анонимно</string>
+    <string name="auth_divider_or">или</string>
+    <string name="auth_email_icon_desc">Email вход</string>
+    <string name="auth_google_icon_desc">Google вход</string>
+    <string name="auth_apple_icon_desc">Apple вход</string>
+    <string name="auth_anonymous_icon_desc">Анонимный вход</string>
+    <string name="auth_logo_desc">Логотип ГМА</string>
+    <string name="auth_error_google">Ошибка входа через Google: %1$s</string>
+    <string name="auth_error_anonymous">Ошибка анонимного входа</string>
 </resources>
