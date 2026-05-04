@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-HitchlogMP is a **Kotlin Multiplatform** (KMP) mobile/web app for logging hitchhiking race activity during [Guild competitions](#competition-domain). Participants record lifts, walks, checkpoints, rest periods, and other race events in real time. The app syncs via Firebase Firestore.
+HitchlogMP is a **Kotlin Multiplatform** (KMP) mobile/web app for logging hitchhiking race activity during Guild competitions. Participants record lifts, walks, checkpoints, rest periods, and other race events in real time. The app syncs via Firebase Firestore.
 
 **Platforms:** Android (API 24+), iOS (Arm64, X64, Simulator), Web/WASM (currently disabled in build)
 
@@ -20,7 +20,6 @@ HitchlogMP is a **Kotlin Multiplatform** (KMP) mobile/web app for logging hitchh
 | Navigation | Compose Multiplatform Navigation 2.8.0-alpha10 |
 | Serialization | Kotlinx Serialization 1.7.3 |
 | DateTime | Kotlinx DateTime |
-| Logging | Napier + lighthouse logging |
 | Build | Gradle with version catalog (`gradle/libs.versions.toml`) |
 
 ---
@@ -36,7 +35,7 @@ composeApp/src/
     ui/               # Screens, ViewModels, Nav routes
     app/              # Platform-independent init (Google auth)
     Platform.kt       # expect interface
-    Utils.kt          # DateTime helpers
+    Utils.kt          # DateTime helpers (LocalDateTime ↔ Timestamp conversion)
   androidMain/        # MainActivity, MainApplication, Platform.android.kt
   iosMain/            # MainViewController.kt, Platform.ios.kt
   wasmJsMain/         # main.kt, Platform.wasmJs.kt (disabled)
@@ -46,45 +45,10 @@ composeApp/src/
 
 ## Domain Model
 
-### `HitchLog` — race log (aggregate root)
-```kotlin
-data class HitchLog(
-    var id: String,         // UUID, assigned on create
-    val userId: String,     // Firebase Auth UID
-    val raceId: String,     // Associated race/competition
-    val teamId: String,     // Team ID (empty for solo)
-    val name: String,       // User-chosen display name
-    val creationTime: Timestamp
-)
-```
+**HitchLog** (aggregate root): id, userId, raceId, teamId, name, creationTime  
+**HitchLogRecord** (timeline event): id, time (LocalDateTime), type (HitchLogRecordType), text
 
-### `HitchLogRecord` — single timeline event
-```kotlin
-data class HitchLogRecord(
-    val id: String,                       // UUID
-    val time: LocalDateTime,              // Local system timezone
-    val type: HitchLogRecordType,
-    val text: String                      // Free-form note
-)
-```
-
-### `HitchLogRecordType` — enum of race events
-| Value | Meaning |
-|---|---|
-| `START` | Race start |
-| `LIFT` | Got a ride (hitchhike) |
-| `GET_OFF` | Exited a vehicle |
-| `WALK` | Began walking |
-| `WALK_END` | Finished walking |
-| `CHECKPOINT` | Passed a control point (КП) |
-| `MEET` | Met another competitor |
-| `REST_ON` | Entered rest mode |
-| `REST_OFF` | Exited rest mode |
-| `OFFSIDE_ON` | Entered "вне игры" (offside) mode |
-| `OFFSIDE_OFF` | Exited "вне игры" mode |
-| `FINISH` | Race finish |
-| `RETIRE` | Withdrew (сход с трассы) |
-| `FREE_TEXT` | Free-form note |
+**Record types:** START, LIFT, GET_OFF, WALK, WALK_END, CHECKPOINT, MEET, REST_ON, REST_OFF, OFFSIDE_ON, OFFSIDE_OFF, FINISH, RETIRE, FREE_TEXT
 
 ---
 
@@ -103,93 +67,43 @@ Collection: logs
 - Records ordered by `timestamp ASC`
 - `FirestoreHitchLogRecord` is a DTO that maps `LocalDateTime ↔ Firestore Timestamp` with nanosecond precision
 - `getNextTime()` handles timestamp collisions: if a record already exists within the same minute, it adds 1 second to ensure ordering
+- DateTime helpers in `Utils.kt`: `Instant.localTZDateTime()`, `Timestamp.toLocalDateTime()`, `LocalDateTime.toTimestamp()`
+- **Timezone discrepancy:** Chronicle (хроника) must be Moscow time (UTC+3) per competition rules, but app stores local device timezone
 
-### `Repository` Interface
-```kotlin
-interface Repository {
-    fun userId(): String?
-    fun getLogs(): Flow<Response<List<HitchLog>>>
-    fun getLog(logId: String): Flow<Response<HitchLog>>
-    fun addLog(log: HitchLog): Flow<Response<Unit>>
-    fun updateLog(log: HitchLog): Flow<Response<Unit>>
-    fun deleteLog(id: String): Flow<Response<Unit>>
-    fun getLogRecords(logId: String): Flow<Response<List<HitchLogRecord>>>
-    fun getRecord(logId: String, recordId: String): Flow<Response<HitchLogRecord>>
-    fun addRecord(logId: String, record: HitchLogRecord): Flow<Response<Unit>>
-    fun updateRecord(logId: String, record: HitchLogRecord): Flow<Response<Unit>>
-    fun deleteRecord(logId: String, record: HitchLogRecord): Flow<Response<Unit>>
-    fun saveRecord(logId: String, record: HitchLogRecord): Flow<Response<Unit>>
-}
-```
-
-### `Response<T>` — sealed data transport
-- `Loading<T>()` — operation in progress
-- `Success<T>(data: T)` — success
-- `Failure<T>(errorMessage: String)` — error
+### Repository & Response
+`Repository` interface in `domain/` — standard CRUD for HitchLog + HitchLogRecord, returns `Flow<Response<T>>`  
+`Response<T>`: Loading, Success(data), Failure(errorMessage)
 
 ---
 
 ## UI Layer
 
-### Navigation (`Screen` sealed interface)
-```kotlin
-Screen.Auth                             // Login
-Screen.LogList                          // List all user's logs
-Screen.EditLog(logId: String = "")      // Create/edit a log (empty id = new)
-Screen.Log(logId: String)               // View log + all records
-Screen.EditRecord(logId, recordId = "", recordType = FREE_TEXT)  // Create/edit record
-```
-
-### ViewState — UI state pattern
-- `ViewState.Loading` — show spinner
-- `ViewState.Show<T>(value: T)` — display data
-- `ViewState.Error(error: String)` — show error
+### Navigation
+`Screen` sealed interface in `ui/Nav.kt`:
+- `Auth` — Login
+- `LogList` — List all user's logs
+- `EditLog(logId: String = "")` — Create/edit log (empty id = new)
+- `Log(logId: String)` — View log + all records
+- `EditRecord(logId, recordId = "", recordType = FREE_TEXT)` — Create/edit record
 
 ### ViewModels
+All use `ViewState<T>`: Loading, Show(value), Error(error)
+
 | ViewModel | State | Key Methods |
 |---|---|---|
 | `AuthViewModel` | `currentUser: StateFlow<User?>` | `onAnonymousLogin()`, `onLogin(user)`, `onSignOut()` |
-| `LogListViewModel` | `state: StateFlow<ViewState<List<HitchLog>>>` | passive — observes `getLogs()` |
-| `EditLogViewModel` | `state: MutableStateFlow<ViewState<HitchLog>>` | `updateName()`, `saveLog()`, `deleteLog()` |
-| `HitchLogViewModel` | `state: StateFlow<ViewState<HitchLogState>>` | passive — combines log + records |
-| `RecordViewModel` | `state: StateFlow<ViewState<HitchLogRecord>>` | `updateDate()`, `updateTime()`, `updateText()`, `save()`, `delete()` |
+| `LogListViewModel` | `ViewState<List<HitchLog>>` | passive — observes `getLogs()` |
+| `EditLogViewModel` | `ViewState<HitchLog>` | `updateName()`, `saveLog()`, `deleteLog()` |
+| `HitchLogViewModel` | `ViewState<HitchLogState>` | passive — combines log + records |
+| `RecordViewModel` | `ViewState<HitchLogRecord>` | `updateDate()`, `updateTime()`, `updateText()`, `save()`, `delete()` |
 
 `RecordViewModel` uses date format `dd.MM.yyyy` and time format `HH:mm` when parsing user input.
 
----
-
-## Dependency Injection (Koin)
-
-```kotlin
-single { AuthService(Firebase.auth) }
-singleOf(::FirestoreRepository).bind<Repository>()
-viewModelOf(::AuthViewModel)
-viewModelOf(::LogListViewModel)
-viewModelOf(::EditLogViewModel)
-viewModel { HitchLogViewModel(get(), get()) }          // logId param + repository
-viewModel { params -> RecordViewModel(get(), params[0], params[1], params[2]) }
-// params: logId, recordId, recordType
-```
-
----
-
-## Platform Entry Points
-
-| Platform | File | Notes |
-|---|---|---|
-| Android | `MainActivity.kt`, `MainApplication.kt` | Koin initialized with `androidContext()` |
-| iOS | `MainViewController.kt` | `ComposeUIViewController` with Koin init |
-| Web | `wasmJsMain/main.kt` | `ComposeViewport` — currently disabled in build |
-
----
-
-## DateTime Utilities (`Utils.kt`)
-
-- `Instant.localTZDateTime()` — converts to `LocalDateTime` in device timezone
-- `Timestamp.toLocalDateTime()` — Firebase Timestamp → LocalDateTime
-- `LocalDateTime.toTimestamp()` — LocalDateTime → Firebase Timestamp
-
-Chronicle (хроника) times must be in **Moscow time** (per competition rules), but the app stores local device timezone. This discrepancy should be considered in any timezone-aware features.
+### Dependency Injection
+Koin setup in `di/AppModule.kt`:
+- `AuthService` (single), `FirestoreRepository` (single→Repository)
+- All ViewModels via `viewModelOf` or `viewModel { }`
+- `RecordViewModel` takes params: logId, recordId, recordType
 
 ---
 
@@ -197,79 +111,67 @@ Chronicle (хроника) times must be in **Moscow time** (per competition rul
 
 | Location | Issue |
 |---|---|
-| `AuthScreen.kt:84` | Google sign-in error not shown to user |
-| `AuthViewModel.kt:39` | Anonymous login error not handled |
-| `RecordViewModel.kt:79` | Date parse failure is silently swallowed |
-| `RecordViewModel.kt:90` | Record save error not propagated to UI |
-| `LogListScreen.kt:95` | Edit button placeholder — not fully implemented |
+| `AuthViewModel.kt:52` | Anonymous login error logged but not shown to user |
+| `LogListScreen.kt:113` | Edit button functionality unclear — needs review |
 | `wasmJsMain` | WASM target disabled in `build.gradle.kts` |
 
 ---
 
 ## Competition Domain
 
-The app is built for **Guild hitchhiking race** (Гильдия спортивного автостопа) competitions. Rules are in `Правила соревнований Гильдии.md`. Key concepts that inform the data model:
+App built for **Guild hitchhiking races** (Гильдия спортивного автостопа). Full rules in `Правила соревнований Гильдии.md`.
 
-### Race Flow
-1. **Старт (START)** — each participant chooses their starting position; arbiter assigns a calculated start time
-2. **Движение** — alternating between lifts (`LIFT`/`GET_OFF`) and walking (`WALK`/`WALK_END`)
-3. **КП (CHECKPOINT)** — mandatory control points; must be visited in order; participant affixes a control mark
-4. **Финиш (FINISH)** — arrival at finish point
+**Chronicle (хроника)** = official race log. App IS the digital chronicle. Mandatory entries: START, LIFT (car brand required), GET_OFF (location), CHECKPOINT, REST_ON/OFF timestamps, OFFSIDE_ON/OFF timestamps, FINISH/RETIRE. Must be **Moscow time (UTC+3)**, accurate to 1 minute. **Known issue:** app stores local device timezone.
 
-### Key Modes
-- **Rest (REST_ON/REST_OFF)** — structured rest budget defined as `k/m` (k hours, dividable into at most m parts). Rest time is subtracted from race time. Must be taken/cancelled at the same point (≤24m radius). Rest position priority is not preserved.
-- **Вне игры / Offside (OFFSIDE_ON/OFFSIDE_OFF)** — "out of game" mode; race clock keeps running; participant cannot advance on the route; can be set/cancelled retroactively. Position priority is not preserved.
+**Race modes:**
+- **REST** (REST_ON/OFF) — rest budget `k/m` hours. Subtracts from race time. Must start/end at same point (≤24m radius).
+- **OFFSIDE** (вне игры, OFFSIDE_ON/OFF) — clock runs, no route advancement. Can be set retroactively.
 
-### Race Time Calculation
-```
-race_time = finish_time − calculated_start_time − rest_used + penalties
-```
-For pairs: multiply by coefficient (male pair × 0.9, mixed × 1.0, female pair × 1.05).
-
-### Chronicle (Хроника)
-The app IS the digital хроника. Required entries per rules:
-- Start fact and time
-- Every `LIFT` (car brand mandatory per rules, currently just text)
-- Every `GET_OFF` with location
-- Significant walking (`WALK`)
-- `CHECKPOINT` with time + race info from the КП
-- `REST_ON`/`REST_OFF` timestamps
-- `OFFSIDE_ON`/`OFFSIDE_OFF` timestamps
-- `RETIRE` with time and location
-- `FINISH` fact and time
-
-Chronicle must be in **Moscow time (UTC+3)**, accurate to 1 minute.
-
-### Penalties (relevant to app data integrity)
-- Missing chronicle entry → disqualification
-- Rest cancelled outside the 24m radius → disqualification  
-- "Вне игры" mode violation → disqualification
-- Early rest cancellation → 5× time penalty
-
-### Teams (Командные соревнования)
-Format: `n+k` (n leaders + k followers). Team logs reference `teamId`. Followers (`ведомые`) have infinite rest budget and limited chronicle requirements.
+**Race time:** `finish_time − calculated_start_time − rest_used + penalties`
 
 ---
 
 ## Development Guidelines
 
-### Code style
-- Follow Kotlin official code style (set in `gradle.properties`)
-- JVM target: 17
-- All shared code goes in `commonMain`; platform-specific only when necessary
+**Code style:** Kotlin official (see `gradle.properties`), JVM 17, shared code in `commonMain`
 
-### Adding a new record type
-1. Add enum value to `HitchLogRecordType` in `domain/Data.kt`
-2. Add string resource in `composeResources/`
-3. No other changes needed — the type is serialized as its name string in Firestore
+**Add record type:** 1) Add to `HitchLogRecordType` enum in `domain/Data.kt`, 2) Add string resource in `composeResources/`. Type serializes as name string.
 
-### Adding a new screen
-1. Add a `data class` or `data object` to `Screen` in `ui/Nav.kt`
-2. Add composable + `composable<Screen.NewScreen>` entry in `HitchLogApp.kt`
-3. Create ViewModel in `ui/viewmodel/`, register in `di/AppModule.kt`
+**Add screen:** 1) Add to `Screen` sealed interface in `ui/Nav.kt`, 2) Add composable + route in `HitchLogApp.kt`, 3) Create ViewModel in `ui/viewmodel/`, register in `di/AppModule.kt`
 
-### Firebase rules
-Firestore queries always filter by `userId` — no cross-user data access at the app level. Ensure any new queries include a `userId` filter.
+**Strings:** Never use hardcoded strings in composables or any user-visible code. All text must come from string resources via `stringResource(Res.string.*)` in composables. This includes `contentDescription` for all icons and images (decorative-only elements may use `contentDescription = null`).
 
-### Timestamp handling
-Records use `LocalDateTime` internally. The `getNextTime()` collision resolution in `FirestoreRepository` uses `Source.CACHE` — this means offline-created records with the same minute may have incorrect ordering until synced.
+**Firebase:** All queries filter by `userId`. New queries must include `userId` filter.
+
+**Timestamps:** `getNextTime()` uses `Source.CACHE` for collision detection — offline records with same minute may order incorrectly until synced.
+
+---
+
+## Skills
+
+Use the appropriate skill when working on specific aspects of the codebase:
+
+**Architecture & Structure:**
+- `android-module-structure` — module layout, dependency rules, Gradle conventions
+- `kotlin-project-modularization` — module boundaries, visibility control
+- `kotlin-project-architecture-review` — architecture review, layer boundaries
+
+**Implementation:**
+- `kotlin-project-feature-implementation` — implementing/extending features
+- `android-presentation-mvi` — ViewModels, State/Action/Event, UI models
+- `android-compose-ui` — Composables, recomposition, animations, previews
+- `android-navigation` — type-safe navigation, nav graphs
+- `android-data-layer` — repositories, data sources, DTOs, mappers
+- `android-di-koin` — Koin DI setup and module definitions
+- `android-error-handling` — Result wrapper, error types, error flows
+
+**Quality & Maintenance:**
+- `kotlin-project-code-review` — code review for architecture, correctness
+- `kotlin-project-bugfix` — diagnosing and fixing bugs
+- `android-testing` — ViewModel tests, Compose UI tests, test doubles
+- `kotlin-kmp-refactor-safety` — safe refactoring discipline
+
+**Platform & Integration:**
+- `kotlin-platform-kmp-bridges` — expect/actual, platform-specific code
+- `kotlin-ui-compose-multiplatform` — shared UI in Compose Multiplatform
+- `kotlin-data-kmp-data-layer` — KMP data layer patterns
