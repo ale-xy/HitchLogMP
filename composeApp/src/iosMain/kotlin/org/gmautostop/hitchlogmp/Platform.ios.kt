@@ -1,5 +1,6 @@
 package org.gmautostop.hitchlogmp
 
+import androidx.compose.runtime.Composable
 import cocoapods.FirebaseFirestore.FIRFirestore
 import kotlinx.cinterop.BetaInteropApi
 import kotlinx.cinterop.ExperimentalForeignApi
@@ -82,4 +83,11 @@ actual suspend fun awaitFirestorePendingWrites() = suspendCancellableCoroutine {
         if (error != null) cont.resumeWithException(Exception(error.localizedDescription))
         else cont.resume(Unit)
     }
+}
+
+actual fun isGoogleAuthUiSupported(): Boolean = true
+
+@Composable
+actual fun androidx.compose.ui.Modifier.platformWindowInsetsPadding(): androidx.compose.ui.Modifier {
+    return this.windowInsetsPadding(androidx.compose.foundation.layout.WindowInsets.safeDrawing)
 }

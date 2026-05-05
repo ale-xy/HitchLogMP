@@ -5,9 +5,6 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.serializer
-import no.synth.kmpzip.io.ByteArrayOutputStream
-import no.synth.kmpzip.zip.ZipEntry
-import no.synth.kmpzip.zip.ZipOutputStream
 
 /**
  * Generates XLSX file bytes from a list of data objects.
@@ -158,16 +155,7 @@ internal fun getExcelColumnName(columnIndex: Int): String {
 }
 
 /**
- * Creates a ZIP archive from a map of file paths to byte arrays using kmp-zip library.
+ * Creates a ZIP archive from a map of file paths to byte arrays.
+ * Platform-specific implementation.
  */
-private fun createZipArchive(files: Map<String, ByteArray>): ByteArray {
-    val outputStream = ByteArrayOutputStream()
-    ZipOutputStream(outputStream).use { zip ->
-        files.forEach { (path, bytes) ->
-            zip.putNextEntry(ZipEntry(path))
-            zip.write(bytes)
-            zip.closeEntry()
-        }
-    }
-    return outputStream.toByteArray()
-}
+internal expect fun createZipArchive(files: Map<String, ByteArray>): ByteArray

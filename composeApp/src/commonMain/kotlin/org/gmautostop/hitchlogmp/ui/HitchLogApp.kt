@@ -1,11 +1,8 @@
 package org.gmautostop.hitchlogmp.ui
 
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.safeDrawing
-import androidx.compose.foundation.layout.windowInsetsPadding
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
@@ -16,6 +13,8 @@ import androidx.navigation.toRoute
 import kotlinx.coroutines.launch
 import org.gmautostop.hitchlogmp.data.AuthService
 import org.gmautostop.hitchlogmp.data.FirestoreSyncTracker
+import org.gmautostop.hitchlogmp.domain.HitchLogRecordType
+import org.gmautostop.hitchlogmp.platformWindowInsetsPadding
 import org.gmautostop.hitchlogmp.ui.auth.AuthScreen
 import org.gmautostop.hitchlogmp.ui.auth.EmailLoginScreen
 import org.gmautostop.hitchlogmp.ui.auth.EmailLoginViewModel
@@ -24,6 +23,7 @@ import org.gmautostop.hitchlogmp.ui.auth.EmailRegisterViewModel
 import org.gmautostop.hitchlogmp.ui.auth.ForgotPasswordScreen
 import org.gmautostop.hitchlogmp.ui.auth.ForgotPasswordSentScreen
 import org.gmautostop.hitchlogmp.ui.auth.ForgotPasswordViewModel
+import org.gmautostop.hitchlogmp.ui.designsystem.theme.HLTheme
 import org.gmautostop.hitchlogmp.ui.hitchlog.HitchLogScreen
 import org.gmautostop.hitchlogmp.ui.hitchlog.HitchLogViewModel
 import org.gmautostop.hitchlogmp.ui.recordedit.EditRecordScreen
@@ -37,15 +37,15 @@ fun HitchLogApp(navController: NavHostController) {
     val authService = koinInject<AuthService>()
     val startDestination: Screen = if (authService.currentUser.value != null) Screen.LogList else Screen.Auth
 
-    MaterialTheme {
+    HLTheme {
         Surface(
             modifier = Modifier.fillMaxSize(),
-            color = MaterialTheme.colors.background
+            color = MaterialTheme.colorScheme.background
         ) {
             NavHost(
                 navController = navController,
                 startDestination = startDestination,
-                modifier = Modifier.windowInsetsPadding(WindowInsets.safeDrawing)
+                modifier = Modifier.platformWindowInsetsPadding()
             ) {
                 composable<Screen.Auth> {
                     AuthScreen(
@@ -144,7 +144,7 @@ fun HitchLogApp(navController: NavHostController) {
                         navigateUp = { navController.navigateUp() },
                         editLog = { logId -> navController.navigate(Screen.EditLog(logId)) },
                         createRecord = { type ->
-                            navController.navigate(Screen.EditRecord(logId = hitchLog.logId, recordType = type))
+                            navController.navigate(Screen.EditRecord(logId = hitchLog.logId, recordType = type.name))
                         },
                         editRecord = { id ->
                             navController.navigate(Screen.EditRecord(logId = hitchLog.logId, recordId = id))
@@ -155,7 +155,11 @@ fun HitchLogApp(navController: NavHostController) {
                     val editRecord: Screen.EditRecord = backStackEntry.toRoute()
                     EditRecordScreen(
                         koinViewModel<EditRecordViewModel> {
-                            parametersOf(editRecord.logId, editRecord.recordId, editRecord.recordType)
+                            parametersOf(
+                                editRecord.logId,
+                                editRecord.recordId,
+                                HitchLogRecordType.valueOf(editRecord.recordType)
+                            )
                         },
                         finish = { navController.popBackStack() }
                     )

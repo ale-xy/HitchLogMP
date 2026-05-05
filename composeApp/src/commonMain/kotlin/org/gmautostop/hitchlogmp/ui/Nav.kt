@@ -33,7 +33,7 @@ sealed interface Screen {
     data class EditRecord(
         val logId: String,
         val recordId: String = "",
-        val recordType: HitchLogRecordType = HitchLogRecordType.FREE_TEXT
+        val recordType: String = HitchLogRecordType.FREE_TEXT.name
     ) : Screen
 
 }

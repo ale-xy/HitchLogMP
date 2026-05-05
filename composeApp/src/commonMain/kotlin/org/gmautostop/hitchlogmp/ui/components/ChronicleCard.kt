@@ -25,12 +25,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import hitchlogmp.composeapp.generated.resources.Res
 import hitchlogmp.composeapp.generated.resources.edit_chronicle
+import org.gmautostop.hitchlogmp.ui.HitchLogUi
 import org.gmautostop.hitchlogmp.ui.designsystem.components.HLIconBadge
+import org.gmautostop.hitchlogmp.ui.designsystem.components.IconBadgeSize
 import org.gmautostop.hitchlogmp.ui.designsystem.theme.HLTheme
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.ColorRole
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLColors
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLTypography
-import org.gmautostop.hitchlogmp.ui.HitchLogUi
 import org.jetbrains.compose.resources.stringResource
 
 /**
@@ -66,7 +67,7 @@ fun ChronicleCard(
         HLIconBadge(
             icon = Icons.AutoMirrored.Filled.MenuBook,
             colorRole = ColorRole.PRIMARY,
-            size = org.gmautostop.hitchlogmp.ui.designsystem.components.IconBadgeSize.LARGE
+            size = IconBadgeSize.LARGE
         )
 
         // Text content

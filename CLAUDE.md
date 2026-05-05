@@ -4,7 +4,7 @@
 
 HitchlogMP is a **Kotlin Multiplatform** (KMP) mobile/web app for logging hitchhiking race activity during Guild competitions. Participants record lifts, walks, checkpoints, rest periods, and other race events in real time. The app syncs via Firebase Firestore.
 
-**Platforms:** Android (API 24+), iOS (Arm64, X64, Simulator), Web/WASM (currently disabled in build)
+**Platforms:** Android (API 24+), iOS (Arm64, X64, Simulator), Web (JS target)
 
 ---
 
@@ -14,8 +14,8 @@ HitchlogMP is a **Kotlin Multiplatform** (KMP) mobile/web app for logging hitchh
 |---|---|
 | Language | Kotlin 2.0.21 with Multiplatform |
 | UI | Compose Multiplatform 1.6.11 + Material3 |
-| Backend | Firebase Firestore + Firebase Auth (GitLive KMP SDK 2.1.0) |
-| Auth | KMPAuth 2.2.0 (Firebase, Google Sign-In) |
+| Backend | Firebase Firestore + Firebase Auth (GitLive KMP SDK 2.4.0) |
+| Auth | KMPAuth 2.3.1 (Firebase, Google Sign-In) |
 | DI | Koin 4.0.0 |
 | Navigation | Compose Multiplatform Navigation 2.8.0-alpha10 |
 | Serialization | Kotlinx Serialization 1.7.3 |
@@ -38,7 +38,7 @@ composeApp/src/
     Utils.kt          # DateTime helpers (LocalDateTime ↔ Timestamp conversion)
   androidMain/        # MainActivity, MainApplication, Platform.android.kt
   iosMain/            # MainViewController.kt, Platform.ios.kt
-  wasmJsMain/         # main.kt, Platform.wasmJs.kt (disabled)
+  jsMain/             # main.kt, Platform.js.kt, index.html, styles.css
 ```
 
 ---
@@ -113,7 +113,6 @@ Koin setup in `di/AppModule.kt`:
 |---|---|
 | `AuthViewModel.kt:52` | Anonymous login error logged but not shown to user |
 | `LogListScreen.kt:113` | Edit button functionality unclear — needs review |
-| `wasmJsMain` | WASM target disabled in `build.gradle.kts` |
 
 ---
 

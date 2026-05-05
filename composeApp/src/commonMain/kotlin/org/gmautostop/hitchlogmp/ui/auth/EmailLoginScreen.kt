@@ -52,6 +52,7 @@ import hitchlogmp.composeapp.generated.resources.password_label
 import hitchlogmp.composeapp.generated.resources.password_visibility_toggle
 import kotlinx.coroutines.launch
 import org.gmautostop.hitchlogmp.ui.ObserveAsEvents
+import org.gmautostop.hitchlogmp.ui.UiText
 import org.gmautostop.hitchlogmp.ui.asString
 import org.gmautostop.hitchlogmp.ui.asStringSuspend
 import org.gmautostop.hitchlogmp.ui.designsystem.components.HLButton
@@ -250,8 +251,8 @@ private class EmailLoginStatePreviewProvider : PreviewParameterProvider<EmailLog
         EmailLoginState(
             email = "invalid",
             password = "123",
-            emailError = org.gmautostop.hitchlogmp.ui.UiText.DynamicString("Invalid email"),
-            passwordError = org.gmautostop.hitchlogmp.ui.UiText.DynamicString("Password too short"),
+            emailError = UiText.DynamicString("Invalid email"),
+            passwordError = UiText.DynamicString("Password too short"),
             isLoading = false
         ),
         // Loading state
@@ -266,7 +267,7 @@ private class EmailLoginStatePreviewProvider : PreviewParameterProvider<EmailLog
         EmailLoginState(
             email = "invalid-email",
             password = "password123",
-            emailError = org.gmautostop.hitchlogmp.ui.UiText.DynamicString("Invalid email format"),
+            emailError = UiText.DynamicString("Invalid email format"),
             passwordError = null,
             isLoading = false
         ),
@@ -275,7 +276,7 @@ private class EmailLoginStatePreviewProvider : PreviewParameterProvider<EmailLog
             email = "user@example.com",
             password = "123",
             emailError = null,
-            passwordError = org.gmautostop.hitchlogmp.ui.UiText.DynamicString("Password must be at least 6 characters"),
+            passwordError = UiText.DynamicString("Password must be at least 6 characters"),
             isLoading = false
         )
     )

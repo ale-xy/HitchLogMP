@@ -6,7 +6,6 @@ import dev.gitlive.firebase.firestore.Source
 import dev.gitlive.firebase.firestore.Timestamp
 import dev.gitlive.firebase.firestore.firestore
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.IO
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
@@ -63,7 +62,7 @@ class FirestoreRepository(
             }
             log.e(err = error) { appError.displayMessage }
             emit(Response.Failure(appError))
-        }.flowOn(Dispatchers.IO)
+        }.flowOn(Dispatchers.Default)
 
     private suspend inline fun <T> firestoreWrite(
         operationName: String,
@@ -90,7 +89,7 @@ class FirestoreRepository(
         }.catch { error ->
             log.e(err = error) { error.message ?: "getLogs error" }
             emit(Response.Failure(AppError.NetworkError(error.message ?: "getLogs error")))
-        }.flowOn(Dispatchers.IO)
+        }.flowOn(Dispatchers.Default)
 
 
     override fun getLog(logId: String): Flow<Response<HitchLog>> =
@@ -110,7 +109,7 @@ class FirestoreRepository(
                 }
                 emit(Response.Failure(appError))
             }
-            .flowOn(Dispatchers.IO)
+            .flowOn(Dispatchers.Default)
 
     override fun addLog(log: HitchLog) = repositoryFlow(isWrite = true) {
         val userId = authService.currentUser.value?.id

@@ -3,6 +3,9 @@ package org.gmautostop.hitchlogmp
 import android.content.Context
 import android.content.Intent
 import android.os.Build
+import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.runtime.Composable
 import androidx.core.content.FileProvider
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.firestore
@@ -139,4 +142,11 @@ private object AndroidShareHelper : KoinComponent {
 
 actual suspend fun awaitFirestorePendingWrites() {
     Firebase.firestore.waitForPendingWrites().await()
+}
+
+actual fun isGoogleAuthUiSupported(): Boolean = true
+
+@Composable
+actual fun androidx.compose.ui.Modifier.platformWindowInsetsPadding(): androidx.compose.ui.Modifier {
+    return this.windowInsetsPadding(androidx.compose.foundation.layout.WindowInsets.safeDrawing)
 }

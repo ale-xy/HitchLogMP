@@ -16,7 +16,6 @@ import org.gmautostop.hitchlogmp.ui.hitchlog.HitchLogViewModel
 import org.gmautostop.hitchlogmp.ui.recordedit.EditRecordViewModel
 import org.koin.core.module.dsl.singleOf
 import org.koin.core.module.dsl.viewModel
-import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.bind
 import org.koin.dsl.module
 
@@ -35,10 +34,14 @@ val appModule = module {
     viewModel { ForgotPasswordViewModel(get(), get()) }
     
     // Other ViewModels
-    viewModelOf(::LogListViewModel)
-    viewModelOf(::EditLogViewModel)
-    viewModel { HitchLogViewModel(get(), get()) }
+    viewModel { LogListViewModel(get(), get(), get()) }
     viewModel { params ->
-        EditRecordViewModel( get(), params[0], params[1], params[2],)
+        EditLogViewModel(params[0], get(), get())
+    }
+    viewModel { params ->
+        HitchLogViewModel(params[0], get())
+    }
+    viewModel { params ->
+        EditRecordViewModel(get(), params[0], params[1], params[2])
     }
 }

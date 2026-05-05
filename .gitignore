@@ -18,3 +18,12 @@ captures
 **/xcshareddata/WorkspaceSettings.xcsettings
 /design/
 /plans/
+.DS_Store
+.env
+composeApp/src/jsMain/resources/.env
+
+# Firebase config files with credentials
+google-services.json
+composeApp/google-services.json
+GoogleService-Info.plist
+iosApp/GoogleService-Info.plist

@@ -54,6 +54,7 @@ import hitchlogmp.composeapp.generated.resources.password_visibility_toggle
 import hitchlogmp.composeapp.generated.resources.register_title
 import kotlinx.coroutines.launch
 import org.gmautostop.hitchlogmp.ui.ObserveAsEvents
+import org.gmautostop.hitchlogmp.ui.UiText
 import org.gmautostop.hitchlogmp.ui.asString
 import org.gmautostop.hitchlogmp.ui.asStringSuspend
 import org.gmautostop.hitchlogmp.ui.designsystem.components.HLButton
@@ -277,9 +278,9 @@ private class EmailRegisterStatePreviewProvider : PreviewParameterProvider<Email
             email = "invalid",
             password = "123",
             confirmPassword = "456",
-            emailError = org.gmautostop.hitchlogmp.ui.UiText.DynamicString("Invalid email"),
-            passwordError = org.gmautostop.hitchlogmp.ui.UiText.DynamicString("Password too short"),
-            confirmPasswordError = org.gmautostop.hitchlogmp.ui.UiText.DynamicString("Passwords don't match"),
+            emailError = UiText.DynamicString("Invalid email"),
+            passwordError = UiText.DynamicString("Password too short"),
+            confirmPasswordError = UiText.DynamicString("Passwords don't match"),
             isLoading = false
         ),
         // Loading state
@@ -299,7 +300,7 @@ private class EmailRegisterStatePreviewProvider : PreviewParameterProvider<Email
             confirmPassword = "password456",
             emailError = null,
             passwordError = null,
-            confirmPasswordError = org.gmautostop.hitchlogmp.ui.UiText.DynamicString("Passwords don't match"),
+            confirmPasswordError = UiText.DynamicString("Passwords don't match"),
             isLoading = false
         ),
         // Weak password error only
@@ -308,7 +309,7 @@ private class EmailRegisterStatePreviewProvider : PreviewParameterProvider<Email
             password = "123",
             confirmPassword = "123",
             emailError = null,
-            passwordError = org.gmautostop.hitchlogmp.ui.UiText.DynamicString("Password must be at least 6 characters"),
+            passwordError = UiText.DynamicString("Password must be at least 6 characters"),
             confirmPasswordError = null,
             isLoading = false
         )

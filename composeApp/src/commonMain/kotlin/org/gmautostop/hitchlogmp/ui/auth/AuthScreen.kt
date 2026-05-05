@@ -39,8 +39,6 @@ import hitchlogmp.composeapp.generated.resources.anonymous_login_warning_message
 import hitchlogmp.composeapp.generated.resources.anonymous_login_warning_title
 import hitchlogmp.composeapp.generated.resources.auth_anonymous_icon_desc
 import hitchlogmp.composeapp.generated.resources.auth_anonymous_login
-import hitchlogmp.composeapp.generated.resources.auth_apple_icon_desc
-import hitchlogmp.composeapp.generated.resources.auth_apple_login
 import hitchlogmp.composeapp.generated.resources.auth_divider_or
 import hitchlogmp.composeapp.generated.resources.auth_email_icon_desc
 import hitchlogmp.composeapp.generated.resources.auth_email_login
@@ -51,9 +49,9 @@ import hitchlogmp.composeapp.generated.resources.auth_subtitle
 import hitchlogmp.composeapp.generated.resources.auth_title
 import hitchlogmp.composeapp.generated.resources.cancel
 import hitchlogmp.composeapp.generated.resources.gma_logo
-import hitchlogmp.composeapp.generated.resources.ic_apple
 import hitchlogmp.composeapp.generated.resources.ic_google
 import kotlinx.coroutines.launch
+import org.gmautostop.hitchlogmp.isGoogleAuthUiSupported
 import org.gmautostop.hitchlogmp.ui.ObserveAsEvents
 import org.gmautostop.hitchlogmp.ui.asStringSuspend
 import org.gmautostop.hitchlogmp.ui.designsystem.components.ButtonVariant
@@ -174,71 +172,73 @@ fun AuthScreen(
                         )
                     }
                     
-                    // Google button (outlined, use KMPAuth)
-                    GoogleButtonUiContainerFirebase(
-                        modifier = Modifier.fillMaxWidth(),
-                        linkAccount = true,
-                        onResult = { result ->
-                            val firebaseUser = if (result.isSuccess) result.getOrNull() else null
-                            onAction(AuthAction.OnGoogleLoginResult(firebaseUser))
-                            
-                            // Handle error case
-                            if (result.isFailure) {
-                                val error = result.exceptionOrNull()
-                                onAction(AuthAction.OnGoogleLoginResult(null))
-                            }
-                        }
-                    ) {
-                        HLButton(
-                            onClick = {
-                                onAction(AuthAction.OnGoogleLoginClick)
-                                this.onClick()
-                            },
-                            variant = ButtonVariant.Outlined,
-                            enabled = !state.isGoogleLoading && !state.isAppleLoading && !state.isAnonymousLoading,
-                            leadingIcon = {
-                    if (state.isGoogleLoading) {
-                        CircularProgressIndicator(
-                            modifier = Modifier.size(20.dp),
-                            strokeWidth = 2.5.dp,
-                            color = HLColors.Primary
-                        )
-                                } else {
-                                    Image(
-                                        painter = painterResource(Res.drawable.ic_google),
-                                        contentDescription = stringResource(Res.string.auth_google_icon_desc),
-                                        modifier = Modifier.size(20.dp)
-                                    )
+                    // Google button (outlined, use KMPAuth) - only on supported platforms
+                    if (isGoogleAuthUiSupported()) {
+                        GoogleButtonUiContainerFirebase(
+                            modifier = Modifier.fillMaxWidth(),
+                            linkAccount = true,
+                            onResult = { result ->
+                                val firebaseUser = if (result.isSuccess) result.getOrNull() else null
+                                onAction(AuthAction.OnGoogleLoginResult(firebaseUser))
+                                
+                                // Handle error case
+                                if (result.isFailure) {
+                                    val error = result.exceptionOrNull()
+                                    onAction(AuthAction.OnGoogleLoginResult(null))
                                 }
-                            },
-                            modifier = Modifier.fillMaxWidth()
+                            }
                         ) {
-                            Text(
-                                text = stringResource(Res.string.auth_google_login),
-                                style = HLTypography.bodyLarge
+                            HLButton(
+                                onClick = {
+                                    onAction(AuthAction.OnGoogleLoginClick)
+                                    this.onClick()
+                                },
+                                variant = ButtonVariant.Outlined,
+                                enabled = !state.isGoogleLoading && !state.isAppleLoading && !state.isAnonymousLoading,
+                                leadingIcon = {
+                        if (state.isGoogleLoading) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(20.dp),
+                                strokeWidth = 2.5.dp,
+                                color = HLColors.Primary
                             )
+                                    } else {
+                                        Image(
+                                            painter = painterResource(Res.drawable.ic_google),
+                                            contentDescription = stringResource(Res.string.auth_google_icon_desc),
+                                            modifier = Modifier.size(20.dp)
+                                        )
+                                    }
+                                },
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Text(
+                                    text = stringResource(Res.string.auth_google_login),
+                                    style = HLTypography.bodyLarge
+                                )
+                            }
                         }
                     }
                     
                     // Apple button (outlined, placeholder)
-                    HLButton(
-                        onClick = { onAction(AuthAction.OnAppleLoginClick) },
-                        variant = ButtonVariant.Outlined,
-                        enabled = !state.isGoogleLoading && !state.isAppleLoading && !state.isAnonymousLoading,
-                        leadingIcon = {
-                            Image(
-                                painter = painterResource(Res.drawable.ic_apple),
-                                contentDescription = stringResource(Res.string.auth_apple_icon_desc),
-                                modifier = Modifier.size(20.dp)
-                            )
-                        },
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text(
-                            text = stringResource(Res.string.auth_apple_login),
-                            style = HLTypography.bodyLarge
-                        )
-                    }
+//                    HLButton(
+//                        onClick = { onAction(AuthAction.OnAppleLoginClick) },
+//                        variant = ButtonVariant.Outlined,
+//                        enabled = !state.isGoogleLoading && !state.isAppleLoading && !state.isAnonymousLoading,
+//                        leadingIcon = {
+//                            Image(
+//                                painter = painterResource(Res.drawable.ic_apple),
+//                                contentDescription = stringResource(Res.string.auth_apple_icon_desc),
+//                                modifier = Modifier.size(20.dp)
+//                            )
+//                        },
+//                        modifier = Modifier.fillMaxWidth()
+//                    ) {
+//                        Text(
+//                            text = stringResource(Res.string.auth_apple_login),
+//                            style = HLTypography.bodyLarge
+//                        )
+//                    }
                     
                     // Divider with "или"
                     Row(

@@ -1,0 +1,9 @@
+# Copy this file to local.properties and fill in your Firebase credentials
+# local.properties is already in .gitignore and will not be committed
+
+firebase.apiKey=YOUR_API_KEY_HERE
+firebase.authDomain=YOUR_AUTH_DOMAIN_HERE
+firebase.projectId=YOUR_PROJECT_ID_HERE
+firebase.storageBucket=YOUR_STORAGE_BUCKET_HERE
+firebase.gcmSenderId=YOUR_GCM_SENDER_ID_HERE
+firebase.applicationId=YOUR_APPLICATION_ID_HERE

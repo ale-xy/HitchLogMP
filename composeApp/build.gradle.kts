@@ -1,5 +1,6 @@
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import java.util.Properties
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
@@ -10,28 +11,40 @@ plugins {
     alias(libs.plugins.kotlinSerialization)
 }
 
+// Load local.properties
+val localProperties = Properties().apply {
+    val localPropertiesFile = rootProject.file("local.properties")
+    if (localPropertiesFile.exists()) {
+        localPropertiesFile.inputStream().use { load(it) }
+    }
+}
+
+// Firebase configuration
+val firebaseApiKey = localProperties.getProperty("firebase.apiKey") ?: ""
+val firebaseAuthDomain = localProperties.getProperty("firebase.authDomain") ?: ""
+val firebaseProjectId = localProperties.getProperty("firebase.projectId") ?: ""
+val firebaseStorageBucket = localProperties.getProperty("firebase.storageBucket") ?: ""
+val firebaseGcmSenderId = localProperties.getProperty("firebase.gcmSenderId") ?: ""
+val firebaseApplicationId = localProperties.getProperty("firebase.applicationId") ?: ""
+
 kotlin {
     compilerOptions {
         freeCompilerArgs.add("-Xexplicit-backing-fields")
     }
 
-//    @OptIn(ExperimentalWasmDsl::class)
-//    wasmJs {
-//        moduleName = "composeApp"
-//        browser {
-//            val projectDirPath = project.projectDir.path
-//            commonWebpackConfig {
-//                outputFileName = "composeApp.js"
-//                devServer = (devServer ?: KotlinWebpackConfig.DevServer()).apply {
-//                    static = (static ?: mutableListOf()).apply {
-//                        // Serve sources to debug inside browser
-//                        add(projectDirPath)
-//                    }
-//                }
-//            }
-//        }
-//        binaries.executable()
-//    }
+    js(IR) {
+        browser {
+            commonWebpackConfig {
+                outputFileName = "composeApp.js"
+            }
+        }
+        binaries.executable()
+        compilations.all {
+            compileTaskProvider.configure {
+                compilerOptions.freeCompilerArgs.add("-Xir-property-lazy-initialization")
+            }
+        }
+    }
     
     androidTarget {
         @OptIn(ExperimentalKotlinGradlePluginApi::class)
@@ -51,14 +64,26 @@ kotlin {
     }
     
     sourceSets {
+        all {
+            languageSettings.optIn("kotlin.js.ExperimentalJsExport")
+        }
         
         androidMain.dependencies {
             implementation(libs.ui.tooling.preview)
             implementation(libs.androidx.activity.compose)
 
             implementation(project.dependencies.platform(libs.firebase.bom))
-
+            implementation(libs.kmp.zip)
         }
+        
+        iosMain.dependencies {
+            implementation(libs.kmp.zip)
+        }
+        
+        jsMain.dependencies {
+            implementation(npm("exceljs", "4.3.0"))
+        }
+        
         commonMain.dependencies {
             implementation(libs.runtime)
             implementation(libs.foundation)
@@ -87,10 +112,13 @@ kotlin {
             implementation(libs.kotlinx.datetime)
             implementation(libs.kotlinx.html)
             implementation(libs.kotlinx.serialization.json)
-            implementation(libs.kmp.zip)
         }
     }
 }
+
+// macOS Finder drops .DS_Store into the klib cache at any time, corrupting IC.
+// Delete at configuration time so they're gone before the compiler reads the cache.
+fileTree(layout.buildDirectory).matching { include("**/.DS_Store") }.forEach { it.delete() }
 
 android {
     namespace = "org.gmautostop.hitchlogmp"
@@ -105,6 +133,14 @@ android {
         targetSdk = libs.versions.android.targetSdk.get().toInt()
         versionCode = 1
         versionName = "1.0"
+        
+        // Pass Firebase config to BuildConfig
+        buildConfigField("String", "FIREBASE_API_KEY", "\"$firebaseApiKey\"")
+        buildConfigField("String", "FIREBASE_AUTH_DOMAIN", "\"$firebaseAuthDomain\"")
+        buildConfigField("String", "FIREBASE_PROJECT_ID", "\"$firebaseProjectId\"")
+        buildConfigField("String", "FIREBASE_STORAGE_BUCKET", "\"$firebaseStorageBucket\"")
+        buildConfigField("String", "FIREBASE_GCM_SENDER_ID", "\"$firebaseGcmSenderId\"")
+        buildConfigField("String", "FIREBASE_APPLICATION_ID", "\"$firebaseApplicationId\"")
     }
     packaging {
         resources {
@@ -122,6 +158,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
     dependencies {
         implementation(libs.koin.android)

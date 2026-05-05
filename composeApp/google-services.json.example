@@ -1,45 +1,45 @@
 {
   "project_info": {
-    "project_number": "869765129540",
-    "project_id": "hitchlogmp",
-    "storage_bucket": "hitchlogmp.firebasestorage.app"
+    "project_number": "YOUR_PROJECT_NUMBER",
+    "project_id": "YOUR_PROJECT_ID",
+    "storage_bucket": "YOUR_STORAGE_BUCKET"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:869765129540:android:5205435813697c5a022311",
+        "mobilesdk_app_id": "YOUR_MOBILE_SDK_APP_ID",
         "android_client_info": {
           "package_name": "org.gmautostop.hitchlogmp"
         }
       },
       "oauth_client": [
         {
-          "client_id": "869765129540-i0k1u56h11h8bakkq8si8dd8m3sk2r8f.apps.googleusercontent.com",
+          "client_id": "YOUR_CLIENT_ID.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "org.gmautostop.hitchlogmp",
-            "certificate_hash": "bbd08e8e3bb303ead12f1d835ae141c9858ff49c"
+            "certificate_hash": "YOUR_CERTIFICATE_HASH"
           }
         },
         {
-          "client_id": "869765129540-5pmuegm08d0e77b2idbqqpfkjf7ghpuk.apps.googleusercontent.com",
+          "client_id": "YOUR_WEB_CLIENT_ID.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyCC3qRm78x1IUggVIdSHnzVPlqYHp9f9yk"
+          "current_key": "YOUR_API_KEY_HERE"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "869765129540-5pmuegm08d0e77b2idbqqpfkjf7ghpuk.apps.googleusercontent.com",
+              "client_id": "YOUR_WEB_CLIENT_ID.apps.googleusercontent.com",
               "client_type": 3
             },
             {
-              "client_id": "869765129540-i29qffhbok16a1pbj8vorjumf1sva7md.apps.googleusercontent.com",
+              "client_id": "YOUR_IOS_CLIENT_ID.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
                 "bundle_id": "org.gmautostop.hitchlogmp.HitchLogMP"
