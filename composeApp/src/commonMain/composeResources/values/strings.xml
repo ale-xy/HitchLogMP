@@ -139,7 +139,7 @@
     <string name="email_label">Email</string>
     <string name="password_label">Пароль</string>
     <string name="password_hint">Минимум 6 символов</string>
-    <string name="forgot_password">Забыли пароль?</string>
+    <string name="forgot_password">Забыл пароль?</string>
     <string name="login_button">Войти</string>
     <string name="no_account">Нет аккаунта? Зарегистрируйся</string>
     <string name="logging_in">Вход...</string>
@@ -161,7 +161,7 @@
     <!-- Forgot Password Sent Screen -->
     <string name="email_sent_title">Письмо отправлено</string>
     <string name="email_sent_description">Ссылка отправлена на %1$s. Проверь почту.</string>
-    <string name="back_to_login">Вернуться к входу</string>
+    <string name="back_to_login">Войти</string>
     <string name="email_sent_icon_desc">Письмо отправлено</string>
     
     <!-- Validation Errors -->
