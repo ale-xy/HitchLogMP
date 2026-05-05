@@ -99,7 +99,7 @@ fun HLConfirmationDialog(
             // Message
             Text(
                 text = message,
-                style = HLTypography.bodyMedium,
+                style = HLTypography.bodyLarge,
                 color = HLColors.OnSurfaceVariant
             )
 

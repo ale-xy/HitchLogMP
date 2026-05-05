@@ -20,15 +20,15 @@
     <string name="chronicle_name_label">Название хроники</string>
     
     <!-- Logout Dialog -->
-    <string name="logout_title">Выйти из аккаунта?</string>
-    <string name="logout_message_regular">Данные хроник сохранятся на сервере. Вы сможете войти снова в любое время.</string>
-    <string name="logout_message_anonymous">Вы используете анонимный вход. После выхода доступ к хроникам будет утерян навсегда.</string>
+    <string name="logout_title">Выйти?</string>
+    <string name="logout_message_regular">Хроники сохранены на сервере. Можешь войти снова когда угодно.</string>
+    <string name="logout_message_anonymous">Анонимный вход — после выхода доступ к хроникам потеряешь навсегда.</string>
     <string name="logout_confirm">Выйти</string>
     <string name="cancel">Отмена</string>
     
     <!-- Delete Dialog -->
     <string name="delete_chronicle_title">Удалить хронику?</string>
-    <string name="delete_chronicle_message">Хроника «%1$s» и все её записи будут удалены без возможности восстановления.</string>
+    <string name="delete_chronicle_message">Хроника «%1$s» и все записи удалятся без возможности восстановления.</string>
     <string name="delete_confirm">Удалить</string>
     
     <!-- Empty State -->
@@ -130,7 +130,7 @@
     
     <!-- Anonymous Login Warning Dialog -->
     <string name="anonymous_login_warning_title">Анонимный вход</string>
-    <string name="anonymous_login_warning_message">При анонимном входе вы не сможете восстановить доступ к хроникам после выхода. Данные будут утеряны навсегда. Рекомендуем использовать вход через Google или Email.</string>
+    <string name="anonymous_login_warning_message">Анонимный вход — после выхода доступ к хроникам потеряешь навсегда. Лучше войди другим способом.</string>
     <string name="anonymous_login_confirm">Понятно</string>
     <string name="anonymous_login_warning_icon_desc">Предупреждение об анонимном входе</string>
     
@@ -141,7 +141,7 @@
     <string name="password_hint">Минимум 6 символов</string>
     <string name="forgot_password">Забыли пароль?</string>
     <string name="login_button">Войти</string>
-    <string name="no_account">Нет аккаунта? Зарегистрироваться</string>
+    <string name="no_account">Нет аккаунта? Зарегистрируйся</string>
     <string name="logging_in">Вход...</string>
     
     <!-- Email Register Screen -->
@@ -149,27 +149,27 @@
     <string name="confirm_password_label">Повторите пароль</string>
     <string name="create_account_button">Создать аккаунт</string>
     <string name="creating_account">Создание...</string>
-    <string name="have_account">Уже есть аккаунт? Войти</string>
-    <string name="email_verification_sent">На ваш email отправлено письмо для подтверждения</string>
+    <string name="have_account">Есть аккаунт? Войди</string>
+    <string name="email_verification_sent">Письмо для подтверждения отправлено на твой email</string>
     
     <!-- Forgot Password Screen -->
     <string name="forgot_password_title">Сброс пароля</string>
-    <string name="forgot_password_description">Введите email, указанный при регистрации. Мы отправим ссылку для сброса пароля.</string>
+    <string name="forgot_password_description">Введи email от аккаунта — отправим ссылку для сброса пароля.</string>
     <string name="send_reset_link">Отправить ссылку</string>
     <string name="sending">Отправка...</string>
     
     <!-- Forgot Password Sent Screen -->
     <string name="email_sent_title">Письмо отправлено</string>
-    <string name="email_sent_description">Ссылка для сброса пароля отправлена на %1$s. Проверьте почту и следуйте инструкциям.</string>
+    <string name="email_sent_description">Ссылка отправлена на %1$s. Проверь почту.</string>
     <string name="back_to_login">Вернуться к входу</string>
     <string name="email_sent_icon_desc">Письмо отправлено</string>
     
     <!-- Validation Errors -->
-    <string name="error_invalid_email">Некорректный email адрес</string>
+    <string name="error_invalid_email">Неверный email</string>
     <string name="error_password_too_short">Минимум 6 символов</string>
     <string name="error_passwords_dont_match">Пароли не совпадают</string>
-    <string name="error_empty_email">Введите email</string>
-    <string name="error_empty_password">Введите пароль</string>
+    <string name="error_empty_email">Введи email</string>
+    <string name="error_empty_password">Введи пароль</string>
     
     <!-- Firebase Auth Errors -->
     <string name="error_email_already_in_use">Этот email уже используется</string>
@@ -178,10 +178,10 @@
     <string name="error_wrong_password">Неверный пароль</string>
     <string name="error_invalid_credential">Неверные данные для входа</string>
     <string name="error_user_disabled">Аккаунт заблокирован</string>
-    <string name="error_too_many_requests">Слишком много попыток. Попробуйте позже</string>
-    <string name="error_network_failed">Ошибка сети. Проверьте подключение</string>
+    <string name="error_too_many_requests">Слишком много попыток. Попробуй позже</string>
+    <string name="error_network_failed">Ошибка сети. Проверь подключение</string>
     <string name="error_operation_not_allowed">Вход по email отключен</string>
-    <string name="error_unknown">Произошла ошибка. Попробуйте снова</string>
+    <string name="error_unknown">Произошла ошибка. Попробуй снова</string>
     
     <!-- Content Descriptions -->
     <string name="password_visibility_toggle">Показать/скрыть пароль</string>

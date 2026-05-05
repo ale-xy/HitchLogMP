@@ -170,7 +170,7 @@ fun AuthScreen(
                     ) {
                         Text(
                             text = stringResource(Res.string.auth_email_login),
-                            style = HLTypography.labelLarge
+                            style = HLTypography.bodyLarge
                         )
                     }
                     
@@ -215,7 +215,7 @@ fun AuthScreen(
                         ) {
                             Text(
                                 text = stringResource(Res.string.auth_google_login),
-                                style = HLTypography.labelLarge
+                                style = HLTypography.bodyLarge
                             )
                         }
                     }
@@ -236,7 +236,7 @@ fun AuthScreen(
                     ) {
                         Text(
                             text = stringResource(Res.string.auth_apple_login),
-                            style = HLTypography.labelLarge
+                            style = HLTypography.bodyLarge
                         )
                     }
                     
@@ -288,7 +288,7 @@ fun AuthScreen(
                     ) {
                         Text(
                             text = stringResource(Res.string.auth_anonymous_login),
-                            style = HLTypography.labelLarge
+                            style = HLTypography.bodyLarge
                         )
                     }
                 }
