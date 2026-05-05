@@ -42,14 +42,13 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import hitchlogmp.composeapp.generated.resources.Res
 import hitchlogmp.composeapp.generated.resources.confirm_password_label
 import hitchlogmp.composeapp.generated.resources.create_account_button
-import hitchlogmp.composeapp.generated.resources.creating_account
 import hitchlogmp.composeapp.generated.resources.email_label
+import hitchlogmp.composeapp.generated.resources.email_verification_sent
 import hitchlogmp.composeapp.generated.resources.have_account
 import hitchlogmp.composeapp.generated.resources.password_hint
 import hitchlogmp.composeapp.generated.resources.password_label
 import hitchlogmp.composeapp.generated.resources.password_visibility_toggle
 import hitchlogmp.composeapp.generated.resources.register_title
-import hitchlogmp.composeapp.generated.resources.email_verification_sent
 import kotlinx.coroutines.launch
 import org.gmautostop.hitchlogmp.ui.ObserveAsEvents
 import org.gmautostop.hitchlogmp.ui.asString
@@ -60,10 +59,6 @@ import org.gmautostop.hitchlogmp.ui.designsystem.theme.HLTheme
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLColors
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLTypography
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.hlFilledTextFieldColors
-import org.gmautostop.hitchlogmp.ui.auth.EmailRegisterAction
-import org.gmautostop.hitchlogmp.ui.auth.EmailRegisterEvent
-import org.gmautostop.hitchlogmp.ui.auth.EmailRegisterState
-import org.gmautostop.hitchlogmp.ui.auth.EmailRegisterViewModel
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -213,7 +208,7 @@ fun EmailRegisterScreen(
             // Create account button
             HLButton(
                 onClick = { onAction(EmailRegisterAction.OnSubmit) },
-                enabled = !state.isLoading,
+                enabled = state.isSubmitEnabled,
                 modifier = Modifier.fillMaxWidth()
             ) {
                 if (state.isLoading) {

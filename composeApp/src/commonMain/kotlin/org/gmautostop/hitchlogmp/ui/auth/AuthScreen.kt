@@ -34,6 +34,9 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mmk.kmpauth.firebase.google.GoogleButtonUiContainerFirebase
 import hitchlogmp.composeapp.generated.resources.Res
+import hitchlogmp.composeapp.generated.resources.anonymous_login_confirm
+import hitchlogmp.composeapp.generated.resources.anonymous_login_warning_message
+import hitchlogmp.composeapp.generated.resources.anonymous_login_warning_title
 import hitchlogmp.composeapp.generated.resources.auth_anonymous_icon_desc
 import hitchlogmp.composeapp.generated.resources.auth_anonymous_login
 import hitchlogmp.composeapp.generated.resources.auth_apple_icon_desc
@@ -46,22 +49,19 @@ import hitchlogmp.composeapp.generated.resources.auth_google_login
 import hitchlogmp.composeapp.generated.resources.auth_logo_desc
 import hitchlogmp.composeapp.generated.resources.auth_subtitle
 import hitchlogmp.composeapp.generated.resources.auth_title
+import hitchlogmp.composeapp.generated.resources.cancel
 import hitchlogmp.composeapp.generated.resources.gma_logo
 import hitchlogmp.composeapp.generated.resources.ic_apple
 import hitchlogmp.composeapp.generated.resources.ic_google
 import kotlinx.coroutines.launch
 import org.gmautostop.hitchlogmp.ui.ObserveAsEvents
-import org.gmautostop.hitchlogmp.ui.asString
 import org.gmautostop.hitchlogmp.ui.asStringSuspend
 import org.gmautostop.hitchlogmp.ui.designsystem.components.ButtonVariant
 import org.gmautostop.hitchlogmp.ui.designsystem.components.HLButton
+import org.gmautostop.hitchlogmp.ui.designsystem.components.HLConfirmationDialog
 import org.gmautostop.hitchlogmp.ui.designsystem.theme.HLTheme
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLColors
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLTypography
-import org.gmautostop.hitchlogmp.ui.auth.AuthAction
-import org.gmautostop.hitchlogmp.ui.auth.AuthEvent
-import org.gmautostop.hitchlogmp.ui.auth.AuthState
-import org.gmautostop.hitchlogmp.ui.auth.AuthViewModel
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
@@ -293,6 +293,19 @@ fun AuthScreen(
                     }
                 }
             }
+            
+            // Anonymous Login Warning Dialog
+            HLConfirmationDialog(
+                visible = state.showAnonymousWarningDialog,
+                onDismiss = { onAction(AuthAction.OnDismissAnonymousWarningDialog) },
+                title = stringResource(Res.string.anonymous_login_warning_title),
+                message = stringResource(Res.string.anonymous_login_warning_message),
+                confirmLabel = stringResource(Res.string.anonymous_login_confirm),
+                cancelLabel = stringResource(Res.string.cancel),
+                onConfirm = { onAction(AuthAction.OnConfirmAnonymousLogin) },
+                icon = Icons.Default.PersonOff,
+                isDestructive = true
+            )
         }
     }
 }

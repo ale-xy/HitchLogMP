@@ -33,7 +33,6 @@ import hitchlogmp.composeapp.generated.resources.email_label
 import hitchlogmp.composeapp.generated.resources.forgot_password_description
 import hitchlogmp.composeapp.generated.resources.forgot_password_title
 import hitchlogmp.composeapp.generated.resources.send_reset_link
-import hitchlogmp.composeapp.generated.resources.sending
 import kotlinx.coroutines.launch
 import org.gmautostop.hitchlogmp.ui.ObserveAsEvents
 import org.gmautostop.hitchlogmp.ui.asString
@@ -44,10 +43,6 @@ import org.gmautostop.hitchlogmp.ui.designsystem.theme.HLTheme
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLColors
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLTypography
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.hlFilledTextFieldColors
-import org.gmautostop.hitchlogmp.ui.auth.ForgotPasswordAction
-import org.gmautostop.hitchlogmp.ui.auth.ForgotPasswordEvent
-import org.gmautostop.hitchlogmp.ui.auth.ForgotPasswordState
-import org.gmautostop.hitchlogmp.ui.auth.ForgotPasswordViewModel
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -146,7 +141,7 @@ fun ForgotPasswordScreen(
             // Send reset link button
             HLButton(
                 onClick = { onAction(ForgotPasswordAction.OnSubmit) },
-                enabled = !state.isLoading,
+                enabled = state.isSubmitEnabled,
                 modifier = Modifier.fillMaxWidth()
             ) {
                 if (state.isLoading) {

@@ -128,6 +128,12 @@
     <string name="auth_error_google">Ошибка входа через Google: %1$s</string>
     <string name="auth_error_anonymous">Ошибка анонимного входа</string>
     
+    <!-- Anonymous Login Warning Dialog -->
+    <string name="anonymous_login_warning_title">Анонимный вход</string>
+    <string name="anonymous_login_warning_message">При анонимном входе вы не сможете восстановить доступ к хроникам после выхода. Данные будут утеряны навсегда. Рекомендуем использовать вход через Google или Email.</string>
+    <string name="anonymous_login_confirm">Понятно</string>
+    <string name="anonymous_login_warning_icon_desc">Предупреждение об анонимном входе</string>
+    
     <!-- Email Login Screen -->
     <string name="email_login_title">Вход по email</string>
     <string name="email_label">Email</string>

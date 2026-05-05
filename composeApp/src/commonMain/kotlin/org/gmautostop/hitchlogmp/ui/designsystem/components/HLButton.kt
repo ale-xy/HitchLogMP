@@ -60,7 +60,7 @@ fun HLButton(
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
     
-    val colors = getButtonColors(variant, isPressed)
+    val colors = getButtonColors(variant, isPressed, enabled)
     val shape = RoundedCornerShape(24.dp)
     
     CompositionLocalProvider(LocalContentColor provides colors.foreground) {
@@ -101,10 +101,17 @@ private data class ButtonColors(
 )
 
 /**
- * Returns button colors based on variant and pressed state.
+ * Returns button colors based on variant, pressed state, and enabled state.
  */
 @Composable
-private fun getButtonColors(variant: ButtonVariant, isPressed: Boolean): ButtonColors {
+private fun getButtonColors(variant: ButtonVariant, isPressed: Boolean, enabled: Boolean): ButtonColors {
+    if (!enabled) {
+        return ButtonColors(
+            background = HLColors.SurfaceVariant,
+            foreground = HLColors.OnSurfaceVariant
+        )
+    }
+    
     return when (variant) {
         ButtonVariant.Filled -> ButtonColors(
             background = if (isPressed) HLColors.PrimaryContainer else HLColors.Primary,

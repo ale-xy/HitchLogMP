@@ -19,7 +19,8 @@ data class AuthState(
     val currentUser: User? = null,
     val isGoogleLoading: Boolean = false,
     val isAppleLoading: Boolean = false,
-    val isAnonymousLoading: Boolean = false
+    val isAnonymousLoading: Boolean = false,
+    val showAnonymousWarningDialog: Boolean = false
 ) {
     val isAuthenticated: Boolean get() = currentUser != null
 }
@@ -30,6 +31,8 @@ sealed interface AuthAction {
     data class OnGoogleLoginResult(val firebaseUser: FirebaseUser?) : AuthAction
     data object OnAppleLoginClick : AuthAction
     data object OnAnonymousLoginClick : AuthAction
+    data object OnDismissAnonymousWarningDialog : AuthAction
+    data object OnConfirmAnonymousLogin : AuthAction
 }
 
 sealed interface AuthEvent {
@@ -78,6 +81,13 @@ class AuthViewModel(
                 _state.update { it.copy(isAppleLoading = true) }
             }
             is AuthAction.OnAnonymousLoginClick -> {
+                _state.update { it.copy(showAnonymousWarningDialog = true) }
+            }
+            is AuthAction.OnDismissAnonymousWarningDialog -> {
+                _state.update { it.copy(showAnonymousWarningDialog = false) }
+            }
+            is AuthAction.OnConfirmAnonymousLogin -> {
+                _state.update { it.copy(showAnonymousWarningDialog = false) }
                 handleAnonymousLogin()
             }
         }

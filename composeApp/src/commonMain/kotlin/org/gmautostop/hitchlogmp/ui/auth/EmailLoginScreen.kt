@@ -40,14 +40,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import hitchlogmp.composeapp.generated.resources.Res
-import hitchlogmp.composeapp.generated.resources.back_button
 import hitchlogmp.composeapp.generated.resources.email_label
 import hitchlogmp.composeapp.generated.resources.email_login_title
-import hitchlogmp.composeapp.generated.resources.error_empty_email
-import hitchlogmp.composeapp.generated.resources.error_empty_password
 import hitchlogmp.composeapp.generated.resources.forgot_password
 import hitchlogmp.composeapp.generated.resources.login_button
-import hitchlogmp.composeapp.generated.resources.logging_in
 import hitchlogmp.composeapp.generated.resources.no_account
 import hitchlogmp.composeapp.generated.resources.password_label
 import hitchlogmp.composeapp.generated.resources.password_visibility_toggle
@@ -61,10 +57,6 @@ import org.gmautostop.hitchlogmp.ui.designsystem.theme.HLTheme
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLColors
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLTypography
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.hlFilledTextFieldColors
-import org.gmautostop.hitchlogmp.ui.auth.EmailLoginAction
-import org.gmautostop.hitchlogmp.ui.auth.EmailLoginEvent
-import org.gmautostop.hitchlogmp.ui.auth.EmailLoginState
-import org.gmautostop.hitchlogmp.ui.auth.EmailLoginViewModel
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -194,7 +186,7 @@ fun EmailLoginScreen(
             // Login button
             HLButton(
                 onClick = { onAction(EmailLoginAction.OnSubmit) },
-                enabled = !state.isLoading,
+                enabled = state.isSubmitEnabled,
                 modifier = Modifier.fillMaxWidth()
             ) {
                 if (state.isLoading) {

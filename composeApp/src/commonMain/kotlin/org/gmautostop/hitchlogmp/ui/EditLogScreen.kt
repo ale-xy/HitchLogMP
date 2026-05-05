@@ -16,8 +16,8 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -45,7 +45,7 @@ import org.gmautostop.hitchlogmp.ui.designsystem.components.HLTopBar
 import org.gmautostop.hitchlogmp.ui.designsystem.theme.HLTheme
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLColors
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLTypography
-import org.gmautostop.hitchlogmp.ui.designsystem.tokens.hlOutlinedTextFieldColors
+import org.gmautostop.hitchlogmp.ui.designsystem.tokens.hlFilledTextFieldColors
 import org.jetbrains.compose.resources.stringResource
 
 // ── Root Composable ──────────────────────────────────────────────────────────
@@ -136,11 +136,11 @@ private fun EditLogContent(
                     .padding(top = 24.dp, start = 20.dp, end = 20.dp)
             ) {
                 // Text Field
-                OutlinedTextField(
+                TextField(
                     value = log.name,
                     onValueChange = { onAction(EditLogAction.OnNameChange(it)) },
                     label = { Text(stringResource(Res.string.chronicle_name_label)) },
-                    colors = hlOutlinedTextFieldColors(),
+                    colors = hlFilledTextFieldColors(),
                     singleLine = true,
                     modifier = Modifier
                         .fillMaxWidth()

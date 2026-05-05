@@ -20,7 +20,10 @@ data class EmailRegisterState(
     val passwordError: UiText? = null,
     val confirmPasswordError: UiText? = null,
     val isLoading: Boolean = false
-)
+) {
+    val isSubmitEnabled: Boolean
+        get() = email.isNotBlank() && password.isNotBlank() && confirmPassword.isNotBlank() && !isLoading
+}
 
 sealed interface EmailRegisterAction {
     data class OnEmailChange(val email: String) : EmailRegisterAction

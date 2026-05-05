@@ -16,7 +16,10 @@ data class ForgotPasswordState(
     val email: String = "",
     val emailError: UiText? = null,
     val isLoading: Boolean = false
-)
+) {
+    val isSubmitEnabled: Boolean
+        get() = email.isNotBlank() && !isLoading
+}
 
 sealed interface ForgotPasswordAction {
     data class OnEmailChange(val email: String) : ForgotPasswordAction

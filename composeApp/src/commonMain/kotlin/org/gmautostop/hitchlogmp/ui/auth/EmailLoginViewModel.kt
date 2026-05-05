@@ -18,7 +18,10 @@ data class EmailLoginState(
     val emailError: UiText? = null,
     val passwordError: UiText? = null,
     val isLoading: Boolean = false
-)
+) {
+    val isSubmitEnabled: Boolean
+        get() = email.isNotBlank() && password.isNotBlank() && !isLoading
+}
 
 sealed interface EmailLoginAction {
     data class OnEmailChange(val email: String) : EmailLoginAction
