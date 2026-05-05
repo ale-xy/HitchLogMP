@@ -113,7 +113,7 @@ class AuthViewModel(
                     }
                 }
             } catch (e: Exception) {
-                log.e(e) { "Google login failed" }
+                log.e(err = e) { "Google login failed" }
                 _state.update { it.copy(isGoogleLoading = false) }
                 _events.send(AuthEvent.ShowError(e.toAuthErrorUiText()))
             }
@@ -128,7 +128,7 @@ class AuthViewModel(
                 _state.update { it.copy(isAnonymousLoading = false) }
                 _events.send(AuthEvent.NavigateToLogList)
             } catch (e: Exception) {
-                log.e(e) { "Anonymous login failed" }
+                log.e(err = e) { "Anonymous login failed" }
                 _state.update { it.copy(isAnonymousLoading = false) }
                 _events.send(AuthEvent.ShowError(e.toAuthErrorUiText()))
             }

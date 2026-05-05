@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.gmautostop.hitchlogmp.data.AuthService
 import org.gmautostop.hitchlogmp.ui.UiText
+import org.lighthousegames.logging.logging
 
 data class EmailRegisterState(
     val email: String = "",
@@ -110,9 +111,14 @@ class EmailRegisterViewModel(
                 _events.send(EmailRegisterEvent.ShowEmailVerificationSent)
                 _events.send(EmailRegisterEvent.NavigateToLogList)
             } catch (e: Exception) {
+                log.e(err = e) { "Email registration failed" }
                 state.update { it.copy(isLoading = false) }
                 _events.send(EmailRegisterEvent.ShowError(e.toAuthErrorUiText()))
             }
         }
+    }
+
+    companion object {
+        private val log = logging()
     }
 }

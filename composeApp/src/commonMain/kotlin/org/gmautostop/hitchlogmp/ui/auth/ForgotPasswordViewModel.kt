@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.gmautostop.hitchlogmp.data.AuthService
 import org.gmautostop.hitchlogmp.ui.UiText
+import org.lighthousegames.logging.logging
 
 data class ForgotPasswordState(
     val email: String = "",
@@ -73,9 +74,14 @@ class ForgotPasswordViewModel(
                 state.update { it.copy(isLoading = false) }
                 _events.send(ForgotPasswordEvent.NavigateToForgotPasswordSent(email))
             } catch (e: Exception) {
+                log.e(err = e) { "Password reset email failed" }
                 state.update { it.copy(isLoading = false) }
                 _events.send(ForgotPasswordEvent.ShowError(e.toAuthErrorUiText()))
             }
         }
+    }
+
+    companion object {
+        private val log = logging()
     }
 }

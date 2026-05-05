@@ -219,6 +219,7 @@ class EditRecordViewModel(
         val current = try {
             dateTimeFormat.parse("${uiState.value.dateText} ${uiState.value.timeText}")
         } catch (e: Exception) {
+            log.e(err = e) { "Failed to parse date for adjustment: ${uiState.value.dateText} ${uiState.value.timeText}" }
             Clock.System.now().localTZDateTime()
         }
         
@@ -235,6 +236,7 @@ class EditRecordViewModel(
         val current = try {
             dateTimeFormat.parse("${uiState.value.dateText} ${uiState.value.timeText}")
         } catch (e: Exception) {
+            log.e(err = e) { "Failed to parse time for adjustment: ${uiState.value.dateText} ${uiState.value.timeText}" }
             Clock.System.now().localTZDateTime()
         }
         
