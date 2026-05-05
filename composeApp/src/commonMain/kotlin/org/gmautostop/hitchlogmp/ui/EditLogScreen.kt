@@ -16,12 +16,15 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -38,11 +41,11 @@ import hitchlogmp.composeapp.generated.resources.save
 import org.gmautostop.hitchlogmp.domain.HitchLog
 import org.gmautostop.hitchlogmp.ui.designsystem.components.HLConfirmationDialog
 import org.gmautostop.hitchlogmp.ui.designsystem.components.HLLoadingState
-import org.gmautostop.hitchlogmp.ui.designsystem.components.HLOutlinedTextField
 import org.gmautostop.hitchlogmp.ui.designsystem.components.HLTopBar
 import org.gmautostop.hitchlogmp.ui.designsystem.theme.HLTheme
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLColors
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLTypography
+import org.gmautostop.hitchlogmp.ui.designsystem.tokens.hlOutlinedTextFieldColors
 import org.gmautostop.hitchlogmp.ui.viewmodel.EditLogAction
 import org.gmautostop.hitchlogmp.ui.viewmodel.EditLogEvent
 import org.gmautostop.hitchlogmp.ui.viewmodel.EditLogState
@@ -137,12 +140,20 @@ private fun EditLogContent(
                     .padding(top = 24.dp, start = 20.dp, end = 20.dp)
             ) {
                 // Text Field
-                HLOutlinedTextField(
+                OutlinedTextField(
                     value = log.name,
                     onValueChange = { onAction(EditLogAction.OnNameChange(it)) },
-                    label = stringResource(Res.string.chronicle_name_label),
-                    focusRequester = focusRequester
+                    label = { Text(stringResource(Res.string.chronicle_name_label)) },
+                    colors = hlOutlinedTextFieldColors(),
+                    singleLine = true,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .focusRequester(focusRequester)
                 )
+
+                LaunchedEffect(Unit) {
+                    focusRequester.requestFocus()
+                }
 
                 Spacer(Modifier.height(20.dp))
 
