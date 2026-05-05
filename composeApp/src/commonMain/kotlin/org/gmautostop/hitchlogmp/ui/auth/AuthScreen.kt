@@ -200,7 +200,7 @@ fun AuthScreen(
                     if (state.isGoogleLoading) {
                         CircularProgressIndicator(
                             modifier = Modifier.size(20.dp),
-                            strokeWidth = 2.dp,
+                            strokeWidth = 2.5.dp,
                             color = HLColors.Primary
                         )
                                 } else {
@@ -274,7 +274,7 @@ fun AuthScreen(
                     if (state.isAnonymousLoading) {
                         CircularProgressIndicator(
                             modifier = Modifier.size(20.dp),
-                            strokeWidth = 2.dp,
+                            strokeWidth = 2.5.dp,
                             color = HLColors.Primary
                         )
                             } else {

@@ -19,7 +19,8 @@ object HLTypography {
     // Title styles - used for screen titles and section headers
     val titleLarge = TextStyle(
         fontSize = 22.sp,
-        fontWeight = FontWeight.Medium
+        fontWeight = FontWeight.Medium,
+        letterSpacing = 0.sp
     )
 
     val titleMedium = TextStyle(
@@ -30,28 +31,35 @@ object HLTypography {
     // Body styles - used for main content text
     val bodyLarge = TextStyle(
         fontSize = 16.sp,
-        fontWeight = FontWeight.Normal
+        fontWeight = FontWeight.Medium,
+        letterSpacing = 0.1.sp
     )
 
     val bodyMedium = TextStyle(
         fontSize = 14.sp,
-        fontWeight = FontWeight.Normal
+        fontWeight = FontWeight.Normal,
+        lineHeight = 20.sp,
+        letterSpacing = 0.sp
     )
 
     val bodySmall = TextStyle(
         fontSize = 12.sp,
-        fontWeight = FontWeight.Normal
+        fontWeight = FontWeight.Normal,
+        lineHeight = 16.sp,
+        letterSpacing = 0.4.sp
     )
 
     // Label styles - used for buttons, badges, and UI labels
     val labelLarge = TextStyle(
         fontSize = 15.sp,
-        fontWeight = FontWeight.Medium
+        fontWeight = FontWeight.Medium,
+        letterSpacing = 0.1.sp
     )
 
     val labelMedium = TextStyle(
         fontSize = 12.sp,
-        fontWeight = FontWeight.Medium
+        fontWeight = FontWeight.Medium,
+        letterSpacing = 0.5.sp
     )
 
     val labelSmall = TextStyle(

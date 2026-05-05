@@ -18,6 +18,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
@@ -70,10 +71,17 @@ fun HLButton(
                 .clip(shape)
                 .then(
                     if (variant == ButtonVariant.Outlined) {
-                        Modifier.border(1.dp, HLColors.OutlineVariant, shape)
+                        Modifier.border(
+                            1.dp, 
+                            if (enabled) HLColors.Outline else HLColors.OutlineVariant, 
+                            shape
+                        )
                     } else Modifier
                 )
                 .background(colors.background)
+                .then(
+                    if (!enabled) Modifier.alpha(0.7f) else Modifier
+                )
                 .clickable(
                     onClick = onClick,
                     enabled = enabled,

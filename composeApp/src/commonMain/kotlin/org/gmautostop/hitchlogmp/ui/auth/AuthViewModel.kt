@@ -78,7 +78,7 @@ class AuthViewModel(
             }
             is AuthAction.OnAppleLoginClick -> {
                 // TODO: Implement Apple login
-                _state.update { it.copy(isAppleLoading = true) }
+//                _state.update { it.copy(isAppleLoading = true) }
             }
             is AuthAction.OnAnonymousLoginClick -> {
                 _state.update { it.copy(showAnonymousWarningDialog = true) }

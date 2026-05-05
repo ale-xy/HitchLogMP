@@ -29,6 +29,7 @@ private val LightColorScheme = lightColorScheme(
     onSurfaceVariant = HLColors.OnSurfaceVariant,
     surfaceContainerLow = HLColors.SurfaceContainerLow,
     surfaceContainer = HLColors.SurfaceContainer,
+    outline = HLColors.Outline,
     outlineVariant = HLColors.OutlineVariant,
 )
 

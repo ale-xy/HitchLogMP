@@ -37,6 +37,7 @@ object HLColors {
     val SurfaceContainer = Color(0xFFECEDF4)
 
     // Outline colors - used for borders and dividers
+    val Outline = Color(0xFF74757F)
     val OutlineVariant = Color(0xFFC4C5D0)
 }
 
