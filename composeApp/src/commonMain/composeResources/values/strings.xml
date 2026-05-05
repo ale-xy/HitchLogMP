@@ -23,6 +23,7 @@
     <string name="logout_title">Выйти?</string>
     <string name="logout_message_regular">Хроники сохранены на сервере. Можешь войти снова когда угодно.</string>
     <string name="logout_message_anonymous">Анонимный вход — после выхода доступ к хроникам потеряешь навсегда.</string>
+    <string name="logout_message_unsaved">Возможно, не все изменения сохранены на сервере. Выйти сейчас?</string>
     <string name="logout_confirm">Выйти</string>
     <string name="cancel">Отмена</string>
     

@@ -4,13 +4,14 @@ import dev.gitlive.firebase.Firebase
 import dev.gitlive.firebase.auth.auth
 import org.gmautostop.hitchlogmp.data.AuthService
 import org.gmautostop.hitchlogmp.data.FirestoreRepository
+import org.gmautostop.hitchlogmp.data.FirestoreSyncTracker
 import org.gmautostop.hitchlogmp.domain.Repository
+import org.gmautostop.hitchlogmp.ui.EditLogViewModel
+import org.gmautostop.hitchlogmp.ui.LogListViewModel
 import org.gmautostop.hitchlogmp.ui.auth.AuthViewModel
 import org.gmautostop.hitchlogmp.ui.auth.EmailLoginViewModel
 import org.gmautostop.hitchlogmp.ui.auth.EmailRegisterViewModel
 import org.gmautostop.hitchlogmp.ui.auth.ForgotPasswordViewModel
-import org.gmautostop.hitchlogmp.ui.EditLogViewModel
-import org.gmautostop.hitchlogmp.ui.LogListViewModel
 import org.gmautostop.hitchlogmp.ui.hitchlog.HitchLogViewModel
 import org.gmautostop.hitchlogmp.ui.recordedit.EditRecordViewModel
 import org.koin.core.module.dsl.singleOf
@@ -24,6 +25,7 @@ val appModule = module {
         AuthService(Firebase.auth)
     }
 
+    singleOf(::FirestoreSyncTracker)
     singleOf(::FirestoreRepository).bind<Repository>()
 
     // Auth ViewModels

@@ -4,6 +4,9 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import androidx.core.content.FileProvider
+import com.google.firebase.Firebase
+import com.google.firebase.firestore.firestore
+import kotlinx.coroutines.tasks.await
 import kotlinx.datetime.LocalDate
 import org.gmautostop.hitchlogmp.domain.MimeTypes
 import org.koin.core.component.KoinComponent
@@ -21,7 +24,7 @@ actual fun getPlatform(): Platform = AndroidPlatform()
 
 actual fun formatDateLocale(date: LocalDate): String {
     val cal = Calendar.getInstance().also {
-        it.set(date.year, date.monthNumber - 1, date.dayOfMonth)
+        it.set(date.year, date.month.ordinal, date.dayOfMonth)
     }
     return SimpleDateFormat("d MMMM yyyy, EEEE", Locale.getDefault()).format(cal.time)
 }
@@ -132,4 +135,8 @@ private object AndroidShareHelper : KoinComponent {
         val context: Context by inject()
         return context
     }
+}
+
+actual suspend fun awaitFirestorePendingWrites() {
+    Firebase.firestore.waitForPendingWrites().await()
 }

@@ -13,3 +13,5 @@ expect fun formatDateLocale(date: LocalDate): String
 expect fun shareFile(content: String, mimeType: String, fileName: String)
 
 expect fun shareFileBytes(content: ByteArray, mimeType: String, fileName: String)
+
+expect suspend fun awaitFirestorePendingWrites()

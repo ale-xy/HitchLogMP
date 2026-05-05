@@ -15,18 +15,19 @@ import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
 import kotlinx.coroutines.launch
 import org.gmautostop.hitchlogmp.data.AuthService
+import org.gmautostop.hitchlogmp.data.FirestoreSyncTracker
 import org.gmautostop.hitchlogmp.ui.auth.AuthScreen
 import org.gmautostop.hitchlogmp.ui.auth.EmailLoginScreen
+import org.gmautostop.hitchlogmp.ui.auth.EmailLoginViewModel
 import org.gmautostop.hitchlogmp.ui.auth.EmailRegisterScreen
+import org.gmautostop.hitchlogmp.ui.auth.EmailRegisterViewModel
 import org.gmautostop.hitchlogmp.ui.auth.ForgotPasswordScreen
 import org.gmautostop.hitchlogmp.ui.auth.ForgotPasswordSentScreen
+import org.gmautostop.hitchlogmp.ui.auth.ForgotPasswordViewModel
 import org.gmautostop.hitchlogmp.ui.hitchlog.HitchLogScreen
 import org.gmautostop.hitchlogmp.ui.hitchlog.HitchLogViewModel
 import org.gmautostop.hitchlogmp.ui.recordedit.EditRecordScreen
 import org.gmautostop.hitchlogmp.ui.recordedit.EditRecordViewModel
-import org.gmautostop.hitchlogmp.ui.auth.EmailLoginViewModel
-import org.gmautostop.hitchlogmp.ui.auth.EmailRegisterViewModel
-import org.gmautostop.hitchlogmp.ui.auth.ForgotPasswordViewModel
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
@@ -110,7 +111,9 @@ fun HitchLogApp(navController: NavHostController) {
                 
                 composable<Screen.LogList> {
                     val authService = koinInject<AuthService>()
+                    val syncTracker = koinInject<FirestoreSyncTracker>()
                     val scope = rememberCoroutineScope()
+                    
                     LogListScreen(
                         viewModel = koinViewModel<LogListViewModel>(),
                         openLog = { id -> navController.navigate(Screen.Log(id)) },
@@ -119,6 +122,7 @@ fun HitchLogApp(navController: NavHostController) {
                         signOut = {
                             scope.launch {
                                 authService.signOut()
+                                syncTracker.reset()
                                 navController.navigate(Screen.Auth) {
                                     popUpTo(Screen.LogList) { inclusive = true }
                                 }

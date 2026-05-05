@@ -39,7 +39,10 @@
       "WebFetch(domain:central.sonatype.com)",
       "WebFetch(domain:github.com)",
       "WebFetch(domain:raw.githubusercontent.com)",
-      "WebFetch(domain:klibs.io)"
+      "WebFetch(domain:klibs.io)",
+      "Bash(find /workspace/StudioProjects/HitchLogMP -type f \\\\\\( -name \"*.jar\" -o -name \"*.klib\" \\\\\\) 2>/dev/null | head -20)",
+      "WebFetch(domain:api.github.com)",
+      "WebFetch(domain:gitliveapp.github.io)"
     ]
   }
 }

@@ -37,6 +37,7 @@ import hitchlogmp.composeapp.generated.resources.logout
 import hitchlogmp.composeapp.generated.resources.logout_confirm
 import hitchlogmp.composeapp.generated.resources.logout_message_anonymous
 import hitchlogmp.composeapp.generated.resources.logout_message_regular
+import hitchlogmp.composeapp.generated.resources.logout_message_unsaved
 import hitchlogmp.composeapp.generated.resources.logout_title
 import hitchlogmp.composeapp.generated.resources.my_logs
 import hitchlogmp.composeapp.generated.resources.no_logs
@@ -69,6 +70,7 @@ fun LogListScreen(
         is ViewState.Show<List<HitchLogUi>> -> LogListScreen(
             logs = logsState.value,
             isAnonymousUser = uiState.isAnonymousUser,
+            hasPendingWrites = uiState.hasPendingWrites,
             openLog = openLog,
             createLog = createLog,
             editLog = editLog,
@@ -81,6 +83,7 @@ fun LogListScreen(
 private fun LogListScreen(
     logs: List<HitchLogUi>,
     isAnonymousUser: Boolean,
+    hasPendingWrites: Boolean,
     openLog: (id: String) -> Unit,
     createLog: () -> Unit,
     editLog: (id: String) -> Unit,
@@ -169,8 +172,11 @@ private fun LogListScreen(
             onDismiss = { showLogoutDialog = false },
             title = stringResource(Res.string.logout_title),
             message = stringResource(
-                if (isAnonymousUser) Res.string.logout_message_anonymous
-                else Res.string.logout_message_regular
+                when {
+                    !isAnonymousUser && hasPendingWrites -> Res.string.logout_message_unsaved
+                    isAnonymousUser -> Res.string.logout_message_anonymous
+                    else -> Res.string.logout_message_regular
+                }
             ),
             confirmLabel = stringResource(Res.string.logout_confirm),
             cancelLabel = stringResource(Res.string.cancel),
@@ -192,17 +198,20 @@ private class LogListStatePreviewProvider : PreviewParameterProvider<LogListUiSt
         // Loading state
         LogListUiState(
             logsState = ViewState.Loading,
-            isAnonymousUser = false
+            isAnonymousUser = false,
+            hasPendingWrites = false
         ),
         // Empty state - anonymous user
         LogListUiState(
             logsState = ViewState.Show(emptyList()),
-            isAnonymousUser = true
+            isAnonymousUser = true,
+            hasPendingWrites = false
         ),
         // Empty state - regular user
         LogListUiState(
             logsState = ViewState.Show(emptyList()),
-            isAnonymousUser = false
+            isAnonymousUser = false,
+            hasPendingWrites = false
         ),
         // Filled state - multiple logs
         LogListUiState(
@@ -225,12 +234,14 @@ private class LogListStatePreviewProvider : PreviewParameterProvider<LogListUiSt
                     )
                 )
             ),
-            isAnonymousUser = false
+            isAnonymousUser = false,
+            hasPendingWrites = false
         ),
         // Error state
         LogListUiState(
             logsState = ViewState.Error(AppError.NetworkError("Не удалось загрузить логи")),
-            isAnonymousUser = false
+            isAnonymousUser = false,
+            hasPendingWrites = false
         )
     )
 }
@@ -249,6 +260,7 @@ private fun LogListScreenPreview(
             is ViewState.Show<List<HitchLogUi>> -> LogListScreen(
                 logs = logsState.value,
                 isAnonymousUser = uiState.isAnonymousUser,
+                hasPendingWrites = uiState.hasPendingWrites,
                 openLog = {},
                 createLog = {},
                 editLog = {},

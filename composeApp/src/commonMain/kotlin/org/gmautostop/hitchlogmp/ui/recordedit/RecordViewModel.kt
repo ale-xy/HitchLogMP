@@ -295,9 +295,11 @@ class EditRecordViewModel(
                 when (response) {
                     is Response.Loading -> {
                         log.d { "saveRecord Loading" }
+                        uiState.update { it.copy(isLoading = true, error = null) }
                     }
                     is Response.Success -> {
                         log.d { "saveRecord Success - sending navigation event" }
+                        uiState.update { it.copy(isLoading = false) }
                         navigationEventChannel.send(Unit)
                     }
                     is Response.Failure -> {
@@ -314,8 +316,11 @@ class EditRecordViewModel(
             uiState.update { it.copy(isLoading = true, error = null) }
             repository.deleteRecord(logId, uiState.value.record).collect { response ->
                 when (response) {
-                    is Response.Loading -> Unit
-                    is Response.Success -> navigationEventChannel.send(Unit)
+                    is Response.Loading -> uiState.update { it.copy(isLoading = true, error = null) }
+                    is Response.Success -> {
+                        uiState.update { it.copy(isLoading = false) }
+                        navigationEventChannel.send(Unit)
+                    }
                     is Response.Failure -> uiState.update { it.copy(isLoading = false, error = response.error) }
                 }
             }

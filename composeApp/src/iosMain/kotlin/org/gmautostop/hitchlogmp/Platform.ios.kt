@@ -1,8 +1,11 @@
 package org.gmautostop.hitchlogmp
 
+import cocoapods.FirebaseFirestore.FIRFirestore
+import kotlinx.cinterop.BetaInteropApi
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.addressOf
 import kotlinx.cinterop.usePinned
+import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.datetime.LocalDate
 import platform.Foundation.NSCalendar
 import platform.Foundation.NSData
@@ -15,7 +18,8 @@ import platform.Foundation.writeToFile
 import platform.UIKit.UIActivityViewController
 import platform.UIKit.UIApplication
 import platform.UIKit.UIDevice
-import platform.UIKit.UIViewController
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
 
 class IOSPlatform: Platform {
     override val name: String = UIDevice.currentDevice.systemName() + " " + UIDevice.currentDevice.systemVersion
@@ -26,11 +30,11 @@ actual fun getPlatform(): Platform = IOSPlatform()
 actual fun formatDateLocale(date: LocalDate): String {
     val components = NSDateComponents().apply {
         year = date.year.toLong()
-        month = date.monthNumber.toLong()
+        month = date.month.value.toLong()
         day = date.dayOfMonth.toLong()
     }
     val nsDate = NSCalendar.currentCalendar.dateFromComponents(components)
-        ?: return "${date.dayOfMonth}.${date.monthNumber}.${date.year}"
+        ?: return "${date.dayOfMonth}.${date.month.value}.${date.year}"
     return NSDateFormatter().apply { dateFormat = "d MMMM yyyy, EEEE" }.stringFromDate(nsDate)
 }
 
@@ -45,7 +49,7 @@ actual fun shareFile(content: String, mimeType: String, fileName: String) {
     
     // Get the key window and present from its root view controller
     val keyWindow = UIApplication.sharedApplication.keyWindow
-    val rootVC = keyWindow?.rootViewController() as? UIViewController
+    val rootVC = keyWindow?.rootViewController()
     
     rootVC?.presentViewController(activityVC, animated = true, completion = null)
 }
@@ -61,14 +65,21 @@ actual fun shareFileBytes(content: ByteArray, mimeType: String, fileName: String
     
     // Get the key window and present from its root view controller
     val keyWindow = UIApplication.sharedApplication.keyWindow
-    val rootVC = keyWindow?.rootViewController() as? UIViewController
+    val rootVC = keyWindow?.rootViewController()
     
     rootVC?.presentViewController(activityVC, animated = true, completion = null)
 }
 
-@OptIn(ExperimentalForeignApi::class)
+@OptIn(ExperimentalForeignApi::class, BetaInteropApi::class)
 private fun ByteArray.toNSData(): NSData {
     return this.usePinned { pinned ->
         NSData.create(bytes = pinned.addressOf(0), length = this.size.toULong())
+    }
+}
+
+actual suspend fun awaitFirestorePendingWrites() = suspendCancellableCoroutine { cont ->
+    FIRFirestore.firestore().waitForPendingWritesWithCompletion { error ->
+        if (error != null) cont.resumeWithException(Exception(error.localizedDescription))
+        else cont.resume(Unit)
     }
 }

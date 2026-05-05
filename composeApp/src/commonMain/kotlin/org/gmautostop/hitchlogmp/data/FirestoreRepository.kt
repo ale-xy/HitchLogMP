@@ -7,11 +7,13 @@ import dev.gitlive.firebase.firestore.Timestamp
 import dev.gitlive.firebase.firestore.firestore
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
+import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.withTimeout
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
@@ -33,7 +35,8 @@ private class NotFoundException(id: String) : Exception("Document $id doesn't ex
 
 @OptIn(ExperimentalUuidApi::class)
 class FirestoreRepository(
-    private val authService: AuthService
+    private val authService: AuthService,
+    private val syncTracker: FirestoreSyncTracker
 ) : Repository {
     private val firestore = Firebase.firestore
 
@@ -44,12 +47,12 @@ class FirestoreRepository(
         firestore.setLoggingEnabled(true)
     }
 
-    private fun <T> repositoryFlow(body:suspend () -> T): Flow<Response<T>> =
+    private fun <T> repositoryFlow(isWrite: Boolean = false, body: suspend () -> T): Flow<Response<T>> =
         flow {
-            log.d {"repositoryFlow loading" }
             emit(Response.Loading())
-            val result = body().also {
-                log.d { "repositoryFlow success $it" }
+            val result = body()
+            if (isWrite) {
+                syncTracker.trackWrite()
             }
             emit(Response.Success(result))
         }.catch { error ->
@@ -62,13 +65,24 @@ class FirestoreRepository(
             emit(Response.Failure(appError))
         }.flowOn(Dispatchers.IO)
 
+    private suspend inline fun <T> firestoreWrite(
+        operationName: String,
+        crossinline block: suspend () -> T
+    ) {
+        try {
+            withTimeout(100) {
+                block()
+            }
+        } catch (e: TimeoutCancellationException) {
+            log.d { "$operationName: operation timed out, but write is queued locally" }
+        }
+    }
+
     override fun getLogs() = logsRef
         .where { "userId" equalTo authService.currentUser.value?.id }
         .orderBy("creationTime", Direction.DESCENDING)
         .snapshots.map {
-            log.d {"getUserLogs onEach" }
             it.documents.map { document ->
-                log.d { "getUserLogs $document" }
                 document.data<HitchLog>()
             }
         }.map<List<HitchLog>, Response<List<HitchLog>>> {
@@ -83,9 +97,11 @@ class FirestoreRepository(
         logsRef.document(logId).snapshots
             .map { snapshot ->
                 if (!snapshot.exists) throw NotFoundException(logId)
-                snapshot.data<HitchLog>().also { log.d { "getLog $it" } }
+                snapshot.data<HitchLog>()
             }
-            .map<HitchLog, Response<HitchLog>> { Response.Success(it) }
+            .map<HitchLog, Response<HitchLog>> {
+                Response.Success(it)
+            }
             .catch { error ->
                 log.e(err = error) { error.message ?: "getLog error" }
                 val appError = when (error) {
@@ -96,27 +112,31 @@ class FirestoreRepository(
             }
             .flowOn(Dispatchers.IO)
 
-    override fun addLog(log: HitchLog) = repositoryFlow {
+    override fun addLog(log: HitchLog) = repositoryFlow(isWrite = true) {
         val userId = authService.currentUser.value?.id
             ?: throw NotAuthenticatedException()
         val id = Uuid.random().toString()
-        logsRef.document(id).set(log.copy(id = id, userId = userId))
+        firestoreWrite("addLog") {
+            logsRef.document(id).set(log.copy(id = id, userId = userId))
+        }
     }
 
-    override fun updateLog(log: HitchLog) = repositoryFlow {
-        logsRef.document(log.id).set(log)
+    override fun updateLog(log: HitchLog) = repositoryFlow(isWrite = true) {
+        firestoreWrite("updateLog") {
+            logsRef.document(log.id).set(log)
+        }
     }
 
-    override fun deleteLog(id: String) = repositoryFlow {
-        logsRef.document(id).delete()
+    override fun deleteLog(id: String) = repositoryFlow(isWrite = true) {
+        firestoreWrite("deleteLog") {
+            logsRef.document(id).delete()
+        }
     }
 
     override fun getLogRecords(logId: String) =
-        logRecordsRef(logId).orderBy("timestamp").snapshots().map {
-            it.documents.map {document ->
-                document.data<FirestoreHitchLogRecord>().toHitchLogRecord().also {
-                    log.d { "getLogRecords $it" }
-                }
+        logRecordsRef(logId).orderBy("timestamp").snapshots().map { snapshot ->
+            snapshot.documents.map { document ->
+                document.data<FirestoreHitchLogRecord>().toHitchLogRecord()
             }
         }.map<List<HitchLogRecord>, Response<List<HitchLogRecord>>> {
             Response.Success(it)
@@ -126,18 +146,15 @@ class FirestoreRepository(
         }
 
     override fun getRecord(logId: String, recordId: String) = repositoryFlow {
-        with(logRecordsRef(logId).document(recordId).get()) {
+        with(logRecordsRef(logId).document(recordId).get(Source.CACHE)) {
             when {
                 !exists -> throw NotFoundException(recordId)
-                else -> data<FirestoreHitchLogRecord>().toHitchLogRecord().let {
-                    log.d { "getRecord $it"}
-                    return@repositoryFlow it
-                }
+                else -> data<FirestoreHitchLogRecord>().toHitchLogRecord()
             }
         }
     }
 
-    override fun addRecord(logId: String, record: HitchLogRecord) = repositoryFlow {
+    override fun addRecord(logId: String, record: HitchLogRecord) = repositoryFlow(isWrite = true) {
         val id = Uuid.random().toString()
 
         val firestoreRecord = FirestoreHitchLogRecord(
@@ -146,11 +163,13 @@ class FirestoreRepository(
             getNextTime(logId, record.time.toTimestamp())
         )
 
-        logRecordsRef(logId).document(id).set(firestoreRecord)
+        firestoreWrite("addRecord") {
+            logRecordsRef(logId).document(id).set(firestoreRecord)
+        }
     }
 
-    override fun updateRecord(logId: String, record: HitchLogRecord) = repositoryFlow {
-        val existing = logRecordsRef(logId).document(record.id).get().data<FirestoreHitchLogRecord>()
+    override fun updateRecord(logId: String, record: HitchLogRecord) = repositoryFlow(isWrite = true) {
+        val existing = logRecordsRef(logId).document(record.id).get(Source.CACHE).data<FirestoreHitchLogRecord>()
 
         val updatedRecord = if (existing.timestamp == record.time.toTimestamp()) {
             FirestoreHitchLogRecord(record)
@@ -160,12 +179,16 @@ class FirestoreRepository(
                 timestamp = getNextTime(logId, record.time.toTimestamp())
             )
         }
-
-        logRecordsRef(logId).document(updatedRecord.id).set(updatedRecord)
+        
+        firestoreWrite("updateRecord") {
+            logRecordsRef(logId).document(updatedRecord.id).set(updatedRecord)
+        }
     }
 
-    override fun deleteRecord(logId: String, record: HitchLogRecord) = repositoryFlow {
-        logRecordsRef(logId).document(record.id).delete()
+    override fun deleteRecord(logId: String, record: HitchLogRecord) = repositoryFlow(isWrite = true) {
+        firestoreWrite("deleteRecord") {
+            logRecordsRef(logId).document(record.id).delete()
+        }
     }
 
     override fun saveRecord(logId: String, record: HitchLogRecord) =

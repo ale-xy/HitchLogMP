@@ -12,6 +12,7 @@ import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.format.char
 import org.gmautostop.hitchlogmp.data.AuthService
+import org.gmautostop.hitchlogmp.data.FirestoreSyncTracker
 import org.gmautostop.hitchlogmp.domain.HitchLog
 import org.gmautostop.hitchlogmp.domain.Repository
 import org.gmautostop.hitchlogmp.domain.Response
@@ -31,7 +32,8 @@ data class HitchLogUi(
  */
 data class LogListUiState(
     val logsState: ViewState<List<HitchLogUi>>,
-    val isAnonymousUser: Boolean
+    val isAnonymousUser: Boolean,
+    val hasPendingWrites: Boolean
 )
 
 /**
@@ -59,24 +61,28 @@ fun HitchLog.toUi(): HitchLogUi {
 
 class LogListViewModel(
     repository: Repository,
-    authService: AuthService
+    authService: AuthService,
+    syncTracker: FirestoreSyncTracker
 ): ViewModel() {
     private val _logsState = MutableStateFlow<ViewState<List<HitchLogUi>>>(ViewState.Loading)
 
     val state: StateFlow<LogListUiState> = combine(
         _logsState,
-        authService.currentUser
-    ) { logsState, user ->
+        authService.currentUser,
+        syncTracker.hasPendingWrites
+    ) { logsState, user, hasPendingWrites ->
         LogListUiState(
             logsState = logsState,
-            isAnonymousUser = user?.isAnonymous == true
+            isAnonymousUser = user?.isAnonymous == true,
+            hasPendingWrites = hasPendingWrites
         )
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
         initialValue = LogListUiState(
             logsState = ViewState.Loading,
-            isAnonymousUser = false
+            isAnonymousUser = false,
+            hasPendingWrites = false
         )
     )
 
