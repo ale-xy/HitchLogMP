@@ -67,6 +67,7 @@ class HitchLogViewModel(
                                     val records = recordResponse.data
                                     ViewState.Show(
                                         HitchLogState(
+                                            logId = logId,
                                             logName = logResponse.data.name,
                                             teamId = logResponse.data.teamId,
                                             records = records,

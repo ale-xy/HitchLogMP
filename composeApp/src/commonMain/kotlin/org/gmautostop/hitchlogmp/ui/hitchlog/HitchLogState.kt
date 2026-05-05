@@ -12,6 +12,7 @@ data class SummaryCardState(
 )
 
 data class HitchLogState(
+    val logId: String,
     val logName: String,
     val teamId: String,
     val records: List<HitchLogRecord>,

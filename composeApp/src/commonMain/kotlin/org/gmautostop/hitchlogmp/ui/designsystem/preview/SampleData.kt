@@ -13,9 +13,9 @@ import org.gmautostop.hitchlogmp.domain.User
 import org.gmautostop.hitchlogmp.domain.computeLiveState
 import org.gmautostop.hitchlogmp.domain.computeRestMinutes
 import org.gmautostop.hitchlogmp.domain.nextActionLadder
+import org.gmautostop.hitchlogmp.ui.ViewState
 import org.gmautostop.hitchlogmp.ui.hitchlog.HitchLogState
 import org.gmautostop.hitchlogmp.ui.hitchlog.SummaryCardState
-import org.gmautostop.hitchlogmp.ui.ViewState
 import kotlin.time.Duration.Companion.minutes
 
 // Sample Users
@@ -136,6 +136,7 @@ fun sampleHitchLogState(
     log: HitchLog = sampleHitchLog(),
     records: List<HitchLogRecord> = sampleHitchLogRecords()
 ) = HitchLogState(
+    logId = log.id,
     logName = log.name,
     teamId = log.teamId,
     records = records,

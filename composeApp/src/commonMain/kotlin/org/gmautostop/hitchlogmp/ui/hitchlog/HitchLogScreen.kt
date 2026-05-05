@@ -15,7 +15,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.DirectionsWalk
-import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
@@ -43,6 +44,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import hitchlogmp.composeapp.generated.resources.Res
 import hitchlogmp.composeapp.generated.resources.chronicle_empty
 import hitchlogmp.composeapp.generated.resources.different_record_type
+import hitchlogmp.composeapp.generated.resources.edit_chronicle
 import hitchlogmp.composeapp.generated.resources.export_csv
 import hitchlogmp.composeapp.generated.resources.export_error
 import hitchlogmp.composeapp.generated.resources.export_html
@@ -81,6 +83,7 @@ import org.jetbrains.compose.resources.stringResource
 fun HitchLogScreen(
     viewModel: HitchLogViewModel,
     navigateUp: () -> Unit,
+    editLog: (logId: String) -> Unit,
     createRecord: (type: HitchLogRecordType) -> Unit,
     editRecord: (id: String) -> Unit,
 ) {
@@ -115,6 +118,7 @@ fun HitchLogScreen(
             HitchLog(
                 state = hitchLogState,
                 navigateUp = navigateUp,
+                editLog = editLog,
                 createRecord = createRecord,
                 editRecord = editRecord,
                 snackbarHostState = snackbarHostState,
@@ -133,6 +137,7 @@ fun HitchLogScreen(
 private fun HitchLog(
     state: HitchLogState,
     navigateUp: () -> Unit,
+    editLog: (logId: String) -> Unit,
     createRecord: (HitchLogRecordType) -> Unit,
     editRecord: (id: String) -> Unit,
     snackbarHostState: SnackbarHostState,
@@ -145,7 +150,7 @@ private fun HitchLog(
     val listState = rememberLazyListState()
     val isEmpty = state.records.isEmpty()
 
-    var menuExpanded by remember { mutableStateOf(false) }
+    var exportMenuExpanded by remember { mutableStateOf(false) }
 
     // Measured heights of QuickActions panel (null until first measurement)
     var collapsedHeight by remember { mutableStateOf(0.dp) }
@@ -198,54 +203,69 @@ private fun HitchLog(
                 subtitle = state.teamId.takeIf { it.isNotEmpty() },
                 onNavigateUp = navigateUp,
                 actions = {
+                    // Edit icon
+                    IconButton(
+                        onClick = { editLog(state.logId) },
+                        enabled = !isEmpty
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Edit,
+                            contentDescription = stringResource(Res.string.edit_chronicle),
+                            tint = if (isEmpty) {
+                                HLColors.OnSurfaceVariant.copy(alpha = 0.38f)
+                            } else {
+                                HLColors.OnSurfaceVariant
+                            }
+                        )
+                    }
+                    
+                    // Export icon with menu
                     Box {
-                        IconButton(onClick = { menuExpanded = true }) {
+                        IconButton(
+                            onClick = { exportMenuExpanded = true },
+                            enabled = !isEmpty
+                        ) {
                             Icon(
-                                imageVector = Icons.Filled.MoreVert,
-                                contentDescription = null,
-                                tint = HLColors.OnSurfaceVariant
+                                imageVector = Icons.Default.Share,
+                                contentDescription = stringResource(Res.string.export_title),
+                                tint = if (isEmpty) {
+                                    HLColors.OnSurfaceVariant.copy(alpha = 0.38f)
+                                } else {
+                                    HLColors.OnSurfaceVariant
+                                }
                             )
                         }
                         DropdownMenu(
-                            expanded = menuExpanded,
-                            onDismissRequest = { menuExpanded = false }
+                            expanded = exportMenuExpanded,
+                            onDismissRequest = { exportMenuExpanded = false }
                         ) {
-                            DropdownMenuItem(
-                                text = { Text(stringResource(Res.string.export_title)) },
-                                onClick = {},
-                                enabled = false
-                            )
                             DropdownMenuItem(
                                 text = { Text(stringResource(Res.string.export_text)) },
                                 onClick = {
-                                    menuExpanded = false
+                                    exportMenuExpanded = false
                                     onExportTxt()
-                                },
-                                enabled = !isEmpty
+                                }
                             )
                             DropdownMenuItem(
                                 text = { Text(stringResource(Res.string.export_csv)) },
                                 onClick = {
-                                    menuExpanded = false
+                                    exportMenuExpanded = false
                                     onExportCsv()
-                                },
-                                enabled = !isEmpty
+                                }
                             )
                             DropdownMenuItem(
                                 text = { Text(stringResource(Res.string.export_html)) },
                                 onClick = {
-                                    menuExpanded = false
+                                    exportMenuExpanded = false
                                     onExportHtml()
-                                },
-                                enabled = !isEmpty
+                                }
                             )
                             DropdownMenuItem(
                                 text = { Text(stringResource(Res.string.export_xlsx)) },
                                 onClick = {
-                                    menuExpanded = false
+                                    exportMenuExpanded = false
                                     onExportXlsx()
-                                },
-                                enabled = !isEmpty
+                                }
                             )
                         }
                     }
@@ -384,6 +404,7 @@ private fun HitchLogScreenPreview(
                     HitchLog(
                         state = hitchLogState,
                         navigateUp = {},
+                        editLog = {},
                         createRecord = {},
                         editRecord = {},
                         snackbarHostState = remember { SnackbarHostState() },

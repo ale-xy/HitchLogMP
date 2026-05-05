@@ -142,6 +142,7 @@ fun HitchLogApp(navController: NavHostController) {
                     HitchLogScreen(
                         viewModel = koinViewModel<HitchLogViewModel> { parametersOf(hitchLog.logId) },
                         navigateUp = { navController.navigateUp() },
+                        editLog = { logId -> navController.navigate(Screen.EditLog(logId)) },
                         createRecord = { type ->
                             navController.navigate(Screen.EditRecord(logId = hitchLog.logId, recordType = type))
                         },

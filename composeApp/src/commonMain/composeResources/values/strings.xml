@@ -105,6 +105,7 @@
     <string name="time_shortcut_plus_10">+10</string>
 
     <!-- Export -->
+    <string name="log_properties">Свойства</string>
     <string name="export_title">Экспорт</string>
     <string name="export_text">Текст</string>
     <string name="export_csv">CSV</string>
