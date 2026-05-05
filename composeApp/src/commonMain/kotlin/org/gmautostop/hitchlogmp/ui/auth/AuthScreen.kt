@@ -1,4 +1,4 @@
-package org.gmautostop.hitchlogmp.ui
+package org.gmautostop.hitchlogmp.ui.auth
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
@@ -50,16 +50,18 @@ import hitchlogmp.composeapp.generated.resources.gma_logo
 import hitchlogmp.composeapp.generated.resources.ic_apple
 import hitchlogmp.composeapp.generated.resources.ic_google
 import kotlinx.coroutines.launch
+import org.gmautostop.hitchlogmp.ui.ObserveAsEvents
+import org.gmautostop.hitchlogmp.ui.asString
+import org.gmautostop.hitchlogmp.ui.asStringSuspend
 import org.gmautostop.hitchlogmp.ui.designsystem.components.ButtonVariant
 import org.gmautostop.hitchlogmp.ui.designsystem.components.HLButton
 import org.gmautostop.hitchlogmp.ui.designsystem.theme.HLTheme
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLColors
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLTypography
-import org.gmautostop.hitchlogmp.ui.viewmodel.AuthAction
-import org.gmautostop.hitchlogmp.ui.viewmodel.AuthButtonLoading
-import org.gmautostop.hitchlogmp.ui.viewmodel.AuthEvent
-import org.gmautostop.hitchlogmp.ui.viewmodel.AuthState
-import org.gmautostop.hitchlogmp.ui.viewmodel.AuthViewModel
+import org.gmautostop.hitchlogmp.ui.auth.AuthAction
+import org.gmautostop.hitchlogmp.ui.auth.AuthEvent
+import org.gmautostop.hitchlogmp.ui.auth.AuthState
+import org.gmautostop.hitchlogmp.ui.auth.AuthViewModel
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
@@ -70,6 +72,7 @@ import org.koin.compose.viewmodel.koinViewModel
 @Composable
 fun AuthScreen(
     onAuthenticated: () -> Unit,
+    onNavigateToEmailLogin: () -> Unit,
     viewModel: AuthViewModel = koinViewModel()
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -79,9 +82,10 @@ fun AuthScreen(
     ObserveAsEvents(viewModel.events) { event ->
         when (event) {
             is AuthEvent.NavigateToLogList -> onAuthenticated()
+            is AuthEvent.NavigateToEmailLogin -> onNavigateToEmailLogin()
             is AuthEvent.ShowError -> {
                 scope.launch {
-                    snackbarHostState.showSnackbar(event.message)
+                    snackbarHostState.showSnackbar(event.error.asStringSuspend())
                 }
             }
         }
@@ -154,7 +158,7 @@ fun AuthScreen(
                     HLButton(
                         onClick = { onAction(AuthAction.OnEmailLoginClick) },
                         variant = ButtonVariant.Tonal,
-                        enabled = state.loadingButton == null,
+                        enabled = !state.isGoogleLoading && !state.isAppleLoading && !state.isAnonymousLoading,
                         leadingIcon = {
                             Icon(
                                 imageVector = Icons.Default.Email,
@@ -191,9 +195,9 @@ fun AuthScreen(
                                 this.onClick()
                             },
                             variant = ButtonVariant.Outlined,
-                            enabled = state.loadingButton == null,
+                            enabled = !state.isGoogleLoading && !state.isAppleLoading && !state.isAnonymousLoading,
                             leadingIcon = {
-                                if (state.loadingButton == AuthButtonLoading.GOOGLE) {
+                                if (state.isGoogleLoading) {
                                     CircularProgressIndicator(
                                         modifier = Modifier.size(20.dp),
                                         strokeWidth = 2.dp,
@@ -220,7 +224,7 @@ fun AuthScreen(
                     HLButton(
                         onClick = { onAction(AuthAction.OnAppleLoginClick) },
                         variant = ButtonVariant.Outlined,
-                        enabled = state.loadingButton == null,
+                        enabled = !state.isGoogleLoading && !state.isAppleLoading && !state.isAnonymousLoading,
                         leadingIcon = {
                             Image(
                                 painter = painterResource(Res.drawable.ic_apple),
@@ -265,9 +269,9 @@ fun AuthScreen(
                     HLButton(
                         onClick = { onAction(AuthAction.OnAnonymousLoginClick) },
                         variant = ButtonVariant.Text,
-                        enabled = state.loadingButton == null,
+                        enabled = !state.isGoogleLoading && !state.isAppleLoading && !state.isAnonymousLoading,
                         leadingIcon = {
-                            if (state.loadingButton == AuthButtonLoading.ANONYMOUS) {
+                            if (state.isAnonymousLoading) {
                                 CircularProgressIndicator(
                                     modifier = Modifier.size(20.dp),
                                     strokeWidth = 2.dp
@@ -302,8 +306,8 @@ fun AuthScreen(
 private class AuthStatePreviewProvider : PreviewParameterProvider<AuthState> {
     override val values: Sequence<AuthState> = sequenceOf(
         AuthState(),
-        AuthState(loadingButton = AuthButtonLoading.GOOGLE),
-        AuthState(loadingButton = AuthButtonLoading.ANONYMOUS)
+        AuthState(isGoogleLoading = true),
+        AuthState(isAnonymousLoading = true)
     )
 }
 

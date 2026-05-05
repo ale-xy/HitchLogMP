@@ -157,6 +157,12 @@ private val _events = Channel<T>()
 val events: Flow<T> = _events.receiveAsFlow()
 ```
 
+**Git Workflow:** When creating new code files, resources, or other app-related files, add them to git immediately after creation. This includes:
+- New Kotlin source files (ViewModels, screens, composables, data classes, etc.)
+- New resource files (strings, drawables, etc.)
+- New configuration files related to the app
+- Do NOT add: documentation files, plans, notes, or temporary files
+
 ---
 
 ## Skills

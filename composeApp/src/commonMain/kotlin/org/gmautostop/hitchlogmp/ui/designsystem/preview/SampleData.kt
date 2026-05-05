@@ -15,7 +15,7 @@ import org.gmautostop.hitchlogmp.domain.computeRestMinutes
 import org.gmautostop.hitchlogmp.domain.nextActionLadder
 import org.gmautostop.hitchlogmp.ui.hitchlog.HitchLogState
 import org.gmautostop.hitchlogmp.ui.hitchlog.SummaryCardState
-import org.gmautostop.hitchlogmp.ui.viewmodel.ViewState
+import org.gmautostop.hitchlogmp.ui.ViewState
 import kotlin.time.Duration.Companion.minutes
 
 // Sample Users

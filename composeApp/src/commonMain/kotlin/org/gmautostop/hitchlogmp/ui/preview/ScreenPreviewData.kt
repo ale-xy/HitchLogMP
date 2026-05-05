@@ -18,7 +18,7 @@ import org.gmautostop.hitchlogmp.ui.designsystem.preview.sampleRestRecords
 import org.gmautostop.hitchlogmp.ui.designsystem.preview.sampleRetiredRecords
 import org.gmautostop.hitchlogmp.ui.hitchlog.HitchLogState
 import org.gmautostop.hitchlogmp.ui.recordedit.EditRecordUiState
-import org.gmautostop.hitchlogmp.ui.viewmodel.ViewState
+import org.gmautostop.hitchlogmp.ui.ViewState
 
 // LogList states
 class LogListStateProvider : PreviewParameterProvider<ViewState<List<HitchLog>>> {

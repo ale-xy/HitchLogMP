@@ -45,9 +45,6 @@ import org.gmautostop.hitchlogmp.ui.designsystem.components.HLLoadingState
 import org.gmautostop.hitchlogmp.ui.designsystem.components.HLTopBar
 import org.gmautostop.hitchlogmp.ui.designsystem.theme.HLTheme
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLColors
-import org.gmautostop.hitchlogmp.ui.viewmodel.HitchLogUi
-import org.gmautostop.hitchlogmp.ui.viewmodel.LogListViewModel
-import org.gmautostop.hitchlogmp.ui.viewmodel.ViewState
 import org.jetbrains.compose.resources.stringResource
 
 

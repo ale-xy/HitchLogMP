@@ -1,4 +1,4 @@
-package org.gmautostop.hitchlogmp.ui.viewmodel
+package org.gmautostop.hitchlogmp.ui
 
 import org.gmautostop.hitchlogmp.domain.AppError
 

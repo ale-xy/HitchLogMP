@@ -5,11 +5,14 @@ import dev.gitlive.firebase.auth.auth
 import org.gmautostop.hitchlogmp.data.AuthService
 import org.gmautostop.hitchlogmp.data.FirestoreRepository
 import org.gmautostop.hitchlogmp.domain.Repository
+import org.gmautostop.hitchlogmp.ui.auth.AuthViewModel
+import org.gmautostop.hitchlogmp.ui.auth.EmailLoginViewModel
+import org.gmautostop.hitchlogmp.ui.auth.EmailRegisterViewModel
+import org.gmautostop.hitchlogmp.ui.auth.ForgotPasswordViewModel
+import org.gmautostop.hitchlogmp.ui.EditLogViewModel
+import org.gmautostop.hitchlogmp.ui.LogListViewModel
 import org.gmautostop.hitchlogmp.ui.hitchlog.HitchLogViewModel
 import org.gmautostop.hitchlogmp.ui.recordedit.EditRecordViewModel
-import org.gmautostop.hitchlogmp.ui.viewmodel.AuthViewModel
-import org.gmautostop.hitchlogmp.ui.viewmodel.EditLogViewModel
-import org.gmautostop.hitchlogmp.ui.viewmodel.LogListViewModel
 import org.koin.core.module.dsl.singleOf
 import org.koin.core.module.dsl.viewModel
 import org.koin.core.module.dsl.viewModelOf
@@ -23,7 +26,13 @@ val appModule = module {
 
     singleOf(::FirestoreRepository).bind<Repository>()
 
-    viewModelOf(::AuthViewModel)
+    // Auth ViewModels
+    viewModel { AuthViewModel(get()) }
+    viewModel { EmailLoginViewModel(get(), get()) }
+    viewModel { EmailRegisterViewModel(get(), get()) }
+    viewModel { ForgotPasswordViewModel(get(), get()) }
+    
+    // Other ViewModels
     viewModelOf(::LogListViewModel)
     viewModelOf(::EditLogViewModel)
     viewModel { HitchLogViewModel(get(), get()) }

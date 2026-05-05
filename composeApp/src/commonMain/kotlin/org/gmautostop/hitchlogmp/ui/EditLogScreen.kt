@@ -46,10 +46,6 @@ import org.gmautostop.hitchlogmp.ui.designsystem.theme.HLTheme
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLColors
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLTypography
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.hlOutlinedTextFieldColors
-import org.gmautostop.hitchlogmp.ui.viewmodel.EditLogAction
-import org.gmautostop.hitchlogmp.ui.viewmodel.EditLogEvent
-import org.gmautostop.hitchlogmp.ui.viewmodel.EditLogState
-import org.gmautostop.hitchlogmp.ui.viewmodel.EditLogViewModel
 import org.jetbrains.compose.resources.stringResource
 
 // ── Root Composable ──────────────────────────────────────────────────────────

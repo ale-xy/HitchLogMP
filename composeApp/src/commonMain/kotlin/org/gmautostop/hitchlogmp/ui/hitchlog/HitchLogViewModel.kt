@@ -31,7 +31,7 @@ import org.gmautostop.hitchlogmp.domain.generateXlsxBytes
 import org.gmautostop.hitchlogmp.domain.nextActionLadder
 import org.gmautostop.hitchlogmp.shareFile
 import org.gmautostop.hitchlogmp.shareFileBytes
-import org.gmautostop.hitchlogmp.ui.viewmodel.ViewState
+import org.gmautostop.hitchlogmp.ui.ViewState
 import org.lighthousegames.logging.logging
 
 @OptIn(ExperimentalCoroutinesApi::class)

@@ -1,0 +1,1 @@
+StudioProjects/HitchLogMP/CLAUDE.md

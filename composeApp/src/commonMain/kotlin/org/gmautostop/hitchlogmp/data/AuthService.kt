@@ -62,6 +62,30 @@ class AuthService(
 
         auth.signOut()
     }
+
+    suspend fun signInWithEmailAndPassword(email: String, password: String) {
+        launchWithAwait {
+            auth.signInWithEmailAndPassword(email, password)
+        }
+    }
+
+    suspend fun createUserWithEmailAndPassword(email: String, password: String) {
+        launchWithAwait {
+            auth.createUserWithEmailAndPassword(email, password)
+        }
+    }
+
+    suspend fun sendPasswordResetEmail(email: String) {
+        launchWithAwait {
+            auth.sendPasswordResetEmail(email)
+        }
+    }
+
+    suspend fun sendEmailVerification() {
+        launchWithAwait {
+            auth.currentUser?.sendEmailVerification()
+        }
+    }
 }
 
 fun FirebaseUser.toUser() = User(uid, isAnonymous)

@@ -9,6 +9,18 @@ sealed interface Screen {
     data object Auth : Screen
 
     @Serializable
+    data object EmailLogin : Screen
+
+    @Serializable
+    data object EmailRegister : Screen
+
+    @Serializable
+    data object ForgotPassword : Screen
+
+    @Serializable
+    data class ForgotPasswordSent(val email: String) : Screen
+
+    @Serializable
     data object LogList : Screen
 
     @Serializable

@@ -63,7 +63,7 @@ import org.gmautostop.hitchlogmp.ui.designsystem.theme.HLTheme
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLColors
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLSpacing
 import org.gmautostop.hitchlogmp.ui.preview.HitchLogStateProvider
-import org.gmautostop.hitchlogmp.ui.viewmodel.ViewState
+import org.gmautostop.hitchlogmp.ui.ViewState
 import org.jetbrains.compose.resources.stringResource
 
 // ── Top-level screen ─────────────────────────────────────────────────────────

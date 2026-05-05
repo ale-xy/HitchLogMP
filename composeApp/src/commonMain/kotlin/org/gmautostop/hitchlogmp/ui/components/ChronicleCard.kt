@@ -30,7 +30,7 @@ import org.gmautostop.hitchlogmp.ui.designsystem.theme.HLTheme
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.ColorRole
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLColors
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLTypography
-import org.gmautostop.hitchlogmp.ui.viewmodel.HitchLogUi
+import org.gmautostop.hitchlogmp.ui.HitchLogUi
 import org.jetbrains.compose.resources.stringResource
 
 /**

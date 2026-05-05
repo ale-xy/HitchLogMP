@@ -127,4 +127,57 @@
     <string name="auth_logo_desc">Логотип ГМА</string>
     <string name="auth_error_google">Ошибка входа через Google: %1$s</string>
     <string name="auth_error_anonymous">Ошибка анонимного входа</string>
+    
+    <!-- Email Login Screen -->
+    <string name="email_login_title">Вход по email</string>
+    <string name="email_label">Email</string>
+    <string name="password_label">Пароль</string>
+    <string name="password_hint">Минимум 6 символов</string>
+    <string name="forgot_password">Забыли пароль?</string>
+    <string name="login_button">Войти</string>
+    <string name="no_account">Нет аккаунта? Зарегистрироваться</string>
+    <string name="logging_in">Вход...</string>
+    
+    <!-- Email Register Screen -->
+    <string name="register_title">Регистрация</string>
+    <string name="confirm_password_label">Повторите пароль</string>
+    <string name="create_account_button">Создать аккаунт</string>
+    <string name="creating_account">Создание...</string>
+    <string name="have_account">Уже есть аккаунт? Войти</string>
+    <string name="email_verification_sent">На ваш email отправлено письмо для подтверждения</string>
+    
+    <!-- Forgot Password Screen -->
+    <string name="forgot_password_title">Сброс пароля</string>
+    <string name="forgot_password_description">Введите email, указанный при регистрации. Мы отправим ссылку для сброса пароля.</string>
+    <string name="send_reset_link">Отправить ссылку</string>
+    <string name="sending">Отправка...</string>
+    
+    <!-- Forgot Password Sent Screen -->
+    <string name="email_sent_title">Письмо отправлено</string>
+    <string name="email_sent_description">Ссылка для сброса пароля отправлена на %1$s. Проверьте почту и следуйте инструкциям.</string>
+    <string name="back_to_login">Вернуться к входу</string>
+    <string name="email_sent_icon_desc">Письмо отправлено</string>
+    
+    <!-- Validation Errors -->
+    <string name="error_invalid_email">Некорректный email адрес</string>
+    <string name="error_password_too_short">Минимум 6 символов</string>
+    <string name="error_passwords_dont_match">Пароли не совпадают</string>
+    <string name="error_empty_email">Введите email</string>
+    <string name="error_empty_password">Введите пароль</string>
+    
+    <!-- Firebase Auth Errors -->
+    <string name="error_email_already_in_use">Этот email уже используется</string>
+    <string name="error_weak_password">Слишком простой пароль</string>
+    <string name="error_user_not_found">Пользователь не найден</string>
+    <string name="error_wrong_password">Неверный пароль</string>
+    <string name="error_invalid_credential">Неверные данные для входа</string>
+    <string name="error_user_disabled">Аккаунт заблокирован</string>
+    <string name="error_too_many_requests">Слишком много попыток. Попробуйте позже</string>
+    <string name="error_network_failed">Ошибка сети. Проверьте подключение</string>
+    <string name="error_operation_not_allowed">Вход по email отключен</string>
+    <string name="error_unknown">Произошла ошибка. Попробуйте снова</string>
+    
+    <!-- Content Descriptions -->
+    <string name="password_visibility_toggle">Показать/скрыть пароль</string>
+    <string name="back_button">Назад</string>
 </resources>
