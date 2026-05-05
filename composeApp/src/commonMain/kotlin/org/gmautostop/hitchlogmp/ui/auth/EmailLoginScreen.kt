@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
@@ -37,6 +38,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import hitchlogmp.composeapp.generated.resources.Res
@@ -187,19 +190,21 @@ fun EmailLoginScreen(
             HLButton(
                 onClick = { onAction(EmailLoginAction.OnSubmit) },
                 enabled = state.isSubmitEnabled,
+                leadingIcon = if (state.isLoading) {
+                    {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(20.dp),
+                            strokeWidth = 2.dp,
+                            color = HLColors.Primary
+                        )
+                    }
+                } else null,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                if (state.isLoading) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.padding(vertical = 2.dp),
-                        color = HLColors.OnPrimary
-                    )
-                } else {
-                    Text(
-                        text = stringResource(Res.string.login_button),
-                        style = HLTypography.labelLarge
-                    )
-                }
+                Text(
+                    text = stringResource(Res.string.login_button),
+                    style = HLTypography.labelLarge
+                )
             }
 
             // Register link
@@ -219,48 +224,71 @@ fun EmailLoginScreen(
 
 // ── Previews ─────────────────────────────────────────────────────────────────
 
-@Preview
-@Composable
-private fun EmailLoginScreenPreview() {
-    HLTheme {
-        EmailLoginScreen(
-            state = EmailLoginState(
-                email = "user@example.com",
-                password = "password123"
-            ),
-            onAction = {},
-            onNavigateBack = {}
+/**
+ * Preview parameter provider for EmailLoginScreen.
+ * Provides different states: default, filled, with errors, loading, single field errors.
+ */
+private class EmailLoginStatePreviewProvider : PreviewParameterProvider<EmailLoginState> {
+    override val values: Sequence<EmailLoginState> = sequenceOf(
+        // Default - empty fields
+        EmailLoginState(
+            email = "",
+            password = "",
+            emailError = null,
+            passwordError = null,
+            isLoading = false
+        ),
+        // Filled fields - valid input, submit enabled
+        EmailLoginState(
+            email = "user@example.com",
+            password = "password123",
+            emailError = null,
+            passwordError = null,
+            isLoading = false
+        ),
+        // With validation errors - both fields
+        EmailLoginState(
+            email = "invalid",
+            password = "123",
+            emailError = org.gmautostop.hitchlogmp.ui.UiText.DynamicString("Invalid email"),
+            passwordError = org.gmautostop.hitchlogmp.ui.UiText.DynamicString("Password too short"),
+            isLoading = false
+        ),
+        // Loading state
+        EmailLoginState(
+            email = "user@example.com",
+            password = "password123",
+            emailError = null,
+            passwordError = null,
+            isLoading = true
+        ),
+        // Single field error - email only
+        EmailLoginState(
+            email = "invalid-email",
+            password = "password123",
+            emailError = org.gmautostop.hitchlogmp.ui.UiText.DynamicString("Invalid email format"),
+            passwordError = null,
+            isLoading = false
+        ),
+        // Single field error - password only
+        EmailLoginState(
+            email = "user@example.com",
+            password = "123",
+            emailError = null,
+            passwordError = org.gmautostop.hitchlogmp.ui.UiText.DynamicString("Password must be at least 6 characters"),
+            isLoading = false
         )
-    }
+    )
 }
 
 @Preview
 @Composable
-private fun EmailLoginScreenWithErrorsPreview() {
+private fun EmailLoginScreenPreview(
+    @PreviewParameter(EmailLoginStatePreviewProvider::class) state: EmailLoginState
+) {
     HLTheme {
         EmailLoginScreen(
-            state = EmailLoginState(
-                email = "invalid",
-                password = "123",
-                emailError = org.gmautostop.hitchlogmp.ui.UiText.DynamicString("Invalid email"),
-                passwordError = org.gmautostop.hitchlogmp.ui.UiText.DynamicString("Password too short")
-            ),
-            onAction = {},
-            onNavigateBack = {}
-        )
-    }
-}
-
-@Preview
-@Composable
-private fun EmailLoginScreenLoadingPreview() {
-    HLTheme {
-        EmailLoginScreen(
-            state = EmailLoginState(
-                email = "user@example.com",
-                password = "password123",
-                isLoading = true
-            ),
+            state = state,
             onAction = {},
             onNavigateBack = {}
         )

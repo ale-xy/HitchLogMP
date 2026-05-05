@@ -26,6 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import hitchlogmp.composeapp.generated.resources.Res
@@ -33,6 +34,8 @@ import hitchlogmp.composeapp.generated.resources.delete
 import hitchlogmp.composeapp.generated.resources.edit_record_title
 import hitchlogmp.composeapp.generated.resources.new_record_title
 import hitchlogmp.composeapp.generated.resources.save
+import kotlinx.datetime.LocalDateTime
+import org.gmautostop.hitchlogmp.domain.HitchLogRecordType
 import org.gmautostop.hitchlogmp.ui.designsystem.components.DateFieldRow
 import org.gmautostop.hitchlogmp.ui.designsystem.components.HLLoadingState
 import org.gmautostop.hitchlogmp.ui.designsystem.components.HLRestHintBanner
@@ -41,11 +44,11 @@ import org.gmautostop.hitchlogmp.ui.designsystem.components.HLTopBar
 import org.gmautostop.hitchlogmp.ui.designsystem.components.HLTypeChip
 import org.gmautostop.hitchlogmp.ui.designsystem.components.NoteFieldRow
 import org.gmautostop.hitchlogmp.ui.designsystem.components.TimeFieldRow
+import org.gmautostop.hitchlogmp.ui.designsystem.preview.sampleRecord
 import org.gmautostop.hitchlogmp.ui.designsystem.theme.HLTheme
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLColors
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLSpacing
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLTypography
-import org.gmautostop.hitchlogmp.ui.preview.EditRecordStateProvider
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
@@ -225,6 +228,79 @@ private fun EditRecordContent(
 }
 
 // ── Previews ─────────────────────────────────────────────────────────────────
+
+/**
+ * Preview parameter provider for EditRecordScreen.
+ * Provides different states: new LIFT, existing CHECKPOINT, REST_OFF with banner, validation errors, loading.
+ */
+private class EditRecordStateProvider : PreviewParameterProvider<EditRecordUiState> {
+    override val values = sequenceOf(
+        // New LIFT record
+        EditRecordUiState(
+            record = sampleRecord(id = "", type = HitchLogRecordType.LIFT),
+            dateText = "29.04.2026",
+            timeText = "14:30",
+            validationError = null,
+            isLoading = false,
+            error = null,
+            restOnTime = null,
+            restElapsedMinutes = null,
+            canSave = true
+        ),
+        // Existing CHECKPOINT record with delete button
+        EditRecordUiState(
+            record = sampleRecord(
+                id = "existing-id",
+                type = HitchLogRecordType.CHECKPOINT,
+                text = "КП-1 Сестрорецк"
+            ),
+            dateText = "29.04.2026",
+            timeText = "14:30",
+            validationError = null,
+            isLoading = false,
+            error = null,
+            restOnTime = null,
+            restElapsedMinutes = null,
+            canSave = true
+        ),
+        // REST_OFF with banner
+        EditRecordUiState(
+            record = sampleRecord(id = "", type = HitchLogRecordType.REST_OFF),
+            dateText = "29.04.2026",
+            timeText = "14:30",
+            validationError = null,
+            isLoading = false,
+            error = null,
+            restOnTime = LocalDateTime(2026, 4, 29, 13, 45),
+            restElapsedMinutes = 45,
+            canSave = true
+        ),
+        // With validation errors
+        EditRecordUiState(
+            record = sampleRecord(id = "", type = HitchLogRecordType.LIFT),
+            dateText = "32.13.2026",
+            timeText = "25:99",
+            validationError = "Неверный формат даты и времени",
+            isLoading = false,
+            error = null,
+            restOnTime = null,
+            restElapsedMinutes = null,
+            canSave = false
+        ),
+        // Loading state
+        EditRecordUiState(
+            record = sampleRecord(),
+            dateText = "29.04.2026",
+            timeText = "14:30",
+            validationError = null,
+            isLoading = true,
+            error = null,
+            restOnTime = null,
+            restElapsedMinutes = null,
+            canSave = false
+        )
+    )
+}
 
 @Preview
 @Composable

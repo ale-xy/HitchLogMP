@@ -27,6 +27,8 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import hitchlogmp.composeapp.generated.resources.Res
@@ -38,6 +40,7 @@ import hitchlogmp.composeapp.generated.resources.delete_confirm
 import hitchlogmp.composeapp.generated.resources.edit_chronicle_title
 import hitchlogmp.composeapp.generated.resources.new_chronicle
 import hitchlogmp.composeapp.generated.resources.save
+import org.gmautostop.hitchlogmp.domain.AppError
 import org.gmautostop.hitchlogmp.domain.HitchLog
 import org.gmautostop.hitchlogmp.ui.designsystem.components.HLConfirmationDialog
 import org.gmautostop.hitchlogmp.ui.designsystem.components.HLLoadingState
@@ -195,54 +198,68 @@ private fun EditLogContent(
 
 // ── Previews ─────────────────────────────────────────────────────────────────
 
-@Preview
-@Composable
-private fun EditLogScreenNewModePreview() {
-    HLTheme {
-        EditLogScreen(
-            state = EditLogState(
-                log = HitchLog(id = "", userId = "user1", name = ""),
-                isLoading = false,
-                isNewMode = true,
-                isSaveEnabled = false,
-                showDeleteDialog = false
-            ),
-            onAction = {},
-            onNavigateBack = {}
+/**
+ * Preview parameter provider for EditLogScreen.
+ * Provides different states: loading, new mode, edit mode, delete dialog, error.
+ */
+private class EditLogStatePreviewProvider : PreviewParameterProvider<EditLogState> {
+    override val values: Sequence<EditLogState> = sequenceOf(
+        // Loading state
+        EditLogState(
+            log = null,
+            isLoading = true,
+            error = null,
+            showDeleteDialog = false,
+            isNewMode = true,
+            isSaveEnabled = false
+        ),
+        // New mode - empty name, save disabled
+        EditLogState(
+            log = HitchLog(id = "", userId = "user1", name = ""),
+            isLoading = false,
+            error = null,
+            showDeleteDialog = false,
+            isNewMode = true,
+            isSaveEnabled = false
+        ),
+        // Edit mode - filled name, save enabled
+        EditLogState(
+            log = HitchLog(id = "log1", userId = "user1", name = "Москва → Санкт-Петербург"),
+            isLoading = false,
+            error = null,
+            showDeleteDialog = false,
+            isNewMode = false,
+            isSaveEnabled = true
+        ),
+        // Edit mode with delete dialog shown
+        EditLogState(
+            log = HitchLog(id = "log1", userId = "user1", name = "Москва → Санкт-Петербург"),
+            isLoading = false,
+            error = null,
+            showDeleteDialog = true,
+            isNewMode = false,
+            isSaveEnabled = true
+        ),
+        // Error state
+        EditLogState(
+            log = HitchLog(id = "log1", userId = "user1", name = "Москва → Санкт-Петербург"),
+            isLoading = false,
+            error = AppError.NetworkError("Ошибка сохранения"),
+            showDeleteDialog = false,
+            isNewMode = false,
+            isSaveEnabled = true
         )
-    }
+    )
 }
 
 @Preview
 @Composable
-private fun EditLogScreenEditModePreview() {
+private fun EditLogScreenPreview(
+    @PreviewParameter(EditLogStatePreviewProvider::class) state: EditLogState
+) {
     HLTheme {
         EditLogScreen(
-            state = EditLogState(
-                log = HitchLog(id = "log1", userId = "user1", name = "Москва → Санкт-Петербург"),
-                isLoading = false,
-                isNewMode = false,
-                isSaveEnabled = true,
-                showDeleteDialog = false
-            ),
-            onAction = {},
-            onNavigateBack = {}
-        )
-    }
-}
-
-@Preview
-@Composable
-private fun EditLogScreenDeleteDialogPreview() {
-    HLTheme {
-        EditLogScreen(
-            state = EditLogState(
-                log = HitchLog(id = "log1", userId = "user1", name = "Москва → Санкт-Петербург"),
-                isLoading = false,
-                isNewMode = false,
-                isSaveEnabled = true,
-                showDeleteDialog = true
-            ),
+            state = state,
             onAction = {},
             onNavigateBack = {}
         )

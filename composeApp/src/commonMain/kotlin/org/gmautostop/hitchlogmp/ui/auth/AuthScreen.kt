@@ -197,12 +197,12 @@ fun AuthScreen(
                             variant = ButtonVariant.Outlined,
                             enabled = !state.isGoogleLoading && !state.isAppleLoading && !state.isAnonymousLoading,
                             leadingIcon = {
-                                if (state.isGoogleLoading) {
-                                    CircularProgressIndicator(
-                                        modifier = Modifier.size(20.dp),
-                                        strokeWidth = 2.dp,
-                                        color = HLColors.OnSurface
-                                    )
+                    if (state.isGoogleLoading) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(20.dp),
+                            strokeWidth = 2.dp,
+                            color = HLColors.Primary
+                        )
                                 } else {
                                     Image(
                                         painter = painterResource(Res.drawable.ic_google),
@@ -271,11 +271,12 @@ fun AuthScreen(
                         variant = ButtonVariant.Text,
                         enabled = !state.isGoogleLoading && !state.isAppleLoading && !state.isAnonymousLoading,
                         leadingIcon = {
-                            if (state.isAnonymousLoading) {
-                                CircularProgressIndicator(
-                                    modifier = Modifier.size(20.dp),
-                                    strokeWidth = 2.dp
-                                )
+                    if (state.isAnonymousLoading) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(20.dp),
+                            strokeWidth = 2.dp,
+                            color = HLColors.Primary
+                        )
                             } else {
                                 Icon(
                                     imageVector = Icons.Default.PersonOff,

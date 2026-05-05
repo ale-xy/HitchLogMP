@@ -36,6 +36,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -51,19 +52,27 @@ import hitchlogmp.composeapp.generated.resources.export_title
 import hitchlogmp.composeapp.generated.resources.export_xlsx
 import hitchlogmp.composeapp.generated.resources.new_record
 import hitchlogmp.composeapp.generated.resources.start
+import org.gmautostop.hitchlogmp.domain.AppError
 import org.gmautostop.hitchlogmp.domain.HitchLogRecordType
 import org.gmautostop.hitchlogmp.ui.Error
+import org.gmautostop.hitchlogmp.ui.ViewState
 import org.gmautostop.hitchlogmp.ui.designsystem.components.ActionButtonSize
 import org.gmautostop.hitchlogmp.ui.designsystem.components.HLActionButton
 import org.gmautostop.hitchlogmp.ui.designsystem.components.HLBottomSheet
 import org.gmautostop.hitchlogmp.ui.designsystem.components.HLEmptyState
 import org.gmautostop.hitchlogmp.ui.designsystem.components.HLLoadingState
 import org.gmautostop.hitchlogmp.ui.designsystem.components.HLTopBar
+import org.gmautostop.hitchlogmp.ui.designsystem.preview.sampleFinishedRecords
+import org.gmautostop.hitchlogmp.ui.designsystem.preview.sampleHitchLogRecords
+import org.gmautostop.hitchlogmp.ui.designsystem.preview.sampleHitchLogState
+import org.gmautostop.hitchlogmp.ui.designsystem.preview.sampleInCarRecords
+import org.gmautostop.hitchlogmp.ui.designsystem.preview.sampleMinimalRecords
+import org.gmautostop.hitchlogmp.ui.designsystem.preview.sampleOffsideRecords
+import org.gmautostop.hitchlogmp.ui.designsystem.preview.sampleRestRecords
+import org.gmautostop.hitchlogmp.ui.designsystem.preview.sampleRetiredRecords
 import org.gmautostop.hitchlogmp.ui.designsystem.theme.HLTheme
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLColors
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLSpacing
-import org.gmautostop.hitchlogmp.ui.preview.HitchLogStateProvider
-import org.gmautostop.hitchlogmp.ui.ViewState
 import org.jetbrains.compose.resources.stringResource
 
 // ── Top-level screen ─────────────────────────────────────────────────────────
@@ -336,6 +345,25 @@ private fun HitchLog(
 }
 
 // ── Previews ─────────────────────────────────────────────────────────────────
+
+/**
+ * Preview parameter provider for HitchLogScreen.
+ * Provides different states: loading, empty, minimal, full, various scenarios, error.
+ */
+private class HitchLogStateProvider : PreviewParameterProvider<ViewState<HitchLogState>> {
+    override val values = sequenceOf(
+        ViewState.Loading,
+        ViewState.Show(sampleHitchLogState(records = emptyList())),
+        ViewState.Show(sampleHitchLogState(records = sampleMinimalRecords())),
+        ViewState.Show(sampleHitchLogState(records = sampleHitchLogRecords())),
+        ViewState.Show(sampleHitchLogState(records = sampleInCarRecords())),
+        ViewState.Show(sampleHitchLogState(records = sampleRestRecords())),
+        ViewState.Show(sampleHitchLogState(records = sampleOffsideRecords())),
+        ViewState.Show(sampleHitchLogState(records = sampleFinishedRecords())),
+        ViewState.Show(sampleHitchLogState(records = sampleRetiredRecords())),
+        ViewState.Error(AppError.NotFound)
+    )
+}
 
 @Preview
 @Composable

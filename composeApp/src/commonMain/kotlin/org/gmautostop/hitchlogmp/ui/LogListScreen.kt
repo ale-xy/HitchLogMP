@@ -26,6 +26,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import hitchlogmp.composeapp.generated.resources.Res
@@ -38,6 +40,7 @@ import hitchlogmp.composeapp.generated.resources.logout_message_regular
 import hitchlogmp.composeapp.generated.resources.logout_title
 import hitchlogmp.composeapp.generated.resources.my_logs
 import hitchlogmp.composeapp.generated.resources.no_logs
+import org.gmautostop.hitchlogmp.domain.AppError
 import org.gmautostop.hitchlogmp.ui.components.ChronicleCard
 import org.gmautostop.hitchlogmp.ui.designsystem.components.HLConfirmationDialog
 import org.gmautostop.hitchlogmp.ui.designsystem.components.HLEmptyState
@@ -180,48 +183,77 @@ private fun LogListScreen(
 
 // ── Previews ─────────────────────────────────────────────────────────────────
 
-@Preview
-@Composable
-private fun LogListScreenEmptyPreview() {
-    HLTheme {
-        LogListScreen(
-            logs = emptyList(),
-            isAnonymousUser = false,
-            openLog = {},
-            createLog = {},
-            editLog = {},
-            signOut = {}
+/**
+ * Preview parameter provider for LogListScreen.
+ * Provides different states: loading, empty (anonymous), empty (regular), filled, error.
+ */
+private class LogListStatePreviewProvider : PreviewParameterProvider<LogListUiState> {
+    override val values: Sequence<LogListUiState> = sequenceOf(
+        // Loading state
+        LogListUiState(
+            logsState = ViewState.Loading,
+            isAnonymousUser = false
+        ),
+        // Empty state - anonymous user
+        LogListUiState(
+            logsState = ViewState.Show(emptyList()),
+            isAnonymousUser = true
+        ),
+        // Empty state - regular user
+        LogListUiState(
+            logsState = ViewState.Show(emptyList()),
+            isAnonymousUser = false
+        ),
+        // Filled state - multiple logs
+        LogListUiState(
+            logsState = ViewState.Show(
+                listOf(
+                    HitchLogUi(
+                        id = "1",
+                        name = "Москва → Санкт-Петербург",
+                        formattedDate = "5.05.2026"
+                    ),
+                    HitchLogUi(
+                        id = "2",
+                        name = "Казань → Екатеринбург",
+                        formattedDate = "15.04.2026"
+                    ),
+                    HitchLogUi(
+                        id = "3",
+                        name = "Новосибирск → Владивосток",
+                        formattedDate = "1.03.2026"
+                    )
+                )
+            ),
+            isAnonymousUser = false
+        ),
+        // Error state
+        LogListUiState(
+            logsState = ViewState.Error(AppError.NetworkError("Не удалось загрузить логи")),
+            isAnonymousUser = false
         )
-    }
+    )
 }
 
 @Preview
 @Composable
-private fun LogListScreenFilledPreview() {
+private fun LogListScreenPreview(
+    @PreviewParameter(LogListStatePreviewProvider::class) uiState: LogListUiState
+) {
     HLTheme {
-        LogListScreen(
-            logs = listOf(
-                HitchLogUi(
-                    id = "1",
-                    name = "Москва → Санкт-Петербург",
-                    formattedDate = "5.05.2026"
-                ),
-                HitchLogUi(
-                    id = "2",
-                    name = "Казань → Екатеринбург",
-                    formattedDate = "15.04.2026"
-                ),
-                HitchLogUi(
-                    id = "3",
-                    name = "Новосибирск → Владивосток",
-                    formattedDate = "1.03.2026"
-                )
-            ),
-            isAnonymousUser = false,
-            openLog = {},
-            createLog = {},
-            editLog = {},
-            signOut = {}
-        )
+        when (val logsState = uiState.logsState) {
+            is ViewState.Loading -> HLLoadingState()
+            is ViewState.Error -> {
+                Error(logsState.error.displayMessage)
+            }
+            is ViewState.Show<List<HitchLogUi>> -> LogListScreen(
+                logs = logsState.value,
+                isAnonymousUser = uiState.isAnonymousUser,
+                openLog = {},
+                createLog = {},
+                editLog = {},
+                signOut = {}
+            )
+        }
     }
 }

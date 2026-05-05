@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
@@ -37,6 +38,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import hitchlogmp.composeapp.generated.resources.Res
@@ -209,19 +212,21 @@ fun EmailRegisterScreen(
             HLButton(
                 onClick = { onAction(EmailRegisterAction.OnSubmit) },
                 enabled = state.isSubmitEnabled,
+                leadingIcon = if (state.isLoading) {
+                    {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(20.dp),
+                            strokeWidth = 2.dp,
+                            color = HLColors.Primary
+                        )
+                    }
+                } else null,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                if (state.isLoading) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.padding(vertical = 2.dp),
-                        color = HLColors.OnPrimary
-                    )
-                } else {
-                    Text(
-                        text = stringResource(Res.string.create_account_button),
-                        style = HLTypography.labelLarge
-                    )
-                }
+                Text(
+                    text = stringResource(Res.string.create_account_button),
+                    style = HLTypography.labelLarge
+                )
             }
 
             // Login link
@@ -241,52 +246,83 @@ fun EmailRegisterScreen(
 
 // ── Previews ─────────────────────────────────────────────────────────────────
 
-@Preview
-@Composable
-private fun EmailRegisterScreenPreview() {
-    HLTheme {
-        EmailRegisterScreen(
-            state = EmailRegisterState(
-                email = "user@example.com",
-                password = "password123",
-                confirmPassword = "password123"
-            ),
-            onAction = {},
-            onNavigateBack = {}
+/**
+ * Preview parameter provider for EmailRegisterScreen.
+ * Provides different states: default, filled, with errors, loading, password mismatch, weak password.
+ */
+private class EmailRegisterStatePreviewProvider : PreviewParameterProvider<EmailRegisterState> {
+    override val values: Sequence<EmailRegisterState> = sequenceOf(
+        // Default - empty fields
+        EmailRegisterState(
+            email = "",
+            password = "",
+            confirmPassword = "",
+            emailError = null,
+            passwordError = null,
+            confirmPasswordError = null,
+            isLoading = false
+        ),
+        // Filled fields - valid input, submit enabled
+        EmailRegisterState(
+            email = "user@example.com",
+            password = "password123",
+            confirmPassword = "password123",
+            emailError = null,
+            passwordError = null,
+            confirmPasswordError = null,
+            isLoading = false
+        ),
+        // With all validation errors
+        EmailRegisterState(
+            email = "invalid",
+            password = "123",
+            confirmPassword = "456",
+            emailError = org.gmautostop.hitchlogmp.ui.UiText.DynamicString("Invalid email"),
+            passwordError = org.gmautostop.hitchlogmp.ui.UiText.DynamicString("Password too short"),
+            confirmPasswordError = org.gmautostop.hitchlogmp.ui.UiText.DynamicString("Passwords don't match"),
+            isLoading = false
+        ),
+        // Loading state
+        EmailRegisterState(
+            email = "user@example.com",
+            password = "password123",
+            confirmPassword = "password123",
+            emailError = null,
+            passwordError = null,
+            confirmPasswordError = null,
+            isLoading = true
+        ),
+        // Password mismatch error only
+        EmailRegisterState(
+            email = "user@example.com",
+            password = "password123",
+            confirmPassword = "password456",
+            emailError = null,
+            passwordError = null,
+            confirmPasswordError = org.gmautostop.hitchlogmp.ui.UiText.DynamicString("Passwords don't match"),
+            isLoading = false
+        ),
+        // Weak password error only
+        EmailRegisterState(
+            email = "user@example.com",
+            password = "123",
+            confirmPassword = "123",
+            emailError = null,
+            passwordError = org.gmautostop.hitchlogmp.ui.UiText.DynamicString("Password must be at least 6 characters"),
+            confirmPasswordError = null,
+            isLoading = false
         )
-    }
+    )
 }
 
 @Preview
 @Composable
-private fun EmailRegisterScreenWithErrorsPreview() {
+private fun EmailRegisterScreenPreview(
+    @PreviewParameter(EmailRegisterStatePreviewProvider::class) state: EmailRegisterState
+) {
     HLTheme {
         EmailRegisterScreen(
-            state = EmailRegisterState(
-                email = "invalid",
-                password = "123",
-                confirmPassword = "456",
-                emailError = org.gmautostop.hitchlogmp.ui.UiText.DynamicString("Invalid email"),
-                passwordError = org.gmautostop.hitchlogmp.ui.UiText.DynamicString("Password too short"),
-                confirmPasswordError = org.gmautostop.hitchlogmp.ui.UiText.DynamicString("Passwords don't match")
-            ),
-            onAction = {},
-            onNavigateBack = {}
-        )
-    }
-}
-
-@Preview
-@Composable
-private fun EmailRegisterScreenLoadingPreview() {
-    HLTheme {
-        EmailRegisterScreen(
-            state = EmailRegisterState(
-                email = "user@example.com",
-                password = "password123",
-                confirmPassword = "password123",
-                isLoading = true
-            ),
+            state = state,
             onAction = {},
             onNavigateBack = {}
         )

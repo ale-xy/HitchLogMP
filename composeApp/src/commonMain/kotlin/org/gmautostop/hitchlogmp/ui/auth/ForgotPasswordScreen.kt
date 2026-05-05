@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
@@ -26,6 +27,8 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import hitchlogmp.composeapp.generated.resources.Res
@@ -35,6 +38,7 @@ import hitchlogmp.composeapp.generated.resources.forgot_password_title
 import hitchlogmp.composeapp.generated.resources.send_reset_link
 import kotlinx.coroutines.launch
 import org.gmautostop.hitchlogmp.ui.ObserveAsEvents
+import org.gmautostop.hitchlogmp.ui.UiText
 import org.gmautostop.hitchlogmp.ui.asString
 import org.gmautostop.hitchlogmp.ui.asStringSuspend
 import org.gmautostop.hitchlogmp.ui.designsystem.components.HLButton
@@ -142,19 +146,21 @@ fun ForgotPasswordScreen(
             HLButton(
                 onClick = { onAction(ForgotPasswordAction.OnSubmit) },
                 enabled = state.isSubmitEnabled,
+                leadingIcon = if (state.isLoading) {
+                    {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(20.dp),
+                            strokeWidth = 2.dp,
+                            color = HLColors.Primary
+                        )
+                    }
+                } else null,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                if (state.isLoading) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.padding(vertical = 2.dp),
-                        color = HLColors.OnPrimary
-                    )
-                } else {
-                    Text(
-                        text = stringResource(Res.string.send_reset_link),
-                        style = HLTypography.labelLarge
-                    )
-                }
+                Text(
+                    text = stringResource(Res.string.send_reset_link),
+                    style = HLTypography.labelLarge
+                )
             }
         }
     }
@@ -162,44 +168,47 @@ fun ForgotPasswordScreen(
 
 // ── Previews ─────────────────────────────────────────────────────────────────
 
-@Preview
-@Composable
-private fun ForgotPasswordScreenPreview() {
-    HLTheme {
-        ForgotPasswordScreen(
-            state = ForgotPasswordState(
-                email = "user@example.com"
-            ),
-            onAction = {},
-            onNavigateBack = {}
+/**
+ * Preview parameter provider for ForgotPasswordScreen.
+ * Provides different states: default, filled, with error, loading.
+ */
+private class ForgotPasswordStatePreviewProvider : PreviewParameterProvider<ForgotPasswordState> {
+    override val values: Sequence<ForgotPasswordState> = sequenceOf(
+        // Default - empty email
+        ForgotPasswordState(
+            email = "",
+            emailError = null,
+            isLoading = false
+        ),
+        // Filled email - valid, submit enabled
+        ForgotPasswordState(
+            email = "user@example.com",
+            emailError = null,
+            isLoading = false
+        ),
+        // With email validation error
+        ForgotPasswordState(
+            email = "invalid",
+            emailError = UiText.DynamicString("Invalid email"),
+            isLoading = false
+        ),
+        // Loading state
+        ForgotPasswordState(
+            email = "user@example.com",
+            emailError = null,
+            isLoading = true
         )
-    }
+    )
 }
 
 @Preview
 @Composable
-private fun ForgotPasswordScreenWithErrorPreview() {
+private fun ForgotPasswordScreenPreview(
+    @PreviewParameter(ForgotPasswordStatePreviewProvider::class) state: ForgotPasswordState
+) {
     HLTheme {
         ForgotPasswordScreen(
-            state = ForgotPasswordState(
-                email = "invalid",
-                emailError = org.gmautostop.hitchlogmp.ui.UiText.DynamicString("Invalid email")
-            ),
-            onAction = {},
-            onNavigateBack = {}
-        )
-    }
-}
-
-@Preview
-@Composable
-private fun ForgotPasswordScreenLoadingPreview() {
-    HLTheme {
-        ForgotPasswordScreen(
-            state = ForgotPasswordState(
-                email = "user@example.com",
-                isLoading = true
-            ),
+            state = state,
             onAction = {},
             onNavigateBack = {}
         )
