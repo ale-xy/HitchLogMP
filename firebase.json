@@ -1,0 +1,16 @@
+{
+  "hosting": {
+    "public": "composeApp/build/dist/js/developmentExecutable",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ]
+  }
+}
