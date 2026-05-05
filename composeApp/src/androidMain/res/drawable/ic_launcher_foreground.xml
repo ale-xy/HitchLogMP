@@ -1,0 +1,36 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="2560"
+    android:viewportHeight="2560">
+    
+    <!-- Blue main triangle -->
+    <path
+        android:fillColor="#2400B9"
+        android:pathData="M1279.23,287.94L72.53,2378h2413.39L1279.23,287.94z"/>
+    
+    <!-- Blue line at bottom -->
+    <path
+        android:strokeColor="#0061A6"
+        android:strokeWidth="1"
+        android:pathData="M73,2378L2486,2378"/>
+    
+    <!-- White internal shapes -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M1196.43,1467L1362.02,1467L1335.55,1111L1222.9,1111z"/>
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M1295.96,579.03L1279.52,343L1279.24,343L1262.49,579.21L1279.43,547.63z"/>
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M1135.46,2274L1129.35,2359L1429.1,2359L1422.99,2274z"/>
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M1385.09,1771L1173.36,1771L1152.11,2056L1406.34,2056z"/>
+    
+    <!-- Yellow road overlay -->
+    <path
+        android:fillColor="#FFF100"
+        android:pathData="M1823.75,1529L1280,1529L1280,1709L1721.91,1709L1933.8,2076L627.93,2076L1280.49,945.73L1405.93,1163L1613.67,1163L1279.99,585.05L315.84,2255L2242.9,2255z"/>
+</vector>
