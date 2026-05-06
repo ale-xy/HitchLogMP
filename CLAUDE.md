@@ -182,19 +182,40 @@ Check deployment status: https://github.com/ale-xy/HitchLogMP/actions
 
 ### GitHub Actions Setup
 
-**Required Secret:** `FIREBASE_SERVICE_ACCOUNT_HITCHLOGMP`
+**Required Secrets:**
 
-To set up the Firebase service account secret:
+The CI/CD workflows require the following secrets to be configured at [GitHub Secrets](https://github.com/ale-xy/HitchLogMP/settings/secrets/actions):
 
-1. **Generate service account key:**
-   - Go to [Firebase Console → Service Accounts](https://console.firebase.google.com/project/hitchlogmp/settings/serviceaccounts/adminsdk)
-   - Click "Generate new private key"
-   - Save the JSON file
+1. **Firebase Service Account** (for deployment):
+   - Secret name: `FIREBASE_SERVICE_ACCOUNT_HITCHLOGMP`
+   - How to get:
+     - Go to [Firebase Console → Service Accounts](https://console.firebase.google.com/project/hitchlogmp/settings/serviceaccounts/adminsdk)
+     - Click "Generate new private key"
+     - Save the JSON file
+     - Paste the entire JSON content as the secret value
 
-2. **Add to GitHub:**
-   - Go to [GitHub Secrets](https://github.com/ale-xy/HitchLogMP/settings/secrets/actions)
-   - Create new secret: `FIREBASE_SERVICE_ACCOUNT_HITCHLOGMP`
-   - Paste the entire JSON content
+2. **Firebase Configuration** (for web app):
+   - `FIREBASE_API_KEY` = `AIzaSyCC3qRm78x1IUggVIdSHnzVPlqYHp9f9yk`
+   - `FIREBASE_GCM_SENDER_ID` = `869765129540`
+   - `FIREBASE_APPLICATION_ID` = `1:869765129540:web:7afc5d7a722a6098022311`
+   
+   Note: Public Firebase values (authDomain, projectId, storageBucket) are stored in `FirebasePublicConfig.kt` and committed to git.
+
+### Firebase Configuration Architecture
+
+Firebase configuration is split between public and secret values:
+
+**Public values** (committed to git in `FirebasePublicConfig.kt`):
+- `authDomain` = `hitchlogmp.firebaseapp.com`
+- `projectId` = `hitchlogmp`
+- `storageBucket` = `hitchlogmp.firebasestorage.app`
+
+**Secret values** (stored in `local.properties` for local dev, GitHub Secrets for CI/CD):
+- `apiKey` - Firebase API key
+- `gcmSenderId` - Google Cloud Messaging sender ID
+- `applicationId` - Firebase application ID
+
+All platforms (JS, Android, iOS) reference the shared `FirebasePublicConfig` object for public values and use platform-specific mechanisms for secrets.
 
 ### Workflow Features
 

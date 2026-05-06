@@ -30,6 +30,10 @@ jobs:
           node-version: '20'
       
       - name: Build production bundle
+        env:
+          FIREBASE_API_KEY: ${{ secrets.FIREBASE_API_KEY }}
+          FIREBASE_GCM_SENDER_ID: ${{ secrets.FIREBASE_GCM_SENDER_ID }}
+          FIREBASE_APPLICATION_ID: ${{ secrets.FIREBASE_APPLICATION_ID }}
         run: ./gradlew :composeApp:jsBrowserDistribution
       
       - name: Deploy to Firebase Production
