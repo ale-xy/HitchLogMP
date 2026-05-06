@@ -28,7 +28,8 @@ if (fs.existsSync(localPropertiesPath)) {
 
 // Then, override with actual environment variables if present (for CI/CD)
 // This allows GitHub Actions to inject secrets
-const secretKeys = ['FIREBASE_API_KEY', 'FIREBASE_GCM_SENDER_ID'];
+// Web uses FIREBASE_WEB_API_KEY (Browser key), separate from Android's FIREBASE_API_KEY
+const secretKeys = ['FIREBASE_WEB_API_KEY', 'FIREBASE_GCM_SENDER_ID'];
 secretKeys.forEach(key => {
     if (process.env[key]) {
         firebaseConfig[key] = process.env[key];
@@ -37,7 +38,7 @@ secretKeys.forEach(key => {
 
 config.plugins.push(
     new webpack.DefinePlugin({
-        'process.env.FIREBASE_API_KEY': JSON.stringify(firebaseConfig.FIREBASE_API_KEY || ''),
+        'process.env.FIREBASE_WEB_API_KEY': JSON.stringify(firebaseConfig.FIREBASE_WEB_API_KEY || ''),
         'process.env.FIREBASE_GCM_SENDER_ID': JSON.stringify(firebaseConfig.FIREBASE_GCM_SENDER_ID || '')
     })
 );

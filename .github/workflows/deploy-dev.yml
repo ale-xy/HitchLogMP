@@ -43,7 +43,7 @@ jobs:
       
       - name: Build development bundle
         env:
-          FIREBASE_API_KEY: ${{ secrets.FIREBASE_API_KEY }}
+          FIREBASE_WEB_API_KEY: ${{ secrets.FIREBASE_WEB_API_KEY }}
           FIREBASE_GCM_SENDER_ID: ${{ secrets.FIREBASE_GCM_SENDER_ID }}
         run: ./gradlew :composeApp:jsBrowserDevelopmentExecutableDistribution
       

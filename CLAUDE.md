@@ -195,11 +195,15 @@ The CI/CD workflows require the following secrets to be configured at [GitHub Se
      - Paste the entire JSON content as the secret value
 
 2. **Firebase Configuration** (for web app):
-   - `FIREBASE_API_KEY` = `AIzaSyCC3qRm78x1IUggVIdSHnzVPlqYHp9f9yk`
+   - `FIREBASE_WEB_API_KEY` - Browser key (web-specific, different from Android key)
    - `FIREBASE_GCM_SENDER_ID` = `869765129540`
-   - ~~`FIREBASE_APPLICATION_ID`~~ - **NOT needed for web builds** (Android/iOS only)
    
    Note: Public Firebase values (authDomain, projectId, storageBucket) are stored in `FirebasePublicConfig.kt` and committed to git.
+
+3. **Firebase Configuration** (for Android app):
+   - `FIREBASE_API_KEY` - Android key (Android-specific, different from Browser key)
+   - `FIREBASE_GCM_SENDER_ID` = `869765129540`
+   - `FIREBASE_APPLICATION_ID` - Firebase application ID for Android
 
 ### Firebase Configuration Architecture
 
@@ -211,15 +215,16 @@ Firebase configuration is split between public and secret values:
 - `storageBucket` = `hitchlogmp.firebasestorage.app`
 
 **Secret values** (stored in `local.properties` for local dev, GitHub Secrets for CI/CD):
-- `apiKey` - Firebase API key
-- `gcmSenderId` - Google Cloud Messaging sender ID
-- `applicationId` - Firebase application ID (Android/iOS only)
+- `apiKey` - Firebase API key (platform-specific: `FIREBASE_WEB_API_KEY` for web, `FIREBASE_API_KEY` for Android)
+- `gcmSenderId` - Google Cloud Messaging sender ID (shared across platforms)
+- `applicationId` - Firebase application ID (Android/iOS only, not used for web)
 
 **Platform-specific behavior:**
-- **Web (JS):** `applicationId` returns empty string to prevent Firebase from misidentifying the web app as an Android client. Only `apiKey` and `gcmSenderId` are injected via webpack.
-- **Android/iOS:** `applicationId` is required and injected from BuildConfig or platform-specific config.
+- **Web (JS):** Uses `FIREBASE_WEB_API_KEY` (Browser key with HTTP referrer restrictions). `applicationId` returns empty string to prevent Firebase from misidentifying the web app as an Android client.
+- **Android:** Uses `FIREBASE_API_KEY` (Android key with SHA fingerprint restrictions) and `FIREBASE_APPLICATION_ID`.
+- **iOS:** Uses platform-specific configuration with `applicationId`.
 
-All platforms (JS, Android, iOS) reference the shared `FirebasePublicConfig` object for public values and use platform-specific mechanisms for secrets.
+All platforms reference the shared `FirebasePublicConfig` object for public values and use platform-specific mechanisms for secrets.
 
 ### Workflow Features
 
