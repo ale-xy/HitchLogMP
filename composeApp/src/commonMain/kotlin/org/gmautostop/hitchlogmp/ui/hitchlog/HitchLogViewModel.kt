@@ -134,7 +134,10 @@ class HitchLogViewModel(
                 }
             } catch (e: Exception) {
                 logger.e(err = e) { "Export $extension failed" }
-                _exportEvents.emit(ExportEvent.Error(e.message ?: "Unknown error"))
+                val errorMsg = e.message?.takeIf { it.isNotBlank() } 
+                    ?: e::class.simpleName 
+                    ?: "Unknown error"
+                _exportEvents.emit(ExportEvent.Error(errorMsg))
             }
         }
     }

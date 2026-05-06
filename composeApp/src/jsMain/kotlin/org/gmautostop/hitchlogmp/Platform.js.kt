@@ -26,11 +26,11 @@ actual fun formatDateLocale(date: LocalDate): String {
 }
 
 actual fun shareFile(content: String, mimeType: String, fileName: String) {
-    // Use Web Share API with download fallback
     val blob = Blob(arrayOf(content), BlobPropertyBag(type = mimeType))
     
-    // Try Web Share API first
-    if (js("navigator.share") != null) {
+    // On iOS, use native share sheet; on desktop, direct download
+    val isIOS = js("(/iPad|iPhone|iPod/.test(navigator.userAgent))") as Boolean
+    if (isIOS && js("navigator.share") != null) {
         val file = js("new File([blob], fileName, { type: mimeType })")
         js("navigator.share({ files: [file] })")
             .catch { error: dynamic ->
@@ -38,7 +38,6 @@ actual fun shareFile(content: String, mimeType: String, fileName: String) {
                 downloadBlob(blob, fileName)
             }
     } else {
-        // Fallback to download
         downloadBlob(blob, fileName)
     }
 }
@@ -46,7 +45,9 @@ actual fun shareFile(content: String, mimeType: String, fileName: String) {
 actual fun shareFileBytes(content: ByteArray, mimeType: String, fileName: String) {
     val blob = Blob(arrayOf(content), BlobPropertyBag(type = mimeType))
     
-    if (js("navigator.share") != null) {
+    // On iOS, use native share sheet; on desktop, direct download
+    val isIOS = js("(/iPad|iPhone|iPod/.test(navigator.userAgent))") as Boolean
+    if (isIOS && js("navigator.share") != null) {
         val file = js("new File([blob], fileName, { type: mimeType })")
         js("navigator.share({ files: [file] })")
             .catch { error: dynamic ->

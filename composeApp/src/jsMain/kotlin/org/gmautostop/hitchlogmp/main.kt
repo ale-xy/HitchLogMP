@@ -11,6 +11,10 @@ import org.gmautostop.hitchlogmp.ui.HitchLogApp
 @OptIn(ExperimentalComposeUiApi::class)
 fun main() {
     try {
+        // Load js-joda timezone database for kotlinx-datetime
+        js("require('@js-joda/timezone')")
+        console.log("js-joda timezone database loaded")
+        
         initializeFirebaseForWeb()
         Initializer.onApplicationStart()
         initKoin()

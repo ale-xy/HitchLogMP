@@ -82,6 +82,7 @@ kotlin {
         
         jsMain.dependencies {
             implementation(npm("exceljs", "4.3.0"))
+            implementation(npm("@js-joda/timezone", "2.3.0"))
         }
         
         commonMain.dependencies {
