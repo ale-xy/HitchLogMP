@@ -1,13 +1,40 @@
+# HitchLogMP
+
+A Kotlin Multiplatform app for logging hitchhiking race activity during GMA competitions.
+
+[![Latest Release](https://img.shields.io/github/v/release/ale-xy/HitchLogMP)](https://github.com/ale-xy/HitchLogMP/releases/latest)
+
+## Download
+
+### Android
+Download the latest APK from [Releases](https://github.com/ale-xy/HitchLogMP/releases/latest).
+
+Choose the APK for your device:
+- **arm64-v8a** - Most modern Android devices (recommended)
+- **armeabi-v7a** - Older 32-bit devices
+- **x86_64** - Intel/AMD devices (rare)
+
+### Web
+- **Production:** https://hitchlog.web.app
+- **Development:** https://hitchlog-dev.web.app
+
+### iOS
+Coming soon.
+
+---
+
+## Development
+
 This is a Kotlin Multiplatform project targeting Android, iOS, Web.
 
 * `/composeApp` is for code that will be shared across your Compose Multiplatform applications.
   It contains several subfolders:
-  - `commonMain` is for code that’s common for all targets.
+  - `commonMain` is for code that's common for all targets.
   - Other folders are for Kotlin code that will be compiled for only the platform indicated in the folder name.
-    For example, if you want to use Apple’s CoreCrypto for the iOS part of your Kotlin app,
+    For example, if you want to use Apple's CoreCrypto for the iOS part of your Kotlin app,
     `iosMain` would be the right folder for such calls.
 
-* `/iosApp` contains iOS applications. Even if you’re sharing your UI with Compose Multiplatform, 
+* `/iosApp` contains iOS applications. Even if you're sharing your UI with Compose Multiplatform, 
   you need this entry point for your iOS app. This is also where you should add SwiftUI code for your project.
 
 

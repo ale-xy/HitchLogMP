@@ -1,238 +1,161 @@
-# HitchlogMP — Developer Guide for Claude
+# HitchlogMP — Developer Guide
 
 ## Project Overview
 
-HitchlogMP is a **Kotlin Multiplatform** (KMP) mobile/web app for logging hitchhiking race activity during Guild competitions. Participants record lifts, walks, checkpoints, rest periods, and other race events in real time. The app syncs via Firebase Firestore.
+**Kotlin Multiplatform** mobile/web app for logging hitchhiking race activity during Guild competitions. Records lifts, walks, checkpoints, rest periods, and race events in real time. Syncs via Firebase Firestore.
 
-**Platforms:** Android (API 24+), iOS (Arm64, X64, Simulator), Web (JS target)
+**Platforms:** Android (API 24+), iOS (Arm64, X64, Simulator), Web (JS)
 
----
-
-## Tech Stack
-
-| Layer | Technology |
-|---|---|
-| Language | Kotlin 2.0.21 with Multiplatform |
-| UI | Compose Multiplatform 1.6.11 + Material3 |
-| Backend | Firebase Firestore + Firebase Auth (GitLive KMP SDK 2.4.0) |
-| Auth | KMPAuth 2.3.1 (Firebase, Google Sign-In) |
-| DI | Koin 4.0.0 |
-| Navigation | Compose Multiplatform Navigation 2.8.0-alpha10 |
-| Serialization | Kotlinx Serialization 1.7.3 |
-| DateTime | Kotlinx DateTime |
-| Build | Gradle with version catalog (`gradle/libs.versions.toml`) |
+**Tech Stack:** Kotlin 2.0.21 | Compose Multiplatform 1.6.11 | Firebase (GitLive SDK 2.4.0) | Koin 4.0.0 | Navigation 2.8.0-alpha10
 
 ---
 
-## Repository Structure
+## Architecture
 
+### Repository Structure
 ```
 composeApp/src/
   commonMain/kotlin/org/gmautostop/hitchlogmp/
-    domain/           # Models, Repository interface, Response, User
-    data/             # FirestoreRepository, AuthService, FirestoreHitchLogRecord DTO
-    di/               # Koin AppModule + initialization
-    ui/               # Screens, ViewModels, Nav routes
-    app/              # Platform-independent init (Google auth)
-    Platform.kt       # expect interface
-    Utils.kt          # DateTime helpers (LocalDateTime ↔ Timestamp conversion)
-  androidMain/        # MainActivity, MainApplication, Platform.android.kt
-  iosMain/            # MainViewController.kt, Platform.ios.kt
-  jsMain/             # main.kt, Platform.js.kt, index.html, styles.css
+    domain/     # Models, Repository, Response, User
+    data/       # FirestoreRepository, AuthService, DTOs
+    di/         # Koin modules
+    ui/         # Screens, ViewModels, Navigation
+  androidMain/  # Android entry point
+  iosMain/      # iOS entry point
+  jsMain/       # Web entry point
 ```
 
----
-
-## Domain Model
-
-**HitchLog** (aggregate root): id, userId, raceId, teamId, name, creationTime  
-**HitchLogRecord** (timeline event): id, time (LocalDateTime), type (HitchLogRecordType), text
-
-**Record types:** START, LIFT, GET_OFF, WALK, WALK_END, CHECKPOINT, MEET, REST_ON, REST_OFF, OFFSIDE_ON, OFFSIDE_OFF, FINISH, RETIRE, FREE_TEXT
-
----
-
-## Data Layer
+### Domain Model
+- **HitchLog:** id, userId, raceId, teamId, name, creationTime
+- **HitchLogRecord:** id, time (LocalDateTime), type, text
+- **Record types:** START, LIFT, GET_OFF, WALK, WALK_END, CHECKPOINT, MEET, REST_ON, REST_OFF, OFFSIDE_ON, OFFSIDE_OFF, FINISH, RETIRE, FREE_TEXT
 
 ### Firestore Structure
 ```
-Collection: logs
-└── Document: {logId}          (HitchLog fields)
-    └── Subcollection: records
-        └── Document: {recordId}   (FirestoreHitchLogRecord fields)
+logs/{logId} → HitchLog fields
+  └── records/{recordId} → FirestoreHitchLogRecord
 ```
-
-**Key details:**
-- Logs queried by `userId`, ordered by `creationTime DESC`
-- Records ordered by `timestamp ASC`
-- `FirestoreHitchLogRecord` is a DTO that maps `LocalDateTime ↔ Firestore Timestamp` with nanosecond precision
-- `getNextTime()` handles timestamp collisions: if a record already exists within the same minute, it adds 1 second to ensure ordering
-- DateTime helpers in `Utils.kt`: `Instant.localTZDateTime()`, `Timestamp.toLocalDateTime()`, `LocalDateTime.toTimestamp()`
-- **Timezone discrepancy:** Chronicle (хроника) must be Moscow time (UTC+3) per competition rules, but app stores local device timezone
-
-### Repository & Response
-`Repository` interface in `domain/` — standard CRUD for HitchLog + HitchLogRecord, returns `Flow<Response<T>>`  
-`Response<T>`: Loading, Success(data), Failure(errorMessage)
-
----
-
-## UI Layer
+- Logs: query by `userId`, order by `creationTime DESC`
+- Records: order by `timestamp ASC`
+- `getNextTime()` handles timestamp collisions (adds 1 second if same minute)
+- **Known issue:** App stores local timezone, but competition rules require Moscow time (UTC+3)
 
 ### Navigation
-`Screen` sealed interface in `ui/Nav.kt`:
-- `Auth` — Login
-- `LogList` — List all user's logs
-- `EditLog(logId: String = "")` — Create/edit log (empty id = new)
-- `Log(logId: String)` — View log + all records
-- `EditRecord(logId, recordId = "", recordType = FREE_TEXT)` — Create/edit record
+`Screen` sealed interface: Auth, LogList, EditLog, Log, EditRecord
 
 ### ViewModels
 All use `ViewState<T>`: Loading, Show(value), Error(error)
-
-| ViewModel | State | Key Methods |
-|---|---|---|
-| `AuthViewModel` | `currentUser: StateFlow<User?>` | `onAnonymousLogin()`, `onLogin(user)`, `onSignOut()` |
-| `LogListViewModel` | `ViewState<List<HitchLog>>` | passive — observes `getLogs()` |
-| `EditLogViewModel` | `ViewState<HitchLog>` | `updateName()`, `saveLog()`, `deleteLog()` |
-| `HitchLogViewModel` | `ViewState<HitchLogState>` | passive — combines log + records |
-| `RecordViewModel` | `ViewState<HitchLogRecord>` | `updateDate()`, `updateTime()`, `updateText()`, `save()`, `delete()` |
-
-`RecordViewModel` uses date format `dd.MM.yyyy` and time format `HH:mm` when parsing user input.
-
-### Dependency Injection
-Koin setup in `di/AppModule.kt`:
-- `AuthService` (single), `FirestoreRepository` (single→Repository)
-- All ViewModels via `viewModelOf` or `viewModel { }`
-- `RecordViewModel` takes params: logId, recordId, recordType
-
----
-
-## Known Issues / TODOs
-
-| Location | Issue |
-|---|---|
-| `AuthViewModel.kt:52` | Anonymous login error logged but not shown to user |
-| `LogListScreen.kt:113` | Edit button functionality unclear — needs review |
-
----
-
-## Competition Domain
-
-App built for **Guild hitchhiking races** (Гильдия спортивного автостопа). Full rules in `Правила соревнований Гильдии.md`.
-
-**Chronicle (хроника)** = official race log. App IS the digital chronicle. Mandatory entries: START, LIFT (car brand required), GET_OFF (location), CHECKPOINT, REST_ON/OFF timestamps, OFFSIDE_ON/OFF timestamps, FINISH/RETIRE. Must be **Moscow time (UTC+3)**, accurate to 1 minute. **Known issue:** app stores local device timezone.
-
-**Race modes:**
-- **REST** (REST_ON/OFF) — rest budget `k/m` hours. Subtracts from race time. Must start/end at same point (≤24m radius).
-- **OFFSIDE** (вне игры, OFFSIDE_ON/OFF) — clock runs, no route advancement. Can be set retroactively.
-
-**Race time:** `finish_time − calculated_start_time − rest_used + penalties`
+- `AuthViewModel`, `LogListViewModel`, `EditLogViewModel`, `HitchLogViewModel`, `RecordViewModel`
+- Date format: `dd.MM.yyyy`, Time format: `HH:mm`
 
 ---
 
 ## Development Guidelines
 
-**Code style:** Kotlin official (see `gradle.properties`), JVM 17, shared code in `commonMain`
+**Code Style:** Kotlin official, JVM 17, shared code in `commonMain`
 
-**Add record type:** 1) Add to `HitchLogRecordType` enum in `domain/Data.kt`, 2) Add string resource in `composeResources/`. Type serializes as name string.
+**Strings:** Use `stringResource(Res.string.*)` — never hardcode. Include `contentDescription` for all icons/images.
 
-**Add screen:** 1) Add to `Screen` sealed interface in `ui/Nav.kt`, 2) Add composable + route in `HitchLogApp.kt`, 3) Create ViewModel in `ui/viewmodel/`, register in `di/AppModule.kt`
+**Firebase:** All queries must filter by `userId`
 
-**Strings:** Never use hardcoded strings in composables or any user-visible code. All text must come from string resources via `stringResource(Res.string.*)` in composables. This includes `contentDescription` for all icons and images (decorative-only elements may use `contentDescription = null`).
+**Explicit Backing Fields (Kotlin 2.3+):**
 
-**Firebase:** All queries filter by `userId`. New queries must include `userId` filter.
+Use the `field` keyword to create a backing field with a different type than the public property. This is perfect for exposing read-only types backed by mutable implementations.
 
-**Timestamps:** `getNextTime()` uses `Source.CACHE` for collision detection — offline records with same minute may order incorrectly until synced.
-
-**Explicit Backing Fields (Kotlin 2.3+):** Use `field = value` syntax for simple read-only/mutable type pairs (e.g., `StateFlow`/`MutableStateFlow`). Syntax is `field = value`, NOT `field: Type = value`. Don't use with transformations (`.receiveAsFlow()`, `.asSharedFlow()`). See `kotlin-explicit-backing-fields` skill for details.
-
+**✅ CORRECT Usage:**
 ```kotlin
-// ✅ Correct
+// StateFlow backed by MutableStateFlow
 val state: StateFlow<T>
     field = MutableStateFlow(value)
 
-// Use traditional backing property when transformation applied
+// SharedFlow backed by MutableSharedFlow
+val events: SharedFlow<T>
+    field = MutableSharedFlow()
+
+// List backed by MutableList
+val items: List<String>
+    field = mutableListOf()
+```
+
+**❌ WRONG - Don't add type annotation to field:**
+```kotlin
+// ❌ WRONG - field should not have type annotation
+val state: StateFlow<T>
+    field: MutableStateFlow<T> = MutableStateFlow(value)
+```
+
+**❌ WRONG - Don't use with transformations:**
+```kotlin
+// ❌ WRONG - use traditional backing property instead
+val events: Flow<T>
+    field = Channel<T>().receiveAsFlow()  // Transformation applied!
+
+// ✅ CORRECT - use traditional backing property
 private val _events = Channel<T>()
 val events: Flow<T> = _events.receiveAsFlow()
 ```
 
-**Git Workflow:** 
-- Auto-stage new code files (Kotlin sources, resources, configs) with `git add` after creation. Do NOT add docs, plans, or temp files.
-- **NEVER commit unless explicitly requested.** Only stage files; wait for explicit commit instruction.
+**When to use explicit backing fields:**
+- ✅ Simple type narrowing (MutableStateFlow → StateFlow)
+- ✅ Direct assignment without transformation
+- ✅ Same underlying object, different interface
+
+**When NOT to use:**
+- ❌ Any transformation (`.receiveAsFlow()`, `.asSharedFlow()`, `.asStateFlow()`)
+- ❌ Computed properties
+- ❌ Delegated properties
+
+**Git:** Auto-stage code files only. Never commit unless explicitly requested.
 
 ---
 
-## CI/CD Deployment
+## CI/CD & Deployment
 
-### Automatic Deployments
+### Web Deployment (Automatic)
+- **Dev:** Push to `develop` → https://hitchlog-dev.web.app
+- **Prod:** Push to `master` → https://hitchlog.web.app
+- Manual: `./deploy-dev.sh`, `./deploy-prod.sh`, `./deploy-both.sh`
 
-- **Development:** Push to `develop` branch → https://hitchlog-dev.web.app
-- **Production:** Push to `master` branch → https://hitchlog.web.app
+### Android Release (Tag-triggered)
+1. Push tag: `git tag v0.2.0 && git push origin v0.2.0`
+2. GitHub Actions builds signed APKs with ProGuard
+3. Creates release at: https://github.com/ale-xy/HitchLogMP/releases
 
-### Manual Deployments
+**Version format:** `v{MAJOR}.{MINOR}.{PATCH}` → versionCode = `MAJOR * 10000 + MINOR * 100 + PATCH`
+- `v0.1.0` → `100`, `v1.2.3` → `10203`, `v2.0.15` → `20015`
 
-Use the deployment scripts for local testing:
-- `./deploy-dev.sh` - Deploy to dev site
-- `./deploy-prod.sh` - Deploy to prod site
-- `./deploy-both.sh` - Deploy to both sites
+**APK variants:** arm64-v8a (modern), armeabi-v7a (older), x86_64 (emulators)
 
-### Workflow Status
+**Local build:**
+```bash
+export VERSION_NAME="0.2.0" VERSION_CODE="200"
+./gradlew :composeApp:assembleRelease
+```
 
-Check deployment status: https://github.com/ale-xy/HitchLogMP/actions
+### GitHub Secrets Required
 
-### GitHub Actions Setup
+**Web deployment:**
+- `FIREBASE_SERVICE_ACCOUNT_HITCHLOGMP` - Service account JSON
+- `FIREBASE_WEB_API_KEY` - Browser key (HTTP referrer restrictions)
+- `FIREBASE_GCM_SENDER_ID` = `869765129540`
 
-**Required Secrets:**
+**Android release:**
+- `ANDROID_KEYSTORE_BASE64` - Base64-encoded `hitchlog-release.jks`
+- `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS`, `ANDROID_KEY_PASSWORD`
+- `FIREBASE_API_KEY` - Android key (SHA fingerprint restrictions)
+- `FIREBASE_GCM_SENDER_ID` = `869765129540`
+- `FIREBASE_APPLICATION_ID` - Android app ID
 
-The CI/CD workflows require the following secrets to be configured at [GitHub Secrets](https://github.com/ale-xy/HitchLogMP/settings/secrets/actions):
+**Firebase config architecture:**
+- Public values (authDomain, projectId, storageBucket) in `FirebasePublicConfig.kt` (committed)
+- Secret values (apiKey, gcmSenderId, applicationId) in `local.properties` (local) or GitHub Secrets (CI)
+- Platform-specific: Web uses `FIREBASE_WEB_API_KEY`, Android uses `FIREBASE_API_KEY`
 
-1. **Firebase Service Account** (for deployment):
-   - Secret name: `FIREBASE_SERVICE_ACCOUNT_HITCHLOGMP`
-   - How to get:
-     - Go to [Firebase Console → Service Accounts](https://console.firebase.google.com/project/hitchlogmp/settings/serviceaccounts/adminsdk)
-     - Click "Generate new private key"
-     - Save the JSON file
-     - Paste the entire JSON content as the secret value
-
-2. **Firebase Configuration** (for web app):
-   - `FIREBASE_WEB_API_KEY` - Browser key (web-specific, different from Android key)
-   - `FIREBASE_GCM_SENDER_ID` = `869765129540`
-   
-   Note: Public Firebase values (authDomain, projectId, storageBucket) are stored in `FirebasePublicConfig.kt` and committed to git.
-
-3. **Firebase Configuration** (for Android app):
-   - `FIREBASE_API_KEY` - Android key (Android-specific, different from Browser key)
-   - `FIREBASE_GCM_SENDER_ID` = `869765129540`
-   - `FIREBASE_APPLICATION_ID` - Firebase application ID for Android
-
-### Firebase Configuration Architecture
-
-Firebase configuration is split between public and secret values:
-
-**Public values** (committed to git in `FirebasePublicConfig.kt`):
-- `authDomain` = `hitchlogmp.firebaseapp.com`
-- `projectId` = `hitchlogmp`
-- `storageBucket` = `hitchlogmp.firebasestorage.app`
-
-**Secret values** (stored in `local.properties` for local dev, GitHub Secrets for CI/CD):
-- `apiKey` - Firebase API key (platform-specific: `FIREBASE_WEB_API_KEY` for web, `FIREBASE_API_KEY` for Android)
-- `gcmSenderId` - Google Cloud Messaging sender ID (shared across platforms)
-- `applicationId` - Firebase application ID (Android/iOS only, not used for web)
-
-**Platform-specific behavior:**
-- **Web (JS):** Uses `FIREBASE_WEB_API_KEY` (Browser key with HTTP referrer restrictions). `applicationId` returns empty string to prevent Firebase from misidentifying the web app as an Android client.
-- **Android:** Uses `FIREBASE_API_KEY` (Android key with SHA fingerprint restrictions) and `FIREBASE_APPLICATION_ID`.
-- **iOS:** Uses platform-specific configuration with `applicationId`.
-
-All platforms reference the shared `FirebasePublicConfig` object for public values and use platform-specific mechanisms for secrets.
-
-### Workflow Features
-
-- **Dev workflow:** Caches Gradle, Kotlin/JS, and npm for ~3-5 min builds
-- **Prod workflow:** Only caches npm for ~8-12 min builds (ensures clean production builds)
-- Automatic deployment on push to respective branches
-- Deployment URLs shown in workflow logs
-- Rollback capability via Firebase Console
+**Security:**
+- Never commit `hitchlog-release.jks` or `local.properties`
+- Backup keystore securely - required for all future app updates
+- Release keystore SHA-1: `BC:7D:B1:1F:A8:C7:98:C1:B2:27:7B:87:62:A0:44:0B:88:5E:8D:94`
+- Must be registered in Firebase Console for Android app authentication
 
 ---
 

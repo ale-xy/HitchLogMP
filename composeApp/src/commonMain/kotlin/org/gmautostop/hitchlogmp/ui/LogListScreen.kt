@@ -19,6 +19,7 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -26,10 +27,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import hitchlogmp.composeapp.generated.resources.Res
 import hitchlogmp.composeapp.generated.resources.cancel
@@ -43,6 +47,7 @@ import hitchlogmp.composeapp.generated.resources.logout_title
 import hitchlogmp.composeapp.generated.resources.my_logs
 import hitchlogmp.composeapp.generated.resources.no_logs
 import org.gmautostop.hitchlogmp.domain.AppError
+import org.gmautostop.hitchlogmp.getAppVersion
 import org.gmautostop.hitchlogmp.ui.components.ChronicleCard
 import org.gmautostop.hitchlogmp.ui.designsystem.components.HLConfirmationDialog
 import org.gmautostop.hitchlogmp.ui.designsystem.components.HLEmptyState
@@ -164,6 +169,21 @@ private fun LogListScreen(
                 imageVector = Icons.Default.Add,
                 contentDescription = stringResource(Res.string.create_chronicle),
                 modifier = Modifier.size(24.dp)
+            )
+        }
+
+        // Version text at bottom-left (Android only)
+        getAppVersion()?.let { version ->
+            Text(
+                text = version,
+                modifier = Modifier
+                    .align(Alignment.BottomStart)
+                    .padding(start = 16.dp, bottom = 8.dp),
+                style = TextStyle(
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Normal,
+                    color = HLColors.OnSurfaceVariant.copy(alpha = 0.6f)
+                )
             )
         }
 
