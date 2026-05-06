@@ -146,6 +146,23 @@ actual suspend fun awaitFirestorePendingWrites() {
 
 actual fun isGoogleAuthUiSupported(): Boolean = true
 
+actual fun getAppVersion(): String? {
+    return try {
+        val context = AndroidShareHelper.getContext()
+        val packageInfo = context.packageManager.getPackageInfo(context.packageName, 0)
+        val versionName = packageInfo.versionName ?: "unknown"
+        val versionCode = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            packageInfo.longVersionCode
+        } else {
+            @Suppress("DEPRECATION")
+            packageInfo.versionCode.toLong()
+        }
+        "v$versionName ($versionCode)"
+    } catch (e: Exception) {
+        null  // Hide version if error occurs
+    }
+}
+
 @Composable
 actual fun androidx.compose.ui.Modifier.platformWindowInsetsPadding(): androidx.compose.ui.Modifier {
     return this.windowInsetsPadding(androidx.compose.foundation.layout.WindowInsets.safeDrawing)

@@ -78,6 +78,8 @@ actual suspend fun awaitFirestorePendingWrites() {
 
 actual fun isGoogleAuthUiSupported(): Boolean = false
 
+actual fun getAppVersion(): String? = null
+
 @Composable
 actual fun androidx.compose.ui.Modifier.platformWindowInsetsPadding(): androidx.compose.ui.Modifier {
     // Web doesn't need window insets - return unmodified

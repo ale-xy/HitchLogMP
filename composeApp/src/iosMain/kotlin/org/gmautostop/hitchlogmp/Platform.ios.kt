@@ -87,6 +87,8 @@ actual suspend fun awaitFirestorePendingWrites() = suspendCancellableCoroutine {
 
 actual fun isGoogleAuthUiSupported(): Boolean = true
 
+actual fun getAppVersion(): String? = null
+
 @Composable
 actual fun androidx.compose.ui.Modifier.platformWindowInsetsPadding(): androidx.compose.ui.Modifier {
     return this.windowInsetsPadding(androidx.compose.foundation.layout.WindowInsets.safeDrawing)
