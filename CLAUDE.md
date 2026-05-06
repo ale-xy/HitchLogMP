@@ -162,6 +162,50 @@ val events: Flow<T> = _events.receiveAsFlow()
 
 ---
 
+## CI/CD Deployment
+
+### Automatic Deployments
+
+- **Development:** Push to `develop` branch → https://hitchlog-dev.web.app
+- **Production:** Push to `master` branch → https://hitchlog.web.app
+
+### Manual Deployments
+
+Use the deployment scripts for local testing:
+- `./deploy-dev.sh` - Deploy to dev site
+- `./deploy-prod.sh` - Deploy to prod site
+- `./deploy-both.sh` - Deploy to both sites
+
+### Workflow Status
+
+Check deployment status: https://github.com/ale-xy/HitchLogMP/actions
+
+### GitHub Actions Setup
+
+**Required Secret:** `FIREBASE_SERVICE_ACCOUNT_HITCHLOGMP`
+
+To set up the Firebase service account secret:
+
+1. **Generate service account key:**
+   - Go to [Firebase Console → Service Accounts](https://console.firebase.google.com/project/hitchlogmp/settings/serviceaccounts/adminsdk)
+   - Click "Generate new private key"
+   - Save the JSON file
+
+2. **Add to GitHub:**
+   - Go to [GitHub Secrets](https://github.com/ale-xy/HitchLogMP/settings/secrets/actions)
+   - Create new secret: `FIREBASE_SERVICE_ACCOUNT_HITCHLOGMP`
+   - Paste the entire JSON content
+
+### Workflow Features
+
+- **Dev workflow:** Caches Gradle, Kotlin/JS, and npm for ~3-5 min builds
+- **Prod workflow:** Only caches npm for ~8-12 min builds (ensures clean production builds)
+- Automatic deployment on push to respective branches
+- Deployment URLs shown in workflow logs
+- Rollback capability via Firebase Console
+
+---
+
 ## Skills
 
 Use the appropriate skill when working on specific aspects of the codebase:
