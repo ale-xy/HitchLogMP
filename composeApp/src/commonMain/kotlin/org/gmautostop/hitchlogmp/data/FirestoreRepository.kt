@@ -6,9 +6,11 @@ import dev.gitlive.firebase.firestore.Source
 import dev.gitlive.firebase.firestore.Timestamp
 import dev.gitlive.firebase.firestore.firestore
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
@@ -32,7 +34,7 @@ import kotlin.uuid.Uuid
 private class NotAuthenticatedException : Exception("Not authenticated")
 private class NotFoundException(id: String) : Exception("Document $id doesn't exist")
 
-@OptIn(ExperimentalUuidApi::class)
+@OptIn(ExperimentalUuidApi::class, ExperimentalCoroutinesApi::class)
 class FirestoreRepository(
     private val authService: AuthService,
     private val syncTracker: FirestoreSyncTracker
@@ -77,43 +79,105 @@ class FirestoreRepository(
         }
     }
 
-    override fun getLogs() = logsRef
-        .where { "userId" equalTo authService.currentUser.value?.id }
-        .orderBy("creationTime", Direction.DESCENDING)
-        .snapshots.map {
-            it.documents.map { document ->
-                document.data<HitchLog>()
+    /**
+     * Wraps a Firestore snapshot query with authentication check.
+     * Automatically cancels the listener when user logs out.
+     * 
+     * @param onUnauthenticated Flow to emit when user is not authenticated
+     * @param errorMessage Error message prefix for logging
+     * @param snapshotQuery Lambda that creates the Firestore snapshot flow when authenticated
+     */
+    private fun <T> authenticatedSnapshot(
+        errorMessage: String,
+        onUnauthenticated: () -> Flow<T>,
+        snapshotQuery: (userId: String) -> Flow<T>
+    ): Flow<Response<T>> {
+        return authService.currentUser
+            .map { user -> user?.id }
+            .flatMapLatest { userId ->
+                if (userId == null) {
+                    onUnauthenticated()
+                } else {
+                    snapshotQuery(userId)
+                }
             }
-        }.map<List<HitchLog>, Response<List<HitchLog>>> {
-            Response.Success(it)
-        }.catch { error ->
-            log.e(err = error) { error.message ?: "getLogs error" }
-            emit(Response.Failure(AppError.NetworkError(error.message ?: "getLogs error")))
-        }.flowOn(Dispatchers.Default)
-
-
-    override fun getLog(logId: String): Flow<Response<HitchLog>> =
-        logsRef.document(logId).snapshots
-            .map { snapshot ->
-                if (!snapshot.exists) throw NotFoundException(logId)
-                snapshot.data<HitchLog>()
-            }
-            .map<HitchLog, Response<HitchLog>> {
-                Response.Success(it)
-            }
+            .map<T, Response<T>> { Response.Success(it) }
             .catch { error ->
-                log.e(err = error) { error.message ?: "getLog error" }
+                log.e(err = error) { "$errorMessage: ${error.message}" }
                 val appError = when (error) {
+                    is NotAuthenticatedException -> AppError.NotAuthenticated
                     is NotFoundException -> AppError.NotFound
-                    else -> AppError.NetworkError(error.message ?: "getLog error")
+                    else -> AppError.NetworkError(error.message ?: errorMessage)
                 }
                 emit(Response.Failure(appError))
             }
             .flowOn(Dispatchers.Default)
+    }
+
+    /**
+     * Wraps a Firestore snapshot query with authentication check.
+     * Returns empty value when user logs out.
+     */
+    private fun <T> authenticatedSnapshot(
+        emptyValue: T,
+        errorMessage: String,
+        snapshotQuery: (userId: String) -> Flow<T>
+    ): Flow<Response<T>> = authenticatedSnapshot(
+        errorMessage = errorMessage,
+        onUnauthenticated = { flow { emit(emptyValue) } },
+        snapshotQuery = snapshotQuery
+    )
+
+    /**
+     * Wraps a Firestore snapshot query with authentication check.
+     * Throws NotAuthenticatedException when user logs out.
+     */
+    private fun <T> authenticatedSnapshot(
+        errorMessage: String,
+        snapshotQuery: (userId: String) -> Flow<T>
+    ): Flow<Response<T>> = authenticatedSnapshot(
+        errorMessage = errorMessage,
+        onUnauthenticated = { flow { throw NotAuthenticatedException() } },
+        snapshotQuery = snapshotQuery
+    )
+
+    /**
+     * Checks if user is authenticated and returns userId.
+     * Throws NotAuthenticatedException if not authenticated.
+     */
+    private fun requireAuth(): String {
+        return authService.currentUser.value?.id
+            ?: throw NotAuthenticatedException()
+    }
+
+    override fun getLogs() = authenticatedSnapshot(
+        emptyValue = emptyList<HitchLog>(),
+        errorMessage = "getLogs error"
+    ) { userId ->
+        logsRef
+            .where { "userId" equalTo userId }
+            .orderBy("creationTime", Direction.DESCENDING)
+            .snapshots.map { snapshot ->
+                snapshot.documents.map { document ->
+                    document.data<HitchLog>()
+                }
+            }
+    }
+
+
+    override fun getLog(logId: String): Flow<Response<HitchLog>> = 
+        authenticatedSnapshot(
+            errorMessage = "getLog error"
+        ) { userId ->
+            logsRef.document(logId).snapshots
+                .map { snapshot ->
+                    if (!snapshot.exists) throw NotFoundException(logId)
+                    snapshot.data<HitchLog>()
+                }
+        }
 
     override fun addLog(log: HitchLog) = repositoryFlow(isWrite = true) {
-        val userId = authService.currentUser.value?.id
-            ?: throw NotAuthenticatedException()
+        val userId = requireAuth()
         val id = Uuid.random().toString()
         firestoreWrite("addLog") {
             logsRef.document(id).set(log.copy(id = id, userId = userId))
@@ -121,27 +185,29 @@ class FirestoreRepository(
     }
 
     override fun updateLog(log: HitchLog) = repositoryFlow(isWrite = true) {
+        requireAuth()
         firestoreWrite("updateLog") {
             logsRef.document(log.id).set(log)
         }
     }
 
     override fun deleteLog(id: String) = repositoryFlow(isWrite = true) {
+        requireAuth()
         firestoreWrite("deleteLog") {
             logsRef.document(id).delete()
         }
     }
 
-    override fun getLogRecords(logId: String) =
-        logRecordsRef(logId).orderBy("timestamp").snapshots().map { snapshot ->
-            snapshot.documents.map { document ->
-                document.data<FirestoreHitchLogRecord>().toHitchLogRecord()
+    override fun getLogRecords(logId: String) = 
+        authenticatedSnapshot(
+            emptyValue = emptyList(),
+            errorMessage = "getLogRecords error"
+        ) { userId ->
+            logRecordsRef(logId).orderBy("timestamp").snapshots().map { snapshot ->
+                snapshot.documents.map { document ->
+                    document.data<FirestoreHitchLogRecord>().toHitchLogRecord()
+                }
             }
-        }.map<List<HitchLogRecord>, Response<List<HitchLogRecord>>> {
-            Response.Success(it)
-        }.catch { error ->
-            log.e(err = error) { error.message ?: "getLogRecords error" }
-            emit(Response.Failure(AppError.NetworkError(error.message ?: "getLogRecords error")))
         }
 
     override fun getRecord(logId: String, recordId: String) = repositoryFlow {
@@ -154,6 +220,7 @@ class FirestoreRepository(
     }
 
     override fun addRecord(logId: String, record: HitchLogRecord) = repositoryFlow(isWrite = true) {
+        requireAuth()
         val id = Uuid.random().toString()
 
         val firestoreRecord = FirestoreHitchLogRecord(
@@ -168,6 +235,7 @@ class FirestoreRepository(
     }
 
     override fun updateRecord(logId: String, record: HitchLogRecord) = repositoryFlow(isWrite = true) {
+        requireAuth()
         val existing = logRecordsRef(logId).document(record.id).get(Source.CACHE).data<FirestoreHitchLogRecord>()
 
         val updatedRecord = if (existing.timestamp == record.time.toTimestamp()) {
@@ -185,6 +253,7 @@ class FirestoreRepository(
     }
 
     override fun deleteRecord(logId: String, record: HitchLogRecord) = repositoryFlow(isWrite = true) {
+        requireAuth()
         firestoreWrite("deleteRecord") {
             logRecordsRef(logId).document(record.id).delete()
         }
