@@ -193,7 +193,12 @@ android {
     }
     
     buildTypes {
+        getByName("debug") {
+            applicationIdSuffix = ".debug"
+            resValue("string", "app_name", "GMA Hitchlog (debug)")
+        }
         getByName("release") {
+            resValue("string", "app_name", "GMA Hitchlog")
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(
