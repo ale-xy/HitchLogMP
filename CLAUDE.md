@@ -197,7 +197,7 @@ The CI/CD workflows require the following secrets to be configured at [GitHub Se
 2. **Firebase Configuration** (for web app):
    - `FIREBASE_API_KEY` = `AIzaSyCC3qRm78x1IUggVIdSHnzVPlqYHp9f9yk`
    - `FIREBASE_GCM_SENDER_ID` = `869765129540`
-   - `FIREBASE_APPLICATION_ID` = `1:869765129540:web:7afc5d7a722a6098022311`
+   - ~~`FIREBASE_APPLICATION_ID`~~ - **NOT needed for web builds** (Android/iOS only)
    
    Note: Public Firebase values (authDomain, projectId, storageBucket) are stored in `FirebasePublicConfig.kt` and committed to git.
 
@@ -213,7 +213,11 @@ Firebase configuration is split between public and secret values:
 **Secret values** (stored in `local.properties` for local dev, GitHub Secrets for CI/CD):
 - `apiKey` - Firebase API key
 - `gcmSenderId` - Google Cloud Messaging sender ID
-- `applicationId` - Firebase application ID
+- `applicationId` - Firebase application ID (Android/iOS only)
+
+**Platform-specific behavior:**
+- **Web (JS):** `applicationId` returns empty string to prevent Firebase from misidentifying the web app as an Android client. Only `apiKey` and `gcmSenderId` are injected via webpack.
+- **Android/iOS:** `applicationId` is required and injected from BuildConfig or platform-specific config.
 
 All platforms (JS, Android, iOS) reference the shared `FirebasePublicConfig` object for public values and use platform-specific mechanisms for secrets.
 

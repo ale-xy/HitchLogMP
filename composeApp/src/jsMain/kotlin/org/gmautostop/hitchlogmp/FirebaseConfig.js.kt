@@ -26,7 +26,6 @@ actual object FirebaseConfig {
     actual val gcmSenderId: String
         get() = js("process.env.FIREBASE_GCM_SENDER_ID || ''") as String
     
-    // Secret - injected at build time via webpack DefinePlugin
     actual val applicationId: String
-        get() = js("process.env.FIREBASE_APPLICATION_ID || ''") as String
+        get() = ""
 }

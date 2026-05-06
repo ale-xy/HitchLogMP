@@ -45,7 +45,6 @@ jobs:
         env:
           FIREBASE_API_KEY: ${{ secrets.FIREBASE_API_KEY }}
           FIREBASE_GCM_SENDER_ID: ${{ secrets.FIREBASE_GCM_SENDER_ID }}
-          FIREBASE_APPLICATION_ID: ${{ secrets.FIREBASE_APPLICATION_ID }}
         run: ./gradlew :composeApp:jsBrowserDevelopmentExecutableDistribution
       
       - name: Deploy to Firebase Dev

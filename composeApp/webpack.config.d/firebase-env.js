@@ -28,20 +28,16 @@ if (fs.existsSync(localPropertiesPath)) {
 
 // Then, override with actual environment variables if present (for CI/CD)
 // This allows GitHub Actions to inject secrets
-// Only inject the 3 secret values (public values are hardcoded in FirebasePublicConfig.kt)
-const secretKeys = ['FIREBASE_API_KEY', 'FIREBASE_GCM_SENDER_ID', 'FIREBASE_APPLICATION_ID'];
+const secretKeys = ['FIREBASE_API_KEY', 'FIREBASE_GCM_SENDER_ID'];
 secretKeys.forEach(key => {
     if (process.env[key]) {
         firebaseConfig[key] = process.env[key];
     }
 });
 
-// Only inject the 3 secret values via DefinePlugin
-// Public values (authDomain, projectId, storageBucket) are hardcoded in FirebasePublicConfig.kt
 config.plugins.push(
     new webpack.DefinePlugin({
         'process.env.FIREBASE_API_KEY': JSON.stringify(firebaseConfig.FIREBASE_API_KEY || ''),
-        'process.env.FIREBASE_GCM_SENDER_ID': JSON.stringify(firebaseConfig.FIREBASE_GCM_SENDER_ID || ''),
-        'process.env.FIREBASE_APPLICATION_ID': JSON.stringify(firebaseConfig.FIREBASE_APPLICATION_ID || '')
+        'process.env.FIREBASE_GCM_SENDER_ID': JSON.stringify(firebaseConfig.FIREBASE_GCM_SENDER_ID || '')
     })
 );
