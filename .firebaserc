@@ -1,5 +1,13 @@
 {
   "projects": {
     "default": "hitchlogmp"
+  },
+  "targets": {
+    "hitchlogmp": {
+      "hosting": {
+        "dev": ["hitchlog-dev"],
+        "prod": ["hitchlog"]
+      }
+    }
   }
 }

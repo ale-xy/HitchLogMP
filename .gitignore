@@ -27,3 +27,11 @@ google-services.json
 composeApp/google-services.json
 GoogleService-Info.plist
 iosApp/GoogleService-Info.plist
+
+# Kotlin/JS build outputs
+composeApp/build/dist/
+composeApp/build/distributions/
+composeApp/build/kotlin-webpack/
+
+# Firebase cache
+.firebase/
