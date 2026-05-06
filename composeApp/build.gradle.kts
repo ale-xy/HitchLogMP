@@ -1,5 +1,6 @@
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import java.util.Base64
 import java.util.Properties
 
 plugins {
@@ -26,6 +27,16 @@ val firebaseProjectId = localProperties.getProperty("firebase.projectId") ?: ""
 val firebaseStorageBucket = localProperties.getProperty("firebase.storageBucket") ?: ""
 val firebaseGcmSenderId = localProperties.getProperty("firebase.gcmSenderId") ?: ""
 val firebaseApplicationId = localProperties.getProperty("firebase.applicationId") ?: ""
+
+// Android signing configuration
+val signingStoreFile = localProperties.getProperty("signing.storeFile") ?: ""
+val signingStorePassword = localProperties.getProperty("signing.storePassword") ?: ""
+val signingKeyAlias = localProperties.getProperty("signing.keyAlias") ?: ""
+val signingKeyPassword = localProperties.getProperty("signing.keyPassword") ?: ""
+
+// Version from environment (for CI) or default
+val versionNameFromEnv = System.getenv("VERSION_NAME") ?: "0.1.0"
+val versionCodeFromEnv = System.getenv("VERSION_CODE")?.toIntOrNull() ?: 100
 
 kotlin {
     compilerOptions {
@@ -132,8 +143,8 @@ android {
         applicationId = "org.gmautostop.hitchlogmp"
         minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = libs.versions.android.targetSdk.get().toInt()
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = versionCodeFromEnv
+        versionName = versionNameFromEnv
         
         // Pass Firebase config to BuildConfig
         buildConfigField("String", "FIREBASE_API_KEY", "\"$firebaseApiKey\"")
@@ -143,14 +154,63 @@ android {
         buildConfigField("String", "FIREBASE_GCM_SENDER_ID", "\"$firebaseGcmSenderId\"")
         buildConfigField("String", "FIREBASE_APPLICATION_ID", "\"$firebaseApplicationId\"")
     }
+    
+    // Signing configuration
+    signingConfigs {
+        create("release") {
+            storeFile = if (signingStoreFile.isNotEmpty()) {
+                rootProject.file(signingStoreFile)
+            } else {
+                // CI: decode from environment
+                val keystoreBase64 = System.getenv("ANDROID_KEYSTORE_BASE64")
+                if (keystoreBase64 != null) {
+                    val keystoreFile = file("${layout.buildDirectory.get()}/keystore.jks")
+                    keystoreFile.parentFile.mkdirs()
+                    keystoreFile.writeBytes(Base64.getDecoder().decode(keystoreBase64))
+                    keystoreFile
+                } else {
+                    null
+                }
+            }
+            storePassword = signingStorePassword.ifEmpty { 
+                System.getenv("ANDROID_KEYSTORE_PASSWORD") 
+            }
+            keyAlias = signingKeyAlias.ifEmpty { 
+                System.getenv("ANDROID_KEY_ALIAS") 
+            }
+            keyPassword = signingKeyPassword.ifEmpty { 
+                System.getenv("ANDROID_KEY_PASSWORD") 
+            }
+            enableV1Signing = true
+            enableV2Signing = true
+        }
+    }
+    
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
+    
     buildTypes {
         getByName("release") {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+            signingConfig = signingConfigs.getByName("release")
+        }
+    }
+    
+    // Split APKs by architecture
+    splits {
+        abi {
+            isEnable = true
+            reset()
+            include("arm64-v8a", "armeabi-v7a", "x86_64")
+            isUniversalApk = false
         }
     }
     compileOptions {

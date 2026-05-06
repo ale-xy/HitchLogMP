@@ -35,3 +35,8 @@ composeApp/build/kotlin-webpack/
 
 # Firebase cache
 .firebase/
+
+# Android signing
+*.jks
+*.keystore
+hitchlog-release.jks
