@@ -1,6 +1,6 @@
 {
-  "name": "HitchLogMP",
-  "short_name": "HitchLog",
+  "name": "GMA Hitchlog",
+  "short_name": "GMA Hitchlog",
   "description": "Hitchhiking race activity logger for Guild competitions",
   "start_url": "/",
   "display": "standalone",
