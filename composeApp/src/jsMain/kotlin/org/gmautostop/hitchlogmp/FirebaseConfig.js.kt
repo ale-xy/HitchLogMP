@@ -2,25 +2,32 @@ package org.gmautostop.hitchlogmp
 
 /**
  * JS implementation of FirebaseConfig.
- * Values are read from environment variables injected at build time.
+ * 
+ * Public values (authDomain, projectId, storageBucket) are from FirebasePublicConfig.
+ * Secret values (apiKey, gcmSenderId) are injected at build time
+ * from local.properties (local dev) or environment variables (CI/CD).
+ * 
+ * Web uses FIREBASE_WEB_API_KEY (Browser key), separate from Android's FIREBASE_API_KEY.
  */
 @JsExport
 actual object FirebaseConfig {
+    // Secret - injected at build time via webpack DefinePlugin (Browser key for web)
     actual val apiKey: String
-        get() = js("process.env.FIREBASE_API_KEY || ''") as String
+        get() = js("process.env.FIREBASE_WEB_API_KEY || ''") as String
     
-    actual val authDomain: String
-        get() = js("process.env.FIREBASE_AUTH_DOMAIN || ''") as String
+    // Public - from shared config
+    actual val authDomain: String = FirebasePublicConfig.AUTH_DOMAIN
     
-    actual val projectId: String
-        get() = js("process.env.FIREBASE_PROJECT_ID || ''") as String
+    // Public - from shared config
+    actual val projectId: String = FirebasePublicConfig.PROJECT_ID
     
-    actual val storageBucket: String
-        get() = js("process.env.FIREBASE_STORAGE_BUCKET || ''") as String
+    // Public - from shared config
+    actual val storageBucket: String = FirebasePublicConfig.STORAGE_BUCKET
     
+    // Secret - injected at build time via webpack DefinePlugin
     actual val gcmSenderId: String
         get() = js("process.env.FIREBASE_GCM_SENDER_ID || ''") as String
     
     actual val applicationId: String
-        get() = js("process.env.FIREBASE_APPLICATION_ID || ''") as String
+        get() = ""
 }

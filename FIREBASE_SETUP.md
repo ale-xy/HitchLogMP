@@ -44,18 +44,6 @@ export FIREBASE_APPLICATION_ID="your_application_id"
 ./gradlew jsBrowserDevelopmentRun
 ```
 
-#### Option B: .env File (Local Development)
-
-Copy `.env.example` to `.env` and fill in your credentials:
-
-```bash
-cp .env.example .env
-```
-
-Then edit `.env` with your Firebase configuration.
-
-**Note:** `.env` is in `.gitignore` and will not be committed.
-
 ### 3. Download google-services.json (Android)
 
 1. Go to [Firebase Console](https://console.firebase.google.com/)

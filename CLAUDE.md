@@ -162,6 +162,80 @@ val events: Flow<T> = _events.receiveAsFlow()
 
 ---
 
+## CI/CD Deployment
+
+### Automatic Deployments
+
+- **Development:** Push to `develop` branch → https://hitchlog-dev.web.app
+- **Production:** Push to `master` branch → https://hitchlog.web.app
+
+### Manual Deployments
+
+Use the deployment scripts for local testing:
+- `./deploy-dev.sh` - Deploy to dev site
+- `./deploy-prod.sh` - Deploy to prod site
+- `./deploy-both.sh` - Deploy to both sites
+
+### Workflow Status
+
+Check deployment status: https://github.com/ale-xy/HitchLogMP/actions
+
+### GitHub Actions Setup
+
+**Required Secrets:**
+
+The CI/CD workflows require the following secrets to be configured at [GitHub Secrets](https://github.com/ale-xy/HitchLogMP/settings/secrets/actions):
+
+1. **Firebase Service Account** (for deployment):
+   - Secret name: `FIREBASE_SERVICE_ACCOUNT_HITCHLOGMP`
+   - How to get:
+     - Go to [Firebase Console → Service Accounts](https://console.firebase.google.com/project/hitchlogmp/settings/serviceaccounts/adminsdk)
+     - Click "Generate new private key"
+     - Save the JSON file
+     - Paste the entire JSON content as the secret value
+
+2. **Firebase Configuration** (for web app):
+   - `FIREBASE_WEB_API_KEY` - Browser key (web-specific, different from Android key)
+   - `FIREBASE_GCM_SENDER_ID` = `869765129540`
+   
+   Note: Public Firebase values (authDomain, projectId, storageBucket) are stored in `FirebasePublicConfig.kt` and committed to git.
+
+3. **Firebase Configuration** (for Android app):
+   - `FIREBASE_API_KEY` - Android key (Android-specific, different from Browser key)
+   - `FIREBASE_GCM_SENDER_ID` = `869765129540`
+   - `FIREBASE_APPLICATION_ID` - Firebase application ID for Android
+
+### Firebase Configuration Architecture
+
+Firebase configuration is split between public and secret values:
+
+**Public values** (committed to git in `FirebasePublicConfig.kt`):
+- `authDomain` = `hitchlogmp.firebaseapp.com`
+- `projectId` = `hitchlogmp`
+- `storageBucket` = `hitchlogmp.firebasestorage.app`
+
+**Secret values** (stored in `local.properties` for local dev, GitHub Secrets for CI/CD):
+- `apiKey` - Firebase API key (platform-specific: `FIREBASE_WEB_API_KEY` for web, `FIREBASE_API_KEY` for Android)
+- `gcmSenderId` - Google Cloud Messaging sender ID (shared across platforms)
+- `applicationId` - Firebase application ID (Android/iOS only, not used for web)
+
+**Platform-specific behavior:**
+- **Web (JS):** Uses `FIREBASE_WEB_API_KEY` (Browser key with HTTP referrer restrictions). `applicationId` returns empty string to prevent Firebase from misidentifying the web app as an Android client.
+- **Android:** Uses `FIREBASE_API_KEY` (Android key with SHA fingerprint restrictions) and `FIREBASE_APPLICATION_ID`.
+- **iOS:** Uses platform-specific configuration with `applicationId`.
+
+All platforms reference the shared `FirebasePublicConfig` object for public values and use platform-specific mechanisms for secrets.
+
+### Workflow Features
+
+- **Dev workflow:** Caches Gradle, Kotlin/JS, and npm for ~3-5 min builds
+- **Prod workflow:** Only caches npm for ~8-12 min builds (ensures clean production builds)
+- Automatic deployment on push to respective branches
+- Deployment URLs shown in workflow logs
+- Rollback capability via Firebase Console
+
+---
+
 ## Skills
 
 Use the appropriate skill when working on specific aspects of the codebase:
