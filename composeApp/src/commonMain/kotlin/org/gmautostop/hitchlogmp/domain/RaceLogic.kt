@@ -1,6 +1,10 @@
 package org.gmautostop.hitchlogmp.domain
 
+import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toInstant
+import kotlinx.datetime.until
 
 enum class LiveStatus { IN_CAR, REST, OFFSIDE, FINISH, RETIRE }
 
@@ -54,6 +58,58 @@ fun computeRestMinutes(records: List<HitchLogRecord>): Int {
     return total.toInt().coerceAtLeast(0)
 }
 
+/**
+ * Computes the number of completed rest divisions (REST_ON/REST_OFF pairs).
+ * Only counts pairs where both ON and OFF exist.
+ * Active rest (REST_ON without REST_OFF) is not counted.
+ */
+fun computeRestDivisions(records: List<HitchLogRecord>): Int {
+    val sorted = records.sortedBy { it.time }
+    var count = 0
+    var hasRestOn = false
+    for (r in sorted) {
+        when (r.type) {
+            HitchLogRecordType.REST_ON -> hasRestOn = true
+            HitchLogRecordType.REST_OFF -> {
+                if (hasRestOn) {
+                    count++
+                    hasRestOn = false
+                }
+            }
+            else -> {}
+        }
+    }
+    return count
+}
+
+/**
+ * Computes remaining rest time.
+ * Returns 0 until total rest time feature is implemented.
+ * 
+ * @param records All log records
+ * @param totalRestMin Total rest time allowed (null if not configured)
+ * @return Remaining rest minutes
+ */
+fun computeRestLeft(records: List<HitchLogRecord>, totalRestMin: Int?): Int {
+    if (totalRestMin == null) return 0
+    val used = computeRestMinutes(records)
+    return (totalRestMin - used).coerceAtLeast(0)
+}
+
+/**
+ * Computes remaining rest divisions.
+ * Returns 0 until total rest divisions feature is implemented.
+ * 
+ * @param records All log records
+ * @param totalRestDivisions Total divisions allowed (null if not configured)
+ * @return Remaining divisions
+ */
+fun computeRestDivisionsLeft(records: List<HitchLogRecord>, totalRestDivisions: Int?): Int {
+    if (totalRestDivisions == null) return 0
+    val used = computeRestDivisions(records)
+    return (totalRestDivisions - used).coerceAtLeast(0)
+}
+
 private fun minutesBetween(from: LocalDateTime, to: LocalDateTime): Long {
     val fromSec = from.date.toEpochDays() * 86400 + from.hour * 3600 + from.minute * 60 + from.second
     val toSec = to.date.toEpochDays() * 86400 + to.hour * 3600 + to.minute * 60 + to.second
@@ -62,6 +118,27 @@ private fun minutesBetween(from: LocalDateTime, to: LocalDateTime): Long {
 
 fun formatMinutes(min: Int): String =
     "${(min / 60).toString().padStart(2, '0')}:${(min % 60).toString().padStart(2, '0')}"
+
+/**
+ * Computes live rest minutes including ongoing rest period.
+ * If currently on rest, adds elapsed time since REST_ON to the total.
+ * 
+ * @param records All log records
+ * @param currentTime Current time for live calculation
+ * @return Total rest minutes including live elapsed time
+ */
+fun computeLiveRestMinutes(records: List<HitchLogRecord>, currentTime: LocalDateTime): Int {
+    val baseMinutes = computeRestMinutes(records)
+    val liveState = computeLiveState(records)
+    
+    if (liveState?.status == LiveStatus.REST && liveState.since != null) {
+        val elapsed = liveState.since.toInstant(TimeZone.currentSystemDefault())
+            .until(currentTime.toInstant(TimeZone.currentSystemDefault()), DateTimeUnit.MINUTE)
+        return baseMinutes + elapsed.toInt()
+    }
+    
+    return baseMinutes
+}
 
 private val NEUTRAL_TYPES = setOf(
     HitchLogRecordType.MEET,

@@ -1,0 +1,86 @@
+name: Test Android Release Build
+
+on:
+  push:
+    branches:
+      - test-release-build  # Only trigger on this specific branch
+  workflow_dispatch:  # Allow manual trigger from GitHub UI
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+      
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          cache-read-only: false
+      
+      - name: Create google-services.json
+        run: |
+          echo '${{ secrets.GOOGLE_SERVICES_JSON }}' > composeApp/google-services.json
+      
+      - name: Set test version
+        id: version
+        run: |
+          echo "VERSION_NAME=0.1.1-test" >> $GITHUB_OUTPUT
+          echo "VERSION_CODE=101" >> $GITHUB_OUTPUT
+          echo "Building test version 0.1.1-test (code: 101)"
+      
+      - name: Build release APKs
+        env:
+          VERSION_NAME: ${{ steps.version.outputs.VERSION_NAME }}
+          VERSION_CODE: ${{ steps.version.outputs.VERSION_CODE }}
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          FIREBASE_API_KEY: ${{ secrets.FIREBASE_API_KEY }}
+          FIREBASE_GCM_SENDER_ID: ${{ secrets.FIREBASE_GCM_SENDER_ID }}
+          FIREBASE_APPLICATION_ID: ${{ secrets.FIREBASE_APPLICATION_ID }}
+        run: |
+          # Create local.properties with Firebase config for build
+          cat > local.properties << EOF
+          sdk.dir=$ANDROID_HOME
+          firebase.apiKey=$FIREBASE_API_KEY
+          firebase.authDomain=hitchlogmp.firebaseapp.com
+          firebase.projectId=hitchlogmp
+          firebase.storageBucket=hitchlogmp.firebasestorage.app
+          firebase.gcmSenderId=$FIREBASE_GCM_SENDER_ID
+          firebase.applicationId=$FIREBASE_APPLICATION_ID
+          EOF
+          
+          ./gradlew :composeApp:assembleRelease
+      
+      - name: Rename APKs with version
+        run: |
+          VERSION=${{ steps.version.outputs.VERSION_NAME }}
+          cd composeApp/build/outputs/apk/release
+          
+          for apk in *.apk; do
+            if [[ $apk == *"arm64-v8a"* ]]; then
+              mv "$apk" "org.gmautostop.hitchlogmp-${VERSION}-arm64-v8a.apk"
+            elif [[ $apk == *"armeabi-v7a"* ]]; then
+              mv "$apk" "org.gmautostop.hitchlogmp-${VERSION}-armeabi-v7a.apk"
+            elif [[ $apk == *"x86_64"* ]]; then
+              mv "$apk" "org.gmautostop.hitchlogmp-${VERSION}-x86_64.apk"
+            fi
+          done
+          
+          ls -lh
+      
+      - name: Upload APKs as artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-release-apks
+          path: composeApp/build/outputs/apk/release/*.apk
+          retention-days: 7

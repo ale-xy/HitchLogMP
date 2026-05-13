@@ -122,6 +122,7 @@ fun HitchLogScreen(
                 createRecord = createRecord,
                 editRecord = editRecord,
                 snackbarHostState = snackbarHostState,
+                onToggleRest = { viewModel.toggleRestDisplay() },
                 onExportTxt = { viewModel.exportAsTxt() },
                 onExportCsv = { viewModel.exportAsCsv() },
                 onExportHtml = { viewModel.exportAsHtml() },
@@ -141,6 +142,7 @@ private fun HitchLog(
     createRecord: (HitchLogRecordType) -> Unit,
     editRecord: (id: String) -> Unit,
     snackbarHostState: SnackbarHostState,
+    onToggleRest: () -> Unit,
     onExportTxt: () -> Unit,
     onExportCsv: () -> Unit,
     onExportHtml: () -> Unit,
@@ -288,7 +290,10 @@ private fun HitchLog(
                 )
             } else {
                 Column(Modifier.fillMaxSize()) {
-                    SummaryCard(summary = state.summary)
+                    SummaryCard(
+                        summary = state.summary,
+                        onToggleRest = onToggleRest
+                    )
                     Box(Modifier.weight(1f)) {
                         LazyColumn(
                             state = listState,
@@ -408,6 +413,7 @@ private fun HitchLogScreenPreview(
                         createRecord = {},
                         editRecord = {},
                         snackbarHostState = remember { SnackbarHostState() },
+                        onToggleRest = {},
                         onExportTxt = {},
                         onExportCsv = {},
                         onExportHtml = {},
