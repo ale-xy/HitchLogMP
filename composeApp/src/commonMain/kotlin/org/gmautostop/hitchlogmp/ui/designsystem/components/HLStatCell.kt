@@ -51,13 +51,12 @@ fun HLStatCell(
         modifier
             .clip(RoundedCornerShape(8.dp))
             .clickable { onClick() }
-            .then(Modifier.padding(HLSpacing.sm))
     } else {
         modifier
     }
 
     Column(
-        cellModifier,
+        cellModifier.padding(HLSpacing.sm),
         horizontalAlignment = align
     ) {
         Row(
