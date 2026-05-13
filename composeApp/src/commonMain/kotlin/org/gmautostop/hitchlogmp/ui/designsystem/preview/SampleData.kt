@@ -11,7 +11,11 @@ import org.gmautostop.hitchlogmp.domain.HitchLogRecord
 import org.gmautostop.hitchlogmp.domain.HitchLogRecordType
 import org.gmautostop.hitchlogmp.domain.User
 import org.gmautostop.hitchlogmp.domain.computeLiveState
+import org.gmautostop.hitchlogmp.domain.computeRestDivisions
+import org.gmautostop.hitchlogmp.domain.computeRestDivisionsLeft
+import org.gmautostop.hitchlogmp.domain.computeRestLeft
 import org.gmautostop.hitchlogmp.domain.computeRestMinutes
+import org.gmautostop.hitchlogmp.domain.formatMinutes
 import org.gmautostop.hitchlogmp.domain.nextActionLadder
 import org.gmautostop.hitchlogmp.ui.ViewState
 import org.gmautostop.hitchlogmp.ui.hitchlog.HitchLogState
@@ -140,11 +144,20 @@ fun sampleHitchLogState(
     logName = log.name,
     teamId = log.teamId,
     records = records,
-    summary = SummaryCardState(
-        lifts = records.count { it.type == HitchLogRecordType.LIFT },
-        checkpoints = records.count { it.type == HitchLogRecordType.CHECKPOINT },
-        restMin = computeRestMinutes(records),
-        liveState = computeLiveState(records)
-    ),
+    summary = run {
+        val restUsedMin = computeRestMinutes(records)
+        val restUsedDivisions = computeRestDivisions(records)
+        val restLeftMin = computeRestLeft(records, totalRestMin = null)
+        val restLeftDivisions = computeRestDivisionsLeft(records, totalRestDivisions = null)
+        
+        SummaryCardState(
+            lifts = records.count { it.type == HitchLogRecordType.LIFT },
+            checkpoints = records.count { it.type == HitchLogRecordType.CHECKPOINT },
+            restUsedDisplay = "${formatMinutes(restUsedMin)}/$restUsedDivisions",
+            restLeftDisplay = "${formatMinutes(restLeftMin)}/$restLeftDivisions",
+            showUsed = true,
+            liveState = computeLiveState(records)
+        )
+    },
     ladder = nextActionLadder(records)
 )

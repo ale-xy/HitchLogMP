@@ -7,7 +7,9 @@ import org.gmautostop.hitchlogmp.domain.LiveState
 data class SummaryCardState(
     val lifts: Int,
     val checkpoints: Int,
-    val restMin: Int,
+    val restUsedDisplay: String,
+    val restLeftDisplay: String,
+    val showUsed: Boolean = true,
     val liveState: LiveState?
 )
 

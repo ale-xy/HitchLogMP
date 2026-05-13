@@ -4,15 +4,16 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.gmautostop.hitchlogmp.domain.HitchLog
@@ -21,18 +22,24 @@ import org.gmautostop.hitchlogmp.domain.HitchLogRecordType
 import org.gmautostop.hitchlogmp.domain.MimeTypes
 import org.gmautostop.hitchlogmp.domain.Repository
 import org.gmautostop.hitchlogmp.domain.Response
+import org.gmautostop.hitchlogmp.domain.computeLiveRestMinutes
 import org.gmautostop.hitchlogmp.domain.computeLiveState
-import org.gmautostop.hitchlogmp.domain.computeRestMinutes
+import org.gmautostop.hitchlogmp.domain.computeRestDivisions
+import org.gmautostop.hitchlogmp.domain.computeRestDivisionsLeft
+import org.gmautostop.hitchlogmp.domain.computeRestLeft
 import org.gmautostop.hitchlogmp.domain.formatAsCsv
 import org.gmautostop.hitchlogmp.domain.formatAsHtml
 import org.gmautostop.hitchlogmp.domain.formatAsTxt
 import org.gmautostop.hitchlogmp.domain.formatAsXlsxRows
+import org.gmautostop.hitchlogmp.domain.formatMinutes
 import org.gmautostop.hitchlogmp.domain.generateXlsxBytes
 import org.gmautostop.hitchlogmp.domain.nextActionLadder
+import org.gmautostop.hitchlogmp.localTZDateTime
 import org.gmautostop.hitchlogmp.shareFile
 import org.gmautostop.hitchlogmp.shareFileBytes
 import org.gmautostop.hitchlogmp.ui.ViewState
 import org.lighthousegames.logging.logging
+import kotlin.time.Clock
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class HitchLogViewModel(
@@ -43,6 +50,8 @@ class HitchLogViewModel(
     val state: StateFlow<ViewState<HitchLogState>>
         field = MutableStateFlow<ViewState<HitchLogState>>(ViewState.Loading)
 
+    private val _currentTime = MutableStateFlow(Clock.System.now())
+
     sealed interface ExportEvent {
         data object Preparing : ExportEvent
         data class Error(val message: String) : ExportEvent
@@ -52,6 +61,22 @@ class HitchLogViewModel(
     val exportEvents: SharedFlow<ExportEvent> = _exportEvents.asSharedFlow()
 
     init {
+        // Start minute-aligned timer
+        viewModelScope.launch {
+            val now = Clock.System.now()
+            val nowLocal = now.localTZDateTime()
+            val secondsIntoMinute = nowLocal.second
+            val initialDelay = (60 - secondsIntoMinute) * 1000L
+            
+            delay(initialDelay)
+            _currentTime.value = Clock.System.now()
+            
+            while (true) {
+                delay(60_000)
+                _currentTime.value = Clock.System.now()
+            }
+        }
+        
         viewModelScope.launch {
             repository.getLog(logId)
                 .distinctUntilChanged()
@@ -59,33 +84,65 @@ class HitchLogViewModel(
                     when (logResponse) {
                         is Response.Loading -> flowOf(ViewState.Loading)
                         is Response.Failure -> flowOf(ViewState.Error(logResponse.error))
-                        is Response.Success -> repository.getLogRecords(logId).map { recordResponse ->
-                            when (recordResponse) {
-                                is Response.Loading -> ViewState.Loading
-                                is Response.Failure -> ViewState.Error(recordResponse.error)
-                                is Response.Success -> {
-                                    val records = recordResponse.data
-                                    ViewState.Show(
-                                        HitchLogState(
-                                            logId = logId,
-                                            logName = logResponse.data.name,
-                                            teamId = logResponse.data.teamId,
-                                            records = records,
-                                            summary = SummaryCardState(
-                                                lifts = records.count { it.type == HitchLogRecordType.LIFT },
-                                                checkpoints = records.count { it.type == HitchLogRecordType.CHECKPOINT },
-                                                restMin = computeRestMinutes(records),
-                                                liveState = computeLiveState(records)
-                                            ),
-                                            ladder = nextActionLadder(records)
-                                        )
-                                    )
+                        is Response.Success -> repository.getLogRecords(logId)
+                            .flatMapLatest { recordResponse ->
+                                when (recordResponse) {
+                                    is Response.Loading -> flowOf(ViewState.Loading)
+                                    is Response.Failure -> flowOf(ViewState.Error(recordResponse.error))
+                                    is Response.Success -> {
+                                        // Combine records with timer for live rest updates
+                                        combine(flowOf(recordResponse.data), _currentTime) { records, currentTime ->
+                                            val currentTimeLocal = currentTime.localTZDateTime()
+                                            val liveState = computeLiveState(records)
+                                            
+                                            // Calculate rest time (live if on rest, static otherwise)
+                                            val restUsedMin = computeLiveRestMinutes(records, currentTimeLocal)
+                                            val restUsedDivisions = computeRestDivisions(records)
+                                            val restLeftMin = computeRestLeft(records, totalRestMin = null)
+                                            val restLeftDivisions = computeRestDivisionsLeft(records, totalRestDivisions = null)
+                                            
+                                            // Preserve current toggle state across record updates
+                                            val currentShowUsed = (state.value as? ViewState.Show<HitchLogState>)
+                                                ?.value?.summary?.showUsed ?: true
+                                            
+                                            ViewState.Show(
+                                                HitchLogState(
+                                                    logId = logId,
+                                                    logName = logResponse.data.name,
+                                                    teamId = logResponse.data.teamId,
+                                                    records = records,
+                                                    summary = SummaryCardState(
+                                                        lifts = records.count { it.type == HitchLogRecordType.LIFT },
+                                                        checkpoints = records.count { it.type == HitchLogRecordType.CHECKPOINT },
+                                                        restUsedDisplay = "${formatMinutes(restUsedMin)}/$restUsedDivisions",
+                                                        restLeftDisplay = "${formatMinutes(restLeftMin)}/$restLeftDivisions",
+                                                        showUsed = currentShowUsed,
+                                                        liveState = liveState
+                                                    ),
+                                                    ladder = nextActionLadder(records)
+                                                )
+                                            )
+                                        }
+                                    }
                                 }
                             }
-                        }
                     }
                 }
                 .collect { state.value = it }
+        }
+    }
+
+    fun toggleRestDisplay() {
+        val currentState = state.value
+        if (currentState is ViewState.Show) {
+            val currentSummary = currentState.value.summary
+            val updatedSummary = currentSummary.copy(
+                showUsed = !currentSummary.showUsed
+            )
+            val updatedHitchLogState = currentState.value.copy(
+                summary = updatedSummary
+            )
+            state.value = ViewState.Show(updatedHitchLogState)
         }
     }
 
