@@ -14,6 +14,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.History
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
@@ -32,6 +33,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import hitchlogmp.composeapp.generated.resources.Res
 import hitchlogmp.composeapp.generated.resources.delete
 import hitchlogmp.composeapp.generated.resources.edit_record_title
+import hitchlogmp.composeapp.generated.resources.history
 import hitchlogmp.composeapp.generated.resources.new_record_title
 import hitchlogmp.composeapp.generated.resources.save
 import kotlinx.datetime.LocalDateTime
@@ -54,7 +56,8 @@ import org.jetbrains.compose.resources.stringResource
 @Composable
 fun EditRecordScreen(
     viewModel: EditRecordViewModel,
-    finish: () -> Unit
+    finish: () -> Unit,
+    navigateToHistory: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val focusRequester = remember { FocusRequester() }
@@ -73,6 +76,7 @@ fun EditRecordScreen(
         state = uiState,
         callbacks = viewModel,
         onClose = finish,
+        onHistory = navigateToHistory,
         focusRequester = focusRequester
     )
 }
@@ -82,6 +86,7 @@ private fun EditRecordContent(
     state: EditRecordUiState,
     callbacks: EditRecordCallbacks,
     onClose: () -> Unit,
+    onHistory: () -> Unit,
     focusRequester: FocusRequester
 ) {
     val isEditMode = state.record.id.isNotEmpty()
@@ -107,6 +112,15 @@ private fun EditRecordContent(
                 onNavigateUp = onClose,
                 navigationIcon = Icons.Default.Close,
                 actions = {
+                    if (isEditMode && state.record.edited) {
+                        IconButton(onClick = onHistory) {
+                            Icon(
+                                imageVector = Icons.Default.History,
+                                contentDescription = stringResource(Res.string.history),
+                                tint = HLColors.OnSurfaceVariant
+                            )
+                        }
+                    }
                     if (isEditMode) {
                         IconButton(onClick = { callbacks.delete() }) {
                             Icon(
@@ -321,6 +335,7 @@ private fun EditRecordScreenPreview(
                 override fun delete() {}
             },
             onClose = { },
+            onHistory = { },
             focusRequester = FocusRequester()
         )
     }

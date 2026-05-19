@@ -74,6 +74,7 @@
     <string name="save">Сохранить</string>
     <string name="close">Закрыть</string>
     <string name="time_label">Время</string>
+    <string name="history">История</string>
 
     <!-- Field labels by type -->
     <string name="field_label_note">Комментарий</string>
@@ -113,6 +114,18 @@
     <string name="export_xlsx">XLSX</string>
     <string name="export_preparing">Подготовка...</string>
     <string name="export_error">Ошибка: %1$s</string>
+    <string name="history_menu">История правок</string>
+    
+    <!-- History Screen -->
+    <string name="record_history_title">История записи</string>
+    <string name="log_history_title">История правок</string>
+    <string name="change_type_create">Создана</string>
+    <string name="change_type_update">Изменена</string>
+    <string name="change_type_delete">Удалена</string>
+    <string name="history_empty">История пуста</string>
+    <string name="history_field_time">Время</string>
+    <string name="history_field_type">Тип</string>
+    <string name="history_field_text">Текст</string>
     
     <!-- Auth Screen -->
     <string name="auth_title">HitchLog</string>

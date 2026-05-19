@@ -36,6 +36,15 @@ sealed interface Screen {
         val recordType: String = HitchLogRecordType.FREE_TEXT.name
     ) : Screen
 
+    @Serializable
+    data class RecordHistory(
+        val logId: String,
+        val recordId: String
+    ) : Screen
+
+    @Serializable
+    data class LogHistory(val logId: String) : Screen
+
 }
 
 

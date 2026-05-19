@@ -7,7 +7,9 @@ import org.gmautostop.hitchlogmp.data.FirestoreRepository
 import org.gmautostop.hitchlogmp.data.FirestoreSyncTracker
 import org.gmautostop.hitchlogmp.domain.Repository
 import org.gmautostop.hitchlogmp.ui.EditLogViewModel
+import org.gmautostop.hitchlogmp.ui.LogHistoryViewModel
 import org.gmautostop.hitchlogmp.ui.LogListViewModel
+import org.gmautostop.hitchlogmp.ui.RecordHistoryViewModel
 import org.gmautostop.hitchlogmp.ui.auth.AuthViewModel
 import org.gmautostop.hitchlogmp.ui.auth.EmailLoginViewModel
 import org.gmautostop.hitchlogmp.ui.auth.EmailRegisterViewModel
@@ -43,5 +45,11 @@ val appModule = module {
     }
     viewModel { params ->
         EditRecordViewModel(get(), params[0], params[1], params[2])
+    }
+    viewModel { params ->
+        RecordHistoryViewModel(get(), params[0], params[1])
+    }
+    viewModel { params ->
+        LogHistoryViewModel(get(), params[0])
     }
 }

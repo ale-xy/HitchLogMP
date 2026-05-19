@@ -21,13 +21,16 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.plus
 import kotlinx.datetime.toInstant
 import org.gmautostop.hitchlogmp.domain.AppError
+import org.gmautostop.hitchlogmp.domain.ChangeType
 import org.gmautostop.hitchlogmp.domain.HitchLog
 import org.gmautostop.hitchlogmp.domain.HitchLogRecord
+import org.gmautostop.hitchlogmp.domain.HitchLogRecordHistoryEntry
 import org.gmautostop.hitchlogmp.domain.Repository
 import org.gmautostop.hitchlogmp.domain.Response
 import org.gmautostop.hitchlogmp.localTZDateTime
 import org.gmautostop.hitchlogmp.toTimestamp
 import org.lighthousegames.logging.logging
+import kotlin.time.Clock
 import kotlin.uuid.ExperimentalUuidApi
 import kotlin.uuid.Uuid
 
@@ -43,6 +46,8 @@ class FirestoreRepository(
 
     private val logsRef = firestore.collection("logs")
     private fun logRecordsRef(logId: String) = firestore.collection("logs/$logId/records")
+    private fun recordHistoryRef(logId: String, recordId: String) = 
+        firestore.collection("logs/$logId/records/$recordId/history")
 
     init {
         firestore.setLoggingEnabled(true)
@@ -206,7 +211,7 @@ class FirestoreRepository(
             logRecordsRef(logId).orderBy("timestamp").snapshots().map { snapshot ->
                 snapshot.documents.map { document ->
                     document.data<FirestoreHitchLogRecord>().toHitchLogRecord()
-                }
+                }.filter { !it.deleted }
             }
         }
 
@@ -232,17 +237,22 @@ class FirestoreRepository(
         firestoreWrite("addRecord") {
             logRecordsRef(logId).document(id).set(firestoreRecord)
         }
+
+        writeHistory(logId, id, ChangeType.CREATE, firestoreRecord.toHitchLogRecord())
     }
 
     override fun updateRecord(logId: String, record: HitchLogRecord) = repositoryFlow(isWrite = true) {
         requireAuth()
         val existing = logRecordsRef(logId).document(record.id).get(Source.CACHE).data<FirestoreHitchLogRecord>()
 
+        // Write history entry before updating
+        writeHistory(logId, record.id, ChangeType.UPDATE, existing.toHitchLogRecord())
+
         val updatedRecord = if (existing.timestamp == record.time.toTimestamp()) {
-            FirestoreHitchLogRecord(record)
+            FirestoreHitchLogRecord(record.copy(edited = true))
         } else {
             FirestoreHitchLogRecord(
-                from = record,
+                from = record.copy(edited = true),
                 timestamp = getNextTime(logId, record.time.toTimestamp())
             )
         }
@@ -254,8 +264,15 @@ class FirestoreRepository(
 
     override fun deleteRecord(logId: String, record: HitchLogRecord) = repositoryFlow(isWrite = true) {
         requireAuth()
+        
+        // Write history entry before soft delete
+        writeHistory(logId, record.id, ChangeType.DELETE, record)
+        
         firestoreWrite("deleteRecord") {
-            logRecordsRef(logId).document(record.id).delete()
+            logRecordsRef(logId).document(record.id).update(
+                "deleted" to true,
+                "edited" to true
+            )
         }
     }
 
@@ -264,6 +281,72 @@ class FirestoreRepository(
             record.id.isEmpty() -> addRecord(logId, record)
             else -> updateRecord(logId, record)
         }
+
+    override fun getRecordHistory(logId: String, recordId: String) =
+        authenticatedSnapshot(
+            emptyValue = emptyList(),
+            errorMessage = "getRecordHistory error"
+        ) { userId ->
+            recordHistoryRef(logId, recordId)
+                .orderBy("editedAt", Direction.DESCENDING)
+                .snapshots
+                .map { snapshot ->
+                    snapshot.documents.map { document ->
+                        document.data<FirestoreHitchLogRecordHistoryEntry>().toHitchLogRecordHistoryEntry()
+                    }
+                }
+        }
+
+    override fun getLogHistory(logId: String) =
+        authenticatedSnapshot(
+            emptyValue = emptyList(),
+            errorMessage = "getLogHistory error"
+        ) { userId ->
+            logRecordsRef(logId).snapshots.map { recordsSnapshot ->
+                val allHistory = mutableListOf<Pair<String, HitchLogRecordHistoryEntry>>()
+                
+                recordsSnapshot.documents.forEach { recordDoc ->
+                    val recordId = recordDoc.id
+                    // For each record, get its history subcollection
+                    val historyDocs = recordHistoryRef(logId, recordId)
+                        .get(Source.CACHE)
+                        .documents
+                    
+                    historyDocs.forEach { historyDoc ->
+                        val entry = historyDoc.data<FirestoreHitchLogRecordHistoryEntry>()
+                            .toHitchLogRecordHistoryEntry()
+                        allHistory.add(recordId to entry)
+                    }
+                }
+                
+                // Sort by editedAt descending
+                allHistory.sortedByDescending { it.second.editedAt }
+            }
+        }
+
+    private suspend fun writeHistory(
+        logId: String,
+        recordId: String,
+        changeType: ChangeType,
+        snapshot: HitchLogRecord
+    ) {
+        val entry = HitchLogRecordHistoryEntry(
+            historyId = Uuid.random().toString(),
+            editedAt = Clock.System.now(),
+            changeType = changeType,
+            time = snapshot.time,
+            type = snapshot.type,
+            text = snapshot.text
+        )
+        
+        val firestoreEntry = FirestoreHitchLogRecordHistoryEntry(entry)
+        
+        firestoreWrite("writeHistory") {
+            recordHistoryRef(logId, recordId)
+                .document(entry.historyId)
+                .set(firestoreEntry)
+        }
+    }
 
     private suspend fun getNextTime(logId: String, enteredTime: Timestamp): Timestamp {
         return logRecordsRef(logId)

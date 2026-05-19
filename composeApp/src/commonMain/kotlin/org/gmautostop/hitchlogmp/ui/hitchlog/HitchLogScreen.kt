@@ -19,6 +19,7 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
@@ -52,6 +53,7 @@ import hitchlogmp.composeapp.generated.resources.export_preparing
 import hitchlogmp.composeapp.generated.resources.export_text
 import hitchlogmp.composeapp.generated.resources.export_title
 import hitchlogmp.composeapp.generated.resources.export_xlsx
+import hitchlogmp.composeapp.generated.resources.history_menu
 import hitchlogmp.composeapp.generated.resources.new_record
 import hitchlogmp.composeapp.generated.resources.start
 import org.gmautostop.hitchlogmp.domain.AppError
@@ -86,6 +88,7 @@ fun HitchLogScreen(
     editLog: (logId: String) -> Unit,
     createRecord: (type: HitchLogRecordType) -> Unit,
     editRecord: (id: String) -> Unit,
+    navigateToLogHistory: () -> Unit
 ) {
     val state: ViewState<HitchLogState> by viewModel.state.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -121,6 +124,7 @@ fun HitchLogScreen(
                 editLog = editLog,
                 createRecord = createRecord,
                 editRecord = editRecord,
+                navigateToLogHistory = navigateToLogHistory,
                 snackbarHostState = snackbarHostState,
                 onToggleRest = { viewModel.toggleRestDisplay() },
                 onExportTxt = { viewModel.exportAsTxt() },
@@ -141,6 +145,7 @@ private fun HitchLog(
     editLog: (logId: String) -> Unit,
     createRecord: (HitchLogRecordType) -> Unit,
     editRecord: (id: String) -> Unit,
+    navigateToLogHistory: () -> Unit,
     snackbarHostState: SnackbarHostState,
     onToggleRest: () -> Unit,
     onExportTxt: () -> Unit,
@@ -267,6 +272,14 @@ private fun HitchLog(
                                 onClick = {
                                     exportMenuExpanded = false
                                     onExportXlsx()
+                                }
+                            )
+                            HorizontalDivider()
+                            DropdownMenuItem(
+                                text = { Text(stringResource(Res.string.history_menu)) },
+                                onClick = {
+                                    exportMenuExpanded = false
+                                    navigateToLogHistory()
                                 }
                             )
                         }
@@ -412,6 +425,7 @@ private fun HitchLogScreenPreview(
                         editLog = {},
                         createRecord = {},
                         editRecord = {},
+                        navigateToLogHistory = {},
                         snackbarHostState = remember { SnackbarHostState() },
                         onToggleRest = {},
                         onExportTxt = {},
