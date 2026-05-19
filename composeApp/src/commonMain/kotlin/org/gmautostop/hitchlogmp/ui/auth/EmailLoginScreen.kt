@@ -52,9 +52,9 @@ import hitchlogmp.composeapp.generated.resources.password_label
 import hitchlogmp.composeapp.generated.resources.password_visibility_toggle
 import kotlinx.coroutines.launch
 import org.gmautostop.hitchlogmp.ui.ObserveAsEvents
-import org.gmautostop.hitchlogmp.ui.UiText
-import org.gmautostop.hitchlogmp.ui.asString
-import org.gmautostop.hitchlogmp.ui.asStringSuspend
+import org.gmautostop.hitchlogmp.ui.components.UiText
+import org.gmautostop.hitchlogmp.ui.components.asString
+import org.gmautostop.hitchlogmp.ui.components.asStringSuspend
 import org.gmautostop.hitchlogmp.ui.designsystem.components.HLButton
 import org.gmautostop.hitchlogmp.ui.designsystem.components.HLTopBar
 import org.gmautostop.hitchlogmp.ui.designsystem.theme.HLTheme

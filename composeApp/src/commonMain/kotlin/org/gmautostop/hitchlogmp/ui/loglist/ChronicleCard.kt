@@ -1,4 +1,4 @@
-package org.gmautostop.hitchlogmp.ui.components
+package org.gmautostop.hitchlogmp.ui.loglist
 
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -25,7 +25,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import hitchlogmp.composeapp.generated.resources.Res
 import hitchlogmp.composeapp.generated.resources.edit_chronicle
-import org.gmautostop.hitchlogmp.ui.HitchLogUi
 import org.gmautostop.hitchlogmp.ui.designsystem.components.HLIconBadge
 import org.gmautostop.hitchlogmp.ui.designsystem.components.IconBadgeSize
 import org.gmautostop.hitchlogmp.ui.designsystem.theme.HLTheme

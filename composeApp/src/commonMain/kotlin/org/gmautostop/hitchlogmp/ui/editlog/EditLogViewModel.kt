@@ -1,4 +1,4 @@
-package org.gmautostop.hitchlogmp.ui
+package org.gmautostop.hitchlogmp.ui.editlog
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

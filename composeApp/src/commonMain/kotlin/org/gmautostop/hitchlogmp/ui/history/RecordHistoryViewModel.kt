@@ -1,4 +1,4 @@
-package org.gmautostop.hitchlogmp.ui
+package org.gmautostop.hitchlogmp.ui.history
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -8,9 +8,7 @@ import kotlinx.coroutines.launch
 import org.gmautostop.hitchlogmp.domain.Repository
 import org.gmautostop.hitchlogmp.domain.Response
 import org.gmautostop.hitchlogmp.timeFormatForDisplay
-import org.gmautostop.hitchlogmp.ui.history.CurrentRecordUi
-import org.gmautostop.hitchlogmp.ui.history.RecordVersionUi
-import org.gmautostop.hitchlogmp.ui.history.computeRecordVersions
+import org.gmautostop.hitchlogmp.ui.ViewState
 
 class RecordHistoryViewModel(
     private val repository: Repository,

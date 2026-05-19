@@ -66,14 +66,6 @@ import org.gmautostop.hitchlogmp.ui.designsystem.components.HLBottomSheet
 import org.gmautostop.hitchlogmp.ui.designsystem.components.HLEmptyState
 import org.gmautostop.hitchlogmp.ui.designsystem.components.HLLoadingState
 import org.gmautostop.hitchlogmp.ui.designsystem.components.HLTopBar
-import org.gmautostop.hitchlogmp.ui.designsystem.preview.sampleFinishedRecords
-import org.gmautostop.hitchlogmp.ui.designsystem.preview.sampleHitchLogRecords
-import org.gmautostop.hitchlogmp.ui.designsystem.preview.sampleHitchLogState
-import org.gmautostop.hitchlogmp.ui.designsystem.preview.sampleInCarRecords
-import org.gmautostop.hitchlogmp.ui.designsystem.preview.sampleMinimalRecords
-import org.gmautostop.hitchlogmp.ui.designsystem.preview.sampleOffsideRecords
-import org.gmautostop.hitchlogmp.ui.designsystem.preview.sampleRestRecords
-import org.gmautostop.hitchlogmp.ui.designsystem.preview.sampleRetiredRecords
 import org.gmautostop.hitchlogmp.ui.designsystem.theme.HLTheme
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLColors
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLSpacing

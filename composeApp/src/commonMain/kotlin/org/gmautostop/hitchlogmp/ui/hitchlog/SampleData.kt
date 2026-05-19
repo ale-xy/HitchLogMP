@@ -1,4 +1,4 @@
-package org.gmautostop.hitchlogmp.ui.designsystem.preview
+package org.gmautostop.hitchlogmp.ui.hitchlog
 
 import dev.gitlive.firebase.firestore.Timestamp
 import kotlinx.datetime.LocalDateTime
@@ -18,8 +18,6 @@ import org.gmautostop.hitchlogmp.domain.computeRestMinutes
 import org.gmautostop.hitchlogmp.domain.formatMinutes
 import org.gmautostop.hitchlogmp.domain.nextActionLadder
 import org.gmautostop.hitchlogmp.ui.ViewState
-import org.gmautostop.hitchlogmp.ui.hitchlog.HitchLogState
-import org.gmautostop.hitchlogmp.ui.hitchlog.SummaryCardState
 import kotlin.time.Duration.Companion.minutes
 
 // Sample Users

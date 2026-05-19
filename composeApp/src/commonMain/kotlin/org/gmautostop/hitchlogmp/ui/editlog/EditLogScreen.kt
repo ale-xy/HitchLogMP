@@ -1,4 +1,4 @@
-package org.gmautostop.hitchlogmp.ui
+package org.gmautostop.hitchlogmp.ui.editlog
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -42,6 +42,8 @@ import hitchlogmp.composeapp.generated.resources.new_chronicle
 import hitchlogmp.composeapp.generated.resources.save
 import org.gmautostop.hitchlogmp.domain.AppError
 import org.gmautostop.hitchlogmp.domain.HitchLog
+import org.gmautostop.hitchlogmp.ui.Error
+import org.gmautostop.hitchlogmp.ui.ObserveAsEvents
 import org.gmautostop.hitchlogmp.ui.designsystem.components.HLConfirmationDialog
 import org.gmautostop.hitchlogmp.ui.designsystem.components.HLLoadingState
 import org.gmautostop.hitchlogmp.ui.designsystem.components.HLTopBar

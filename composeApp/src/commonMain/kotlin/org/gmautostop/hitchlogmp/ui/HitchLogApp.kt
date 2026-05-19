@@ -26,10 +26,16 @@ import org.gmautostop.hitchlogmp.ui.auth.ForgotPasswordScreen
 import org.gmautostop.hitchlogmp.ui.auth.ForgotPasswordSentScreen
 import org.gmautostop.hitchlogmp.ui.auth.ForgotPasswordViewModel
 import org.gmautostop.hitchlogmp.ui.designsystem.theme.HLTheme
+import org.gmautostop.hitchlogmp.ui.editlog.EditLogScreen
+import org.gmautostop.hitchlogmp.ui.editlog.EditLogViewModel
 import org.gmautostop.hitchlogmp.ui.history.LogHistoryScreen
+import org.gmautostop.hitchlogmp.ui.history.LogHistoryViewModel
 import org.gmautostop.hitchlogmp.ui.history.RecordHistoryScreen
+import org.gmautostop.hitchlogmp.ui.history.RecordHistoryViewModel
 import org.gmautostop.hitchlogmp.ui.hitchlog.HitchLogScreen
 import org.gmautostop.hitchlogmp.ui.hitchlog.HitchLogViewModel
+import org.gmautostop.hitchlogmp.ui.loglist.LogListScreen
+import org.gmautostop.hitchlogmp.ui.loglist.LogListViewModel
 import org.gmautostop.hitchlogmp.ui.recordedit.EditRecordScreen
 import org.gmautostop.hitchlogmp.ui.recordedit.EditRecordViewModel
 import org.koin.compose.koinInject

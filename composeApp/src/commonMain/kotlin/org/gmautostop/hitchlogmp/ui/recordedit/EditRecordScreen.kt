@@ -46,11 +46,11 @@ import org.gmautostop.hitchlogmp.ui.designsystem.components.HLTopBar
 import org.gmautostop.hitchlogmp.ui.designsystem.components.HLTypeChip
 import org.gmautostop.hitchlogmp.ui.designsystem.components.NoteFieldRow
 import org.gmautostop.hitchlogmp.ui.designsystem.components.TimeFieldRow
-import org.gmautostop.hitchlogmp.ui.designsystem.preview.sampleRecord
 import org.gmautostop.hitchlogmp.ui.designsystem.theme.HLTheme
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLColors
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLSpacing
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLTypography
+import org.gmautostop.hitchlogmp.ui.hitchlog.sampleRecord
 import org.jetbrains.compose.resources.stringResource
 
 @Composable

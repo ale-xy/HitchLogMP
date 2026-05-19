@@ -41,8 +41,8 @@ import hitchlogmp.composeapp.generated.resources.log_history_title
 import hitchlogmp.composeapp.generated.resources.sort_by_record
 import hitchlogmp.composeapp.generated.resources.sort_by_time
 import org.gmautostop.hitchlogmp.domain.ChangeType
-import org.gmautostop.hitchlogmp.ui.LogHistoryViewModel
 import org.gmautostop.hitchlogmp.ui.ViewState
+import org.gmautostop.hitchlogmp.ui.components.toStringResource
 import org.gmautostop.hitchlogmp.ui.designsystem.components.HLEmptyState
 import org.gmautostop.hitchlogmp.ui.designsystem.components.HLLoadingState
 import org.gmautostop.hitchlogmp.ui.designsystem.components.HLSectionHeader
@@ -51,7 +51,6 @@ import org.gmautostop.hitchlogmp.ui.designsystem.theme.HLTheme
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLColors
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLSpacing
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLTypography
-import org.gmautostop.hitchlogmp.ui.toStringResource
 import org.jetbrains.compose.resources.stringResource
 
 @Composable

@@ -53,7 +53,7 @@ import hitchlogmp.composeapp.generated.resources.ic_google
 import kotlinx.coroutines.launch
 import org.gmautostop.hitchlogmp.isGoogleAuthUiSupported
 import org.gmautostop.hitchlogmp.ui.ObserveAsEvents
-import org.gmautostop.hitchlogmp.ui.asStringSuspend
+import org.gmautostop.hitchlogmp.ui.components.asStringSuspend
 import org.gmautostop.hitchlogmp.ui.designsystem.components.ButtonVariant
 import org.gmautostop.hitchlogmp.ui.designsystem.components.HLButton
 import org.gmautostop.hitchlogmp.ui.designsystem.components.HLConfirmationDialog

@@ -1,4 +1,4 @@
-package org.gmautostop.hitchlogmp.ui
+package org.gmautostop.hitchlogmp.ui.history
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -13,12 +13,7 @@ import org.gmautostop.hitchlogmp.domain.Response
 import org.gmautostop.hitchlogmp.formatDateLocale
 import org.gmautostop.hitchlogmp.localTZDateTime
 import org.gmautostop.hitchlogmp.timeFormatForDisplay
-import org.gmautostop.hitchlogmp.ui.history.DateGroupUi
-import org.gmautostop.hitchlogmp.ui.history.LogHistoryData
-import org.gmautostop.hitchlogmp.ui.history.LogHistoryEntryUi
-import org.gmautostop.hitchlogmp.ui.history.RecordGroupUi
-import org.gmautostop.hitchlogmp.ui.history.SortMode
-import org.gmautostop.hitchlogmp.ui.history.computeRecordVersions
+import org.gmautostop.hitchlogmp.ui.ViewState
 
 class LogHistoryViewModel(
     private val repository: Repository,
