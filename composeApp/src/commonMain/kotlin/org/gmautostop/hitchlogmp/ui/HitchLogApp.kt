@@ -6,15 +6,12 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
-import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import org.gmautostop.hitchlogmp.data.AuthService
 import org.gmautostop.hitchlogmp.data.FirestoreSyncTracker
@@ -185,25 +182,10 @@ fun HitchLogApp(navController: NavHostController) {
                     val viewModel = koinViewModel<RecordHistoryViewModel> {
                         parametersOf(recordHistory.logId, recordHistory.recordId)
                     }
-                    // Get current record from cache
-                    val repository = koinInject<org.gmautostop.hitchlogmp.domain.Repository>()
-                    val currentRecordState by remember {
-                        repository.getRecord(recordHistory.logId, recordHistory.recordId)
-                            .distinctUntilChanged()
-                    }.collectAsStateWithLifecycle(initialValue = org.gmautostop.hitchlogmp.domain.Response.Loading())
-                    
-                    when (val state = currentRecordState) {
-                        is org.gmautostop.hitchlogmp.domain.Response.Success<*> -> {
-                            RecordHistoryScreen(
-                                viewModel = viewModel,
-                                currentRecord = state.data as org.gmautostop.hitchlogmp.domain.HitchLogRecord,
-                                navigateUp = { navController.navigateUp() }
-                            )
-                        }
-                        else -> {
-                            // Show loading or error
-                        }
-                    }
+                    RecordHistoryScreen(
+                        viewModel = viewModel,
+                        navigateUp = { navController.navigateUp() }
+                    )
                 }
                 composable<Screen.LogHistory> { backStackEntry ->
                     val logHistory: Screen.LogHistory = backStackEntry.toRoute()

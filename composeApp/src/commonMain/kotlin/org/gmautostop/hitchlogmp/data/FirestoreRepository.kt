@@ -245,9 +245,6 @@ class FirestoreRepository(
         requireAuth()
         val existing = logRecordsRef(logId).document(record.id).get(Source.CACHE).data<FirestoreHitchLogRecord>()
 
-        // Write history entry before updating
-        writeHistory(logId, record.id, ChangeType.UPDATE, existing.toHitchLogRecord())
-
         val updatedRecord = if (existing.timestamp == record.time.toTimestamp()) {
             FirestoreHitchLogRecord(record.copy(edited = true))
         } else {
@@ -256,7 +253,10 @@ class FirestoreRepository(
                 timestamp = getNextTime(logId, record.time.toTimestamp())
             )
         }
-        
+
+        // Write history AFTER computing new state — stores AFTER state
+        writeHistory(logId, record.id, ChangeType.UPDATE, updatedRecord.toHitchLogRecord())
+
         firestoreWrite("updateRecord") {
             logRecordsRef(logId).document(updatedRecord.id).set(updatedRecord)
         }
@@ -288,7 +288,7 @@ class FirestoreRepository(
             errorMessage = "getRecordHistory error"
         ) { userId ->
             recordHistoryRef(logId, recordId)
-                .orderBy("editedAt", Direction.DESCENDING)
+                .orderBy("editedAt", Direction.ASCENDING)
                 .snapshots
                 .map { snapshot ->
                     snapshot.documents.map { document ->

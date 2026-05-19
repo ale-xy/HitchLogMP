@@ -1,50 +1,50 @@
 package org.gmautostop.hitchlogmp.ui.history
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.History
-import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import hitchlogmp.composeapp.generated.resources.Res
-import hitchlogmp.composeapp.generated.resources.change_type_create
-import hitchlogmp.composeapp.generated.resources.change_type_delete
-import hitchlogmp.composeapp.generated.resources.change_type_update
+import hitchlogmp.composeapp.generated.resources.history_current_state
+import hitchlogmp.composeapp.generated.resources.history_deleted_record
 import hitchlogmp.composeapp.generated.resources.history_empty
 import hitchlogmp.composeapp.generated.resources.history_field_text
 import hitchlogmp.composeapp.generated.resources.history_field_time
 import hitchlogmp.composeapp.generated.resources.history_field_type
 import hitchlogmp.composeapp.generated.resources.record_history_title
-import kotlinx.datetime.LocalDateTime
-import org.gmautostop.hitchlogmp.dateTimeFormat
 import org.gmautostop.hitchlogmp.domain.ChangeType
-import org.gmautostop.hitchlogmp.domain.HitchLogRecord
-import org.gmautostop.hitchlogmp.domain.HitchLogRecordHistoryEntry
 import org.gmautostop.hitchlogmp.domain.HitchLogRecordType
-import org.gmautostop.hitchlogmp.localTZDateTime
-import org.gmautostop.hitchlogmp.timeFormatForDisplay
 import org.gmautostop.hitchlogmp.ui.RecordHistoryViewModel
 import org.gmautostop.hitchlogmp.ui.ViewState
 import org.gmautostop.hitchlogmp.ui.designsystem.components.HLEmptyState
 import org.gmautostop.hitchlogmp.ui.designsystem.components.HLLoadingState
 import org.gmautostop.hitchlogmp.ui.designsystem.components.HLTopBar
+import org.gmautostop.hitchlogmp.ui.designsystem.theme.HLTheme
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLColors
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLSpacing
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLTypography
@@ -54,24 +54,26 @@ import org.jetbrains.compose.resources.stringResource
 @Composable
 fun RecordHistoryScreen(
     viewModel: RecordHistoryViewModel,
-    currentRecord: HitchLogRecord,
     navigateUp: () -> Unit
 ) {
-    val state by viewModel.state.collectAsStateWithLifecycle()
+    val stateValue by viewModel.state.collectAsStateWithLifecycle()
+    val currentRecord by viewModel.currentRecordUi.collectAsStateWithLifecycle()
 
-    RecordHistoryContent(
-        state = state,
+    RecordHistoryScreen(
+        stateValue = stateValue,
         currentRecord = currentRecord,
-        onNavigateUp = navigateUp
+        navigateUp = navigateUp
     )
 }
 
 @Composable
-private fun RecordHistoryContent(
-    state: ViewState<List<HitchLogRecordHistoryEntry>>,
-    currentRecord: HitchLogRecord,
-    onNavigateUp: () -> Unit
+private fun RecordHistoryScreen(
+    stateValue: ViewState<List<RecordVersionUi>>,
+    currentRecord: CurrentRecordUi?,
+    navigateUp: () -> Unit
 ) {
+    val listState = rememberLazyListState()
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -79,37 +81,50 @@ private fun RecordHistoryContent(
     ) {
         HLTopBar(
             title = stringResource(Res.string.record_history_title),
-            onNavigateUp = onNavigateUp
+            onNavigateUp = navigateUp
         )
 
-        when (state) {
-            is ViewState.Loading -> {
-                HLLoadingState(modifier = Modifier.fillMaxSize())
-            }
-            is ViewState.Error -> {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(HLSpacing.md)
-                ) {
-                    Text(
-                        text = state.error.displayMessage,
-                        color = HLColors.Error
-                    )
-                }
+        when (stateValue) {
+            is ViewState.Loading -> HLLoadingState(modifier = Modifier.fillMaxSize())
+            is ViewState.Error -> Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(HLSpacing.md)
+            ) {
+                Text(
+                    text = stateValue.error.displayMessage,
+                    color = HLColors.Error
+                )
             }
             is ViewState.Show -> {
-                if (state.value.isEmpty()) {
-                    HLEmptyState(
-                        icon = Icons.Default.History,
-                        message = stringResource(Res.string.history_empty),
-                        modifier = Modifier.fillMaxSize()
-                    )
-                } else {
-                    HistoryList(
-                        history = state.value,
-                        currentRecord = currentRecord
-                    )
+                val versions = stateValue.value
+                LazyColumn(
+                    state = listState,
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    currentRecord?.let { record ->
+                        item(key = "current_state") {
+                            CurrentStateCard(record = record)
+                        }
+                    }
+                    if (versions.isEmpty()) {
+                        item(key = "empty") {
+                            HLEmptyState(
+                                icon = Icons.Default.History,
+                                message = stringResource(Res.string.history_empty),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = HLSpacing.xxl)
+                            )
+                        }
+                    } else {
+                        items(versions, key = { it.historyId }) { version ->
+                            VersionCard(version = version)
+                        }
+                        item(key = "bottom_spacer") {
+                            Spacer(Modifier.height(HLSpacing.xxxl))
+                        }
+                    }
                 }
             }
         }
@@ -117,196 +132,219 @@ private fun RecordHistoryContent(
 }
 
 @Composable
-private fun HistoryList(
-    history: List<HitchLogRecordHistoryEntry>,
-    currentRecord: HitchLogRecord
-) {
-    LazyColumn(
-        modifier = Modifier.fillMaxSize()
-    ) {
-        // Build a list with current state as the "newest" entry
-        val sortedHistory = history.sortedBy { it.editedAt }
-        val allVersions = sortedHistory + listOf(null) // null represents current state
+private fun CurrentStateCard(record: CurrentRecordUi) {
+    val bg = if (record.isDeleted) HLColors.ErrorContainer else HLColors.PrimaryContainer
+    val fg = if (record.isDeleted) HLColors.OnErrorContainer else HLColors.OnPrimaryContainer
+    val strike = if (record.isDeleted) TextDecoration.LineThrough else null
+    val labelText = stringResource(
+        if (record.isDeleted) Res.string.history_deleted_record else Res.string.history_current_state
+    )
 
-        items(
-            items = allVersions,
-            key = { entry -> entry?.historyId ?: "current" }
-        ) { entry ->
-            val index = allVersions.indexOf(entry)
-            val previousEntry = if (index > 0) allVersions[index - 1] else null
-
-            if (entry == null) {
-                // Current state - compare with last history entry
-                val oldVersion = previousEntry
-                HistoryEntryItem(
-                    editedAt = currentRecord.time, // Use record time as proxy
-                    changeType = null, // Current state
-                    oldTime = oldVersion?.time,
-                    newTime = currentRecord.time,
-                    oldType = oldVersion?.type,
-                    newType = currentRecord.type,
-                    oldText = oldVersion?.text,
-                    newText = currentRecord.text
-                )
-            } else {
-                // History entry - compare with previous
-                val oldVersion = previousEntry
-                HistoryEntryItem(
-                    editedAt = entry.editedAt.localTZDateTime(),
-                    changeType = entry.changeType,
-                    oldTime = oldVersion?.time,
-                    newTime = entry.time,
-                    oldType = oldVersion?.type,
-                    newType = entry.type,
-                    oldText = oldVersion?.text,
-                    newText = entry.text
-                )
-            }
-
-            if (index < allVersions.size - 1) {
-                HorizontalDivider(color = HLColors.OutlineVariant)
-            }
-        }
-    }
-}
-
-@Composable
-private fun HistoryEntryItem(
-    editedAt: LocalDateTime,
-    changeType: ChangeType?,
-    oldTime: LocalDateTime?,
-    newTime: LocalDateTime,
-    oldType: HitchLogRecordType?,
-    newType: HitchLogRecordType,
-    oldText: String?,
-    newText: String
-) {
-    Column(
+    Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .background(HLColors.Surface)
-            .padding(horizontal = 20.dp, vertical = 16.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+            .padding(top = 12.dp, start = 16.dp, end = 16.dp, bottom = 16.dp),
+        shape = RoundedCornerShape(12.dp),
+        color = bg
     ) {
-        // Header: timestamp and change type
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
+        Column(modifier = Modifier.padding(16.dp)) {
             Text(
-                text = dateTimeFormat.format(editedAt),
-                style = HLTypography.bodyMedium,
-                color = HLColors.OnSurfaceVariant
+                text = labelText.uppercase(),
+                style = HLTypography.labelSmall,
+                color = HLColors.OnSurface.copy(alpha = 0.75f)
             )
-            
-            changeType?.let {
-                Text(
-                    text = stringResource(
-                        when (it) {
-                            ChangeType.CREATE -> Res.string.change_type_create
-                            ChangeType.UPDATE -> Res.string.change_type_update
-                            ChangeType.DELETE -> Res.string.change_type_delete
-                        }
-                    ),
-                    style = HLTypography.labelMedium,
-                    color = if (it == ChangeType.DELETE) HLColors.Error else HLColors.Primary
-                )
-            }
-        }
-
-        // Diff fields
-        if (oldTime != null && oldTime != newTime) {
-            DiffField(
-                label = stringResource(Res.string.history_field_time),
-                oldValue = timeFormatForDisplay.format(oldTime),
-                newValue = timeFormatForDisplay.format(newTime)
-            )
-        }
-
-        if (oldType != null && oldType != newType) {
-            DiffField(
-                label = stringResource(Res.string.history_field_type),
-                oldValue = stringResource(oldType.toStringResource()),
-                newValue = stringResource(newType.toStringResource())
-            )
-        }
-
-        if (oldText != null && oldText != newText) {
-            DiffField(
-                label = stringResource(Res.string.history_field_text),
-                oldValue = oldText,
-                newValue = newText
-            )
-        }
-
-        // If no old values (first entry), show all fields
-        if (oldTime == null) {
-            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                SimpleField(
-                    label = stringResource(Res.string.history_field_time),
-                    value = timeFormatForDisplay.format(newTime)
-                )
-                SimpleField(
-                    label = stringResource(Res.string.history_field_type),
-                    value = stringResource(newType.toStringResource())
-                )
-                if (newText.isNotEmpty()) {
-                    SimpleField(
-                        label = stringResource(Res.string.history_field_text),
-                        value = newText
+            Spacer(Modifier.height(10.dp))
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                RecordIconChip(type = record.type, size = 40.dp)
+                Column {
+                    Text(
+                        text = stringResource(record.type.toStringResource()),
+                        style = HLTypography.titleMedium,
+                        color = fg,
+                        textDecoration = strike
+                    )
+                    Text(
+                        text = record.formattedTime,
+                        style = HLTypography.bodyMedium,
+                        color = fg,
+                        textDecoration = strike
                     )
                 }
+            }
+            if (record.text.isNotEmpty()) {
+                Spacer(Modifier.height(8.dp))
+                Text(
+                    text = record.text,
+                    style = HLTypography.bodyMedium,
+                    color = fg,
+                    textDecoration = strike
+                )
             }
         }
     }
 }
 
 @Composable
-private fun DiffField(
+private fun DiffBody(before: RecordFields?, after: RecordFields?, changeType: ChangeType) {
+    fun timeOld(f: RecordFields): @Composable () -> Unit = {
+        Text(f.formattedTime, style = HLTypography.bodyMedium,
+            color = HLColors.Error, textDecoration = TextDecoration.LineThrough)
+    }
+    fun timeNew(f: RecordFields): @Composable () -> Unit = {
+        Text(f.formattedTime, style = HLTypography.bodyMedium, color = HLColors.OnSurface)
+    }
+    fun textOld(text: String): @Composable () -> Unit = {
+        Text(text, style = HLTypography.bodyMedium, color = HLColors.Error, textDecoration = TextDecoration.LineThrough)
+    }
+    fun textNew(text: String): @Composable () -> Unit = {
+        Text(text, style = HLTypography.bodyMedium, color = HLColors.OnSurface)
+    }
+
+    val timeLabel = stringResource(Res.string.history_field_time)
+    val typeLabel = stringResource(Res.string.history_field_type)
+    val textLabel = stringResource(Res.string.history_field_text)
+
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        when (changeType) {
+            ChangeType.CREATE -> after?.let { f ->
+                DiffPairRow(timeLabel,
+                    old = null,
+                    new = timeNew(f))
+                DiffPairRow(typeLabel,
+                    old = null,
+                    new = { TypePill(f.type) })
+                f.text?.let {
+                    DiffPairRow(textLabel,
+                        old = null,
+                        new = textNew(it))
+                }
+            }
+            ChangeType.DELETE -> before?.let { f ->
+                DiffPairRow(timeLabel,
+                    old = timeOld(f),
+                    new = null)
+                DiffPairRow(typeLabel,
+                    old = { TypePill(f.type, strike = true) },
+                    new = null)
+                f.text?.let {
+                    DiffPairRow(textLabel,
+                        old = textOld(it),
+                        new = null)
+                }
+            }
+            ChangeType.UPDATE -> {
+                if (before?.time != after?.time)
+                    DiffPairRow(timeLabel,
+                        old = before?.let { timeOld(it) },
+                        new = after?.let { timeNew(it) })
+                if (before?.type != after?.type)
+                    DiffPairRow(typeLabel,
+                        old = before?.let { { TypePill(it.type, strike = true) } },
+                        new = after?.let { { TypePill(it.type) } })
+                if (before?.text != after?.text)
+                    DiffPairRow(textLabel,
+                        old = before?.text?.let { textOld(it) },
+                        new = after?.text?.let { textNew(it) })
+            }
+        }
+    }
+}
+
+@Composable
+private fun DiffPairRow(
     label: String,
-    oldValue: String,
-    newValue: String
+    old: (@Composable () -> Unit)?,
+    new: (@Composable () -> Unit)?
 ) {
-    Column {
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
         Text(
-            text = "$label:",
-            style = HLTypography.labelSmall,
-            color = HLColors.OnSurfaceVariant
+            text = label.uppercase(),
+            style = HLTypography.labelMedium,
+            color = HLColors.OnSurfaceVariant,
+            modifier = Modifier.width(64.dp)
         )
-        Text(
-            text = buildAnnotatedString {
-                withStyle(
-                    style = SpanStyle(
-                        textDecoration = TextDecoration.LineThrough,
+        Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+            if (old != null) old()
+            if (new != null) new()
+        }
+    }
+}
+
+@Composable
+private fun VersionCard(version: RecordVersionUi) {
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(start = 16.dp, end = 16.dp, bottom = 12.dp),
+        shape = RoundedCornerShape(12.dp),
+        color = HLColors.Surface
+    ) {
+        Box(
+            modifier = Modifier.border(1.dp, HLColors.OutlineVariant, RoundedCornerShape(12.dp))
+        ) {
+            Column(modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp)) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    ChangeTypeChip(version.changeType)
+                    Text(
+                        text = version.formattedEditedAt,
+                        style = HLTypography.bodyMedium,
                         color = HLColors.OnSurfaceVariant
                     )
-                ) {
-                    append(oldValue)
                 }
-                append(" → ")
-                append(newValue)
-            },
-            style = HLTypography.bodyMedium,
-            color = HLColors.OnSurface
+                Spacer(Modifier.height(10.dp))
+                DiffBody(version.before, version.after, version.changeType)
+            }
+        }
+    }
+}
+
+// ── Previews ─────────────────────────────────────────────────────────────────
+
+@Preview
+@Composable
+private fun RecordHistoryScreenPreview(
+    @PreviewParameter(RecordVersionUiProvider::class) version: RecordVersionUi
+) {
+    HLTheme {
+        RecordHistoryScreen(
+            stateValue = ViewState.Show(listOf(version)),
+            currentRecord = CurrentRecordUi(
+                type = HitchLogRecordType.LIFT,
+                formattedTime = "14:30",
+                text = "Попутчик из Москвы",
+                isDeleted = false
+            ),
+            navigateUp = {}
         )
     }
 }
 
+@Preview
 @Composable
-private fun SimpleField(
-    label: String,
-    value: String
+private fun CurrentStateCardPreview(
+    @PreviewParameter(CurrentRecordUiProvider::class) record: CurrentRecordUi
 ) {
-    Row {
-        Text(
-            text = "$label: ",
-            style = HLTypography.labelSmall,
-            color = HLColors.OnSurfaceVariant
-        )
-        Text(
-            text = value,
-            style = HLTypography.bodyMedium,
-            color = HLColors.OnSurface
-        )
+    HLTheme {
+        CurrentStateCard(record = record)
+    }
+}
+
+@Preview
+@Composable
+private fun VersionCardPreview(
+    @PreviewParameter(RecordVersionUiProvider::class) version: RecordVersionUi
+) {
+    HLTheme {
+        VersionCard(version = version)
     }
 }

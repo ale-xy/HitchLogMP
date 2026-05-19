@@ -25,17 +25,6 @@ import org.gmautostop.hitchlogmp.ui.designsystem.theme.HLTheme
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLColors
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLTypography
 
-/**
- * Standard top app bar for HitchLog screens.
- * Features animated background color on scroll and optional subtitle.
- *
- * @param title Main title text
- * @param subtitle Optional subtitle text (e.g., team name)
- * @param scrolled Whether the content is scrolled (triggers background animation)
- * @param onNavigateUp Back button click handler
- * @param navigationIcon Icon to display in navigation button (default: back arrow)
- * @param actions Optional trailing actions (e.g., menu button)
- */
 @Composable
 fun HLTopBar(
     title: String,
@@ -45,53 +34,48 @@ fun HLTopBar(
     navigationIcon: ImageVector = Icons.AutoMirrored.Filled.ArrowBack,
     actions: @Composable RowScope.() -> Unit = {}
 ) {
-    Column(
+    Row(
         Modifier
             .fillMaxWidth()
             .background(HLColors.Surface)
+            .height(56.dp)
+            .padding(horizontal = 4.dp),
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        Row(
-            Modifier
-                .fillMaxWidth()
-                .height(56.dp)
-                .padding(horizontal = 4.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            if (showNavigationButton) {
-                IconButton(onClick = onNavigateUp) {
-                    Icon(
-                        imageVector = navigationIcon,
-                        contentDescription = "Назад",
-                        tint = HLColors.OnSurfaceVariant
-                    )
-                }
+        if (showNavigationButton) {
+            IconButton(onClick = onNavigateUp) {
+                Icon(
+                    imageVector = navigationIcon,
+                    contentDescription = "Назад",
+                    tint = HLColors.OnSurfaceVariant
+                )
             }
+        }
 
-            Column(
-                Modifier
-                    .weight(1f)
-                    .padding(start = if (showNavigationButton) 4.dp else 16.dp)
-            ) {
+        Column(
+            Modifier
+                .weight(1f)
+                .padding(start = if (showNavigationButton) 4.dp else 16.dp)
+        ) {
+            Text(
+                text = title,
+                style = HLTypography.titleLarge,
+                color = HLColors.OnSurface,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+            if (subtitle != null) {
                 Text(
-                    text = title,
-                    style = HLTypography.titleLarge,
-                    color = HLColors.OnSurface,
+                    text = subtitle,
+                    style = HLTypography.subtitle,
+                    color = HLColors.OnSurfaceVariant,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
-                if (subtitle != null) {
-                    Text(
-                        text = subtitle,
-                        style = HLTypography.subtitle,
-                        color = HLColors.OnSurfaceVariant,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                }
             }
-
-            actions()
         }
+
+        actions()
     }
 }
 

@@ -16,10 +16,10 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.DirectionsWalk
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
@@ -226,6 +226,22 @@ private fun HitchLog(
                         )
                     }
                     
+                    // History icon
+                    IconButton(
+                        onClick = navigateToLogHistory,
+                        enabled = !isEmpty
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.History,
+                            contentDescription = stringResource(Res.string.history_menu),
+                            tint = if (isEmpty) {
+                                HLColors.OnSurfaceVariant.copy(alpha = 0.38f)
+                            } else {
+                                HLColors.OnSurfaceVariant
+                            }
+                        )
+                    }
+
                     // Export icon with menu
                     Box {
                         IconButton(
@@ -272,14 +288,6 @@ private fun HitchLog(
                                 onClick = {
                                     exportMenuExpanded = false
                                     onExportXlsx()
-                                }
-                            )
-                            HorizontalDivider()
-                            DropdownMenuItem(
-                                text = { Text(stringResource(Res.string.history_menu)) },
-                                onClick = {
-                                    exportMenuExpanded = false
-                                    navigateToLogHistory()
                                 }
                             )
                         }

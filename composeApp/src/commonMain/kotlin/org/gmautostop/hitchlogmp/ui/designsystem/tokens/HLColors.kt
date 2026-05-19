@@ -16,6 +16,8 @@ object HLColors {
     // Secondary colors - used for less prominent actions and accents
     val Secondary = Color(0xFFFFCC00)
     val OnSecondary = Color(0xFF1A1A00)
+    val SecondaryContainer = Color(0xFFFFF0A0)
+    val OnSecondaryContainer = Color(0xFF1A1400)
 
     // Tertiary colors - used for contrasting accents
     val Tertiary = Color(0xFF5C6BC0)
