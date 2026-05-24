@@ -116,7 +116,7 @@ private fun StatCellWithLabelPreview() {
             Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
                 HLStatCell(
                     icon = Icons.Filled.Hotel,
-                    value = "02:30",
+                    value = "02:30/10",
                     label = "использовано"
                 )
                 HLStatCell(
