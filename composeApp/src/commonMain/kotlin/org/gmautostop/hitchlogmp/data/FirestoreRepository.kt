@@ -187,6 +187,7 @@ class FirestoreRepository(
         firestoreWrite("addLog") {
             logsRef.document(id).set(log.copy(id = id, userId = userId))
         }
+        id
     }
 
     override fun updateLog(log: HitchLog) = repositoryFlow(isWrite = true) {
@@ -194,6 +195,7 @@ class FirestoreRepository(
         firestoreWrite("updateLog") {
             logsRef.document(log.id).set(log)
         }
+        log.id
     }
 
     override fun deleteLog(id: String) = repositoryFlow(isWrite = true) {

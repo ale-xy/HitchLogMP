@@ -37,6 +37,7 @@ sealed interface EditLogAction {
 
 sealed interface EditLogEvent {
     data object NavigateBack : EditLogEvent
+    data class NavigateToLog(val logId: String) : EditLogEvent
 }
 
 class EditLogViewModel(
@@ -130,20 +131,26 @@ class EditLogViewModel(
 
     private fun saveLog() {
         val log = state.value.log ?: return
+        val isNewLog = log.id.isEmpty()
         
         viewModelScope.launch {
             state.update { it.copy(isLoading = true) }
             
-            val flow = when {
-                log.id.isEmpty() -> repository.addLog(log)
-                else -> repository.updateLog(log)
+            val flow = if (isNewLog) {
+                repository.addLog(log)
+            } else {
+                repository.updateLog(log)
             }
             
             flow.collect { response ->
                 when (response) {
                     is Response.Loading -> Unit
                     is Response.Success -> {
-                        _events.send(EditLogEvent.NavigateBack)
+                        if (isNewLog) {
+                            _events.send(EditLogEvent.NavigateToLog(response.data))
+                        } else {
+                            _events.send(EditLogEvent.NavigateBack)
+                        }
                     }
                     is Response.Failure -> {
                         logger.e { response.error.displayMessage }

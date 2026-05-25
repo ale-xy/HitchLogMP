@@ -145,7 +145,12 @@ fun HitchLogApp(navController: NavHostController) {
                     val editLog: Screen.EditLog = backStackEntry.toRoute()
                     EditLogScreen(
                         viewModel = koinViewModel<EditLogViewModel> { parametersOf(editLog.logId) },
-                        onNavigateBack = { navController.popBackStack() }
+                        onNavigateBack = { navController.popBackStack() },
+                        onNavigateToLog = { logId ->
+                            navController.navigate(Screen.Log(logId)) {
+                                popUpTo(Screen.LogList) { inclusive = false }
+                            }
+                        }
                     )
                 }
                 composable<Screen.Log> { backStackEntry ->

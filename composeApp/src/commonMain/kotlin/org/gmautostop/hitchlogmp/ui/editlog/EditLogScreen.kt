@@ -58,13 +58,15 @@ import org.jetbrains.compose.resources.stringResource
 @Composable
 fun EditLogScreen(
     viewModel: EditLogViewModel,
-    onNavigateBack: () -> Unit
+    onNavigateBack: () -> Unit,
+    onNavigateToLog: (String) -> Unit
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
 
     ObserveAsEvents(viewModel.events) { event ->
         when (event) {
             is EditLogEvent.NavigateBack -> onNavigateBack()
+            is EditLogEvent.NavigateToLog -> onNavigateToLog(event.logId)
         }
     }
 

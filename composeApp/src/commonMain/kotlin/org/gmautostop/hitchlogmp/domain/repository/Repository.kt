@@ -8,8 +8,8 @@ import org.gmautostop.hitchlogmp.domain.model.HitchLogRecordHistoryEntry
 interface Repository {
     fun getLogs(): Flow<Response<List<HitchLog>>>
     fun getLog(logId: String): Flow<Response<HitchLog>>
-    fun addLog(log: HitchLog): Flow<Response<Unit>>
-    fun updateLog(log: HitchLog): Flow<Response<Unit>>
+    fun addLog(log: HitchLog): Flow<Response<String>>
+    fun updateLog(log: HitchLog): Flow<Response<String>>
     fun deleteLog(id: String): Flow<Response<Unit>>
     fun getLogRecords(logId: String): Flow<Response<List<HitchLogRecord>>>
     fun getRecord(logId: String, recordId: String): Flow<Response<HitchLogRecord>>
