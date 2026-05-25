@@ -1,6 +1,6 @@
 package org.gmautostop.hitchlogmp.domain
 
-internal actual fun createZipArchive(files: Map<String, ByteArray>): ByteArray {
+actual fun createZipArchive(files: Map<String, ByteArray>): ByteArray {
     // For JS target, we'll use JSZip library via dynamic calls
     // This is a simplified implementation that creates a basic ZIP structure
     // In production, you would want to use a proper JS ZIP library

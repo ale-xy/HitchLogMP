@@ -64,8 +64,6 @@
     <string name="chronicle">Хроника</string>
     <string name="note">Заметка</string>
     <string name="summary">Сводка</string>
-    <string name="parameter">Параметр</string>
-    <string name="value">Значение</string>
     <string name="records">Записей</string>
     <string name="lifts">Машин</string>
     <string name="checkpoints">КП</string>
@@ -148,6 +146,8 @@
     <string name="history_column_edit_datetime">Дата и время правки</string>
     <string name="history_column_edit_time">Время правки</string>
     <string name="history_column_changes">Изменения</string>
+    <string name="history_column_before">До</string>
+    <string name="history_column_after">После</string>
     <string name="history_column_record">Запись</string>
     
     <!-- Auth Screen -->

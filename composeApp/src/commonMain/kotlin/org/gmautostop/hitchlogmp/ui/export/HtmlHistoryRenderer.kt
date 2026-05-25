@@ -7,7 +7,6 @@ import kotlinx.html.h3
 import kotlinx.html.head
 import kotlinx.html.html
 import kotlinx.html.p
-import kotlinx.html.span
 import kotlinx.html.stream.appendHTML
 import kotlinx.html.style
 import kotlinx.html.table
@@ -63,7 +62,8 @@ object HtmlHistoryRenderer {
                     tr {
                         th { text(exportStrings.columnAction) }
                         th { text(exportStrings.columnEditDateTime) }
-                        th { text(exportStrings.columnChanges) }
+                        th { text(exportStrings.columnBefore) }
+                        th { text(exportStrings.columnAfter) }
                     }
                 }
                 tbody {
@@ -79,7 +79,7 @@ object HtmlHistoryRenderer {
                         
                         tr(headerClass) {
                             td {
-                                colSpan = "3"
+                                colSpan = "4"
                                 text(typeLabelResolved)
                                 text(" · ")
                                 text(timeStr)
@@ -93,18 +93,33 @@ object HtmlHistoryRenderer {
                         for (entry in group.entries) {
                             val bgColor = getChangeTypeColor(entry.changeType)
                             val actionLabel = changeTypeLabels[entry.changeType] ?: ""
-                            val diffHtml = renderInlineDiff(
-                                entry.changeType, entry.before, entry.after,
-                                exportStrings.recordDeleted, exportStrings.recordCreated,
-                                exportStrings.timeLabel, exportStrings.textLabel, exportStrings.typeLabel,
-                                recordTypeLabels, changeTypeLabels
-                            )
+                            
+                            val beforeHtml = when (entry.changeType) {
+                                ChangeType.CREATE -> ""
+                                ChangeType.DELETE -> renderFullRecordState(
+                                    entry.before, exportStrings, recordTypeLabels
+                                )
+                                ChangeType.UPDATE -> renderChangedFieldsBefore(
+                                    entry.before, entry.after, exportStrings, recordTypeLabels
+                                )
+                            }
+                            
+                            val afterHtml = when (entry.changeType) {
+                                ChangeType.CREATE -> renderFullRecordState(
+                                    entry.after, exportStrings, recordTypeLabels
+                                )
+                                ChangeType.DELETE -> "<span style=\"color: #BA1A1A\">${exportStrings.recordDeleted}</span>"
+                                ChangeType.UPDATE -> renderChangedFieldsAfter(
+                                    entry.before, entry.after, exportStrings, recordTypeLabels
+                                )
+                            }
                             
                             tr {
                                 style = "background-color: $bgColor"
                                 td { text(actionLabel) }
                                 td { text(entry.formattedEditedAt) }
-                                td { unsafe { +diffHtml } }
+                                td { unsafe { +beforeHtml } }
+                                td { unsafe { +afterHtml } }
                             }
                         }
                     }
@@ -119,14 +134,15 @@ object HtmlHistoryRenderer {
                         th { text(exportStrings.columnRecord) }
                         th { text(exportStrings.columnAction) }
                         th { text(exportStrings.columnEditTime) }
-                        th { text(exportStrings.columnChanges) }
+                        th { text(exportStrings.columnBefore) }
+                        th { text(exportStrings.columnAfter) }
                     }
                 }
                 tbody {
                     for (group in historyData.byTimeGroups) {
                         tr("date-header") {
                             td {
-                                colSpan = "4"
+                                colSpan = "5"
                                 text(group.dateLabel)
                             }
                         }
@@ -135,19 +151,31 @@ object HtmlHistoryRenderer {
                             val bgColor = getChangeTypeColor(entry.changeType)
                             val typeLabelResolved = timeTypeLabels[entry.recordType] ?: ""
                             val actionLabel = changeTypeLabels[entry.changeType] ?: ""
-                            val diffHtml = renderInlineDiff(
-                                entry.changeType, entry.before, entry.after,
-                                exportStrings.recordDeleted, exportStrings.recordCreated,
-                                exportStrings.timeLabel, exportStrings.textLabel, exportStrings.typeLabel,
-                                recordTypeLabels, changeTypeLabels
-                            )
+                            
+                            val beforeHtml = when (entry.changeType) {
+                                ChangeType.CREATE -> ""
+                                ChangeType.DELETE, ChangeType.UPDATE -> renderFullRecordState(
+                                    entry.before, exportStrings, recordTypeLabels
+                                )
+                            }
+                            
+                            val afterHtml = when (entry.changeType) {
+                                ChangeType.CREATE -> renderFullRecordState(
+                                    entry.after, exportStrings, recordTypeLabels
+                                )
+                                ChangeType.DELETE -> "<span style=\"color: #BA1A1A\">${exportStrings.recordDeleted}</span>"
+                                ChangeType.UPDATE -> renderFullRecordState(
+                                    entry.after, exportStrings, recordTypeLabels
+                                )
+                            }
                             
                             tr {
                                 style = "background-color: $bgColor"
                                 td { text(typeLabelResolved) }
                                 td { text(actionLabel) }
                                 td { text(entry.formattedEditedAt) }
-                                td { unsafe { +diffHtml } }
+                                td { unsafe { +beforeHtml } }
+                                td { unsafe { +afterHtml } }
                             }
                         }
                     }
@@ -186,102 +214,98 @@ object HtmlHistoryRenderer {
         }
     }
     
-    private fun renderInlineDiff(
-        changeType: ChangeType,
-        before: RecordFields?,
-        after: RecordFields?,
-        recordDeleted: String,
-        recordCreated: String,
-        timeLabel: String,
-        textLabel: String,
-        typeLabel: String,
-        recordTypeLabels: Map<org.gmautostop.hitchlogmp.domain.model.HitchLogRecordType, String>,
-        changeTypeLabels: Map<ChangeType, String>
+    // Render full record state (for "By Time" sheet and DELETE in "By Records")
+    private fun renderFullRecordState(
+        fields: RecordFields?,
+        exportStrings: ExportStrings,
+        recordTypeLabels: Map<org.gmautostop.hitchlogmp.domain.model.HitchLogRecordType, String>
     ): String {
+        if (fields == null) return ""
+        
         return buildString {
             appendHTML().div {
-                when (changeType) {
-                    ChangeType.CREATE -> {
-                        if (after != null) {
-                            p {
-                                text(timeLabel)
-                                text(": ")
-                                text(after.formattedTime)
-                            }
-                            if (after.text != null) {
-                                p {
-                                    text(textLabel)
-                                    text(": ")
-                                    text(after.text)
-                                }
-                            }
-                        }
+                p {
+                    text("${exportStrings.timeLabel}: ${fields.formattedTime}")
+                }
+                p {
+                    text("${exportStrings.typeLabel}: ${recordTypeLabels[fields.type] ?: ""}")
+                }
+                if (fields.text != null) {
+                    p {
+                        text("${exportStrings.textLabel}: ${fields.text}")
                     }
-                    ChangeType.DELETE -> {
-                        span {
-                            style = "color: #BA1A1A"
-                            text(recordDeleted)
-                        }
+                }
+            }
+        }
+    }
+    
+    // Render only changed fields - BEFORE values (for "By Records" sheet UPDATE)
+    private fun renderChangedFieldsBefore(
+        before: RecordFields?,
+        after: RecordFields?,
+        exportStrings: ExportStrings,
+        recordTypeLabels: Map<org.gmautostop.hitchlogmp.domain.model.HitchLogRecordType, String>
+    ): String {
+        if (before == null || after == null) return ""
+        
+        return buildString {
+            appendHTML().div {
+                // Check time change
+                if (before.time != after.time) {
+                    p {
+                        text("${exportStrings.timeLabel}: ")
+                        unsafe { +"<del>${before.formattedTime}</del>" }
                     }
-                    ChangeType.UPDATE -> {
-                        val changes = mutableListOf<String>()
-                        
-                        if (before?.time != after?.time) {
-                            val timeChange = buildString {
-                                append(timeLabel)
-                                append(": ")
-                                if (before != null) {
-                                    append("<del>")
-                                    append(before.formattedTime)
-                                    append("</del>")
-                                    append(" → ")
-                                }
-                                if (after != null) {
-                                    append(after.formattedTime)
-                                }
-                            }
-                            changes.add(timeChange)
-                        }
-                        
-                        if (before?.type != after?.type) {
-                            val typeLabelBefore = before?.type?.let { recordTypeLabels[it] }
-                            val typeLabelAfter = after?.type?.let { recordTypeLabels[it] }
-                            val typeChange = buildString {
-                                append(typeLabel)
-                                append(": ")
-                                if (typeLabelBefore != null) {
-                                    append("<del>")
-                                    append(typeLabelBefore)
-                                    append("</del>")
-                                    append(" → ")
-                                }
-                                if (typeLabelAfter != null) {
-                                    append(typeLabelAfter)
-                                }
-                            }
-                            changes.add(typeChange)
-                        }
-                        
-                        if (before?.text != after?.text) {
-                            if (before?.text != null) {
-                                changes.add(
-                                    textLabel + ": <del>" + before.text + "</del>"
-                                )
-                            }
-                            if (after?.text != null) {
-                                changes.add(
-                                    textLabel + ": " + after.text
-                                )
-                            }
-                        }
-                        
-                        if (changes.isEmpty()) {
-                            text(recordCreated)
-                        } else {
-                            changes.joinToString("<br>").split("<br>").forEach { line ->
-                                p { unsafe { +line } }
-                            }
-                        }
+                }
+                
+                // Check type change
+                if (before.type != after.type) {
+                    p {
+                        text("${exportStrings.typeLabel}: ")
+                        unsafe { +"<del>${recordTypeLabels[before.type] ?: ""}</del>" }
+                    }
+                }
+                
+                // Check text change
+                if (before.text != after.text && before.text != null) {
+                    p {
+                        text("${exportStrings.textLabel}: ")
+                        unsafe { +"<del>${before.text}</del>" }
+                    }
+                }
+            }
+        }
+    }
+    
+    // Render only changed fields - AFTER values (for "By Records" sheet UPDATE)
+    private fun renderChangedFieldsAfter(
+        before: RecordFields?,
+        after: RecordFields?,
+        exportStrings: ExportStrings,
+        recordTypeLabels: Map<org.gmautostop.hitchlogmp.domain.model.HitchLogRecordType, String>
+    ): String {
+        if (before == null || after == null) return ""
+        
+        return buildString {
+            appendHTML().div {
+                // Check time change
+                if (before.time != after.time) {
+                    p {
+                        text("${exportStrings.timeLabel}: ${after.formattedTime}")
+                    }
+                }
+                
+                // Check type change
+                if (before.type != after.type) {
+                    p {
+                        text("${exportStrings.typeLabel}: ${recordTypeLabels[after.type] ?: ""}")
+                    }
+                }
+                
+                // Check text change
+                if (before.text != after.text && after.text != null) {
+                    p {
+                        text("${exportStrings.textLabel}: ${after.text}")
                     }
                 }
             }

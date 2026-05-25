@@ -4,7 +4,7 @@ import no.synth.kmpzip.io.ByteArrayOutputStream
 import no.synth.kmpzip.zip.ZipEntry
 import no.synth.kmpzip.zip.ZipOutputStream
 
-internal actual fun createZipArchive(files: Map<String, ByteArray>): ByteArray {
+actual fun createZipArchive(files: Map<String, ByteArray>): ByteArray {
     val outputStream = ByteArrayOutputStream()
     ZipOutputStream(outputStream).use { zip ->
         files.forEach { (path, bytes) ->

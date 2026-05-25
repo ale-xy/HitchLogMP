@@ -10,6 +10,7 @@ import org.gmautostop.hitchlogmp.domain.model.HitchLogRecordType
 class ExportStrings(
     // Chronicle table headers
     val chronicle: String,
+    val dateLabel: String,
     val timeLabel: String,
     val typeLabel: String,
     val textLabel: String,
@@ -17,8 +18,6 @@ class ExportStrings(
     
     // Summary table headers and labels
     val summary: String,
-    val parameterLabel: String,
-    val valueLabel: String,
     val recordsLabel: String,
     val liftsLabel: String,
     val checkpointsLabel: String,
@@ -31,6 +30,8 @@ class ExportStrings(
     val columnEditDateTime: String,
     val columnEditTime: String,
     val columnChanges: String,
+    val columnBefore: String,
+    val columnAfter: String,
     val columnRecord: String,
     val recordDeleted: String,
     val recordCreated: String,

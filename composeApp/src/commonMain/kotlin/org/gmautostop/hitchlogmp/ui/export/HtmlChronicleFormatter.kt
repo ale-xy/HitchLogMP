@@ -125,10 +125,6 @@ class HtmlChronicleFormatter : ChronicleFormatter {
                     h2 { text(exportStrings.summary) }
                     table("summary-table") {
                         tr {
-                            th { text(exportStrings.parameterLabel) }
-                            th { text(exportStrings.valueLabel) }
-                        }
-                        tr {
                             td { text(exportStrings.recordsLabel) }
                             td { text(records.size.toString()) }
                         }
