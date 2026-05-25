@@ -37,8 +37,11 @@ import hitchlogmp.composeapp.generated.resources.history_field_text
 import hitchlogmp.composeapp.generated.resources.history_field_time
 import hitchlogmp.composeapp.generated.resources.history_field_type
 import hitchlogmp.composeapp.generated.resources.record_history_title
-import org.gmautostop.hitchlogmp.domain.ChangeType
-import org.gmautostop.hitchlogmp.domain.HitchLogRecordType
+import org.gmautostop.hitchlogmp.domain.model.ChangeType
+import org.gmautostop.hitchlogmp.domain.model.CurrentRecord
+import org.gmautostop.hitchlogmp.domain.model.HitchLogRecordType
+import org.gmautostop.hitchlogmp.domain.model.RecordFields
+import org.gmautostop.hitchlogmp.domain.model.RecordVersion
 import org.gmautostop.hitchlogmp.ui.ViewState
 import org.gmautostop.hitchlogmp.ui.components.toStringResource
 import org.gmautostop.hitchlogmp.ui.designsystem.components.HLEmptyState
@@ -67,8 +70,8 @@ fun RecordHistoryScreen(
 
 @Composable
 private fun RecordHistoryScreen(
-    stateValue: ViewState<List<RecordVersionUi>>,
-    currentRecord: CurrentRecordUi?,
+    stateValue: ViewState<List<RecordVersion>>,
+    currentRecord: CurrentRecord?,
     navigateUp: () -> Unit
 ) {
     val listState = rememberLazyListState()
@@ -131,7 +134,7 @@ private fun RecordHistoryScreen(
 }
 
 @Composable
-private fun CurrentStateCard(record: CurrentRecordUi) {
+private fun CurrentStateCard(record: CurrentRecord) {
     val bg = if (record.isDeleted) HLColors.ErrorContainer else HLColors.PrimaryContainer
     val fg = if (record.isDeleted) HLColors.OnErrorContainer else HLColors.OnPrimaryContainer
     val strike = if (record.isDeleted) TextDecoration.LineThrough else null
@@ -276,7 +279,7 @@ private fun DiffPairRow(
 }
 
 @Composable
-private fun VersionCard(version: RecordVersionUi) {
+private fun VersionCard(version: RecordVersion) {
     Surface(
         modifier = Modifier
             .fillMaxWidth()
@@ -312,12 +315,12 @@ private fun VersionCard(version: RecordVersionUi) {
 @Preview
 @Composable
 private fun RecordHistoryScreenPreview(
-    @PreviewParameter(RecordVersionUiProvider::class) version: RecordVersionUi
+    @PreviewParameter(RecordVersionProvider::class) version: RecordVersion
 ) {
     HLTheme {
         RecordHistoryScreen(
             stateValue = ViewState.Show(listOf(version)),
-            currentRecord = CurrentRecordUi(
+            currentRecord = CurrentRecord(
                 type = HitchLogRecordType.LIFT,
                 formattedTime = "14:30",
                 text = "Попутчик из Москвы",
@@ -331,7 +334,7 @@ private fun RecordHistoryScreenPreview(
 @Preview
 @Composable
 private fun CurrentStateCardPreview(
-    @PreviewParameter(CurrentRecordUiProvider::class) record: CurrentRecordUi
+    @PreviewParameter(CurrentRecordProvider::class) record: CurrentRecord
 ) {
     HLTheme {
         CurrentStateCard(record = record)
@@ -341,7 +344,7 @@ private fun CurrentStateCardPreview(
 @Preview
 @Composable
 private fun VersionCardPreview(
-    @PreviewParameter(RecordVersionUiProvider::class) version: RecordVersionUi
+    @PreviewParameter(RecordVersionProvider::class) version: RecordVersion
 ) {
     HLTheme {
         VersionCard(version = version)

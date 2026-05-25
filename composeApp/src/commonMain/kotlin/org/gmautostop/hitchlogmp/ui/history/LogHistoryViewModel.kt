@@ -6,12 +6,13 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
-import org.gmautostop.hitchlogmp.domain.ChangeType
-import org.gmautostop.hitchlogmp.domain.HitchLogRecordHistoryEntry
-import org.gmautostop.hitchlogmp.domain.Repository
-import org.gmautostop.hitchlogmp.domain.Response
+import org.gmautostop.hitchlogmp.dateTimeFormat
+import org.gmautostop.hitchlogmp.domain.history.buildLogHistoryData
+import org.gmautostop.hitchlogmp.domain.model.HistoryData
+import org.gmautostop.hitchlogmp.domain.model.SortMode
+import org.gmautostop.hitchlogmp.domain.repository.Repository
+import org.gmautostop.hitchlogmp.domain.repository.Response
 import org.gmautostop.hitchlogmp.formatDateLocale
-import org.gmautostop.hitchlogmp.localTZDateTime
 import org.gmautostop.hitchlogmp.timeFormatForDisplay
 import org.gmautostop.hitchlogmp.ui.ViewState
 
@@ -20,8 +21,8 @@ class LogHistoryViewModel(
     private val logId: String
 ) : ViewModel() {
 
-    val state: StateFlow<ViewState<LogHistoryData>>
-        field = MutableStateFlow<ViewState<LogHistoryData>>(ViewState.Loading)
+    val state: StateFlow<ViewState<HistoryData>>
+        field = MutableStateFlow<ViewState<HistoryData>>(ViewState.Loading)
 
     val sortMode: StateFlow<SortMode>
         field = MutableStateFlow(SortMode.BY_RECORD)
@@ -40,69 +41,18 @@ class LogHistoryViewModel(
                     state.value = when (response) {
                         is Response.Loading -> ViewState.Loading
                         is Response.Failure -> ViewState.Error(response.error)
-                        is Response.Success -> ViewState.Show(buildLogHistoryData(response.data))
+                        is Response.Success -> ViewState.Show(
+                            buildLogHistoryData(
+                                rawData = response.data,
+                                formatDate = { formatDateLocale(it) },
+                                formatTime = { timeFormatForDisplay.format(it) },
+                                formatEditedAt = { dateTimeFormat.format(it) },
+                                useNumericDateFormat = false
+                            )
+                        )
                     }
                 }
         }
-    }
-
-    private fun buildLogHistoryData(rawData: List<Pair<String, HitchLogRecordHistoryEntry>>): LogHistoryData {
-        val grouped: Map<String, List<HitchLogRecordHistoryEntry>> = rawData
-            .groupBy { (recordId, _) -> recordId }
-            .mapValues { (_, pairs) -> pairs.map { it.second } }
-
-        val byRecordGroups = grouped.map { (recordId, entries) ->
-            val sorted = entries.sortedBy { it.editedAt }
-            val liveEntry = sorted.last()
-            val liveType = liveEntry.type
-            val liveText = liveEntry.text
-            val isDeleted = liveEntry.changeType == ChangeType.DELETE
-            val originalTime = sorted.firstOrNull { it.changeType == ChangeType.CREATE }?.time
-
-            val versions = computeRecordVersions(sorted)
-            val logHistoryEntries = versions.map { version ->
-                LogHistoryEntryUi(
-                    historyId = version.historyId,
-                    editedAt = version.editedAt,
-                    formattedEditedAt = version.formattedEditedAt,
-                    recordId = recordId,
-                    changeType = version.changeType,
-                    recordType = liveType,
-                    before = version.before,
-                    after = version.after
-                )
-            }
-
-            RecordGroupUi(
-                recordId = recordId,
-                liveType = liveType,
-                formattedOriginalTime = originalTime?.let { timeFormatForDisplay.format(it) },
-                liveText = liveText,
-                isDeleted = isDeleted,
-                entries = logHistoryEntries
-            )
-        }.sortedBy { group ->
-            grouped[group.recordId]?.minByOrNull { it.editedAt }?.editedAt
-        }
-
-        val allEntries = byRecordGroups.flatMap { it.entries }.sortedBy { it.editedAt }
-
-        val byTimeGroups = allEntries
-            .groupBy { it.editedAt.localTZDateTime().date }
-            .entries
-            .sortedBy { it.key }
-            .map { (date, entries) ->
-                DateGroupUi(
-                    dateLabel = formatDateLocale(date),
-                    date = date,
-                    entries = entries
-                )
-            }
-
-        return LogHistoryData(
-            byTimeGroups = byTimeGroups,
-            byRecordGroups = byRecordGroups
-        )
     }
 
 }

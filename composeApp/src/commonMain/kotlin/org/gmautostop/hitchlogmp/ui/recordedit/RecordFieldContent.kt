@@ -9,7 +9,7 @@ import hitchlogmp.composeapp.generated.resources.field_label_note
 import hitchlogmp.composeapp.generated.resources.field_label_offside_reason
 import hitchlogmp.composeapp.generated.resources.field_label_participant_number
 import hitchlogmp.composeapp.generated.resources.field_label_walk_destination
-import org.gmautostop.hitchlogmp.domain.HitchLogRecordType
+import org.gmautostop.hitchlogmp.domain.model.HitchLogRecordType
 import org.jetbrains.compose.resources.StringResource
 
 /**

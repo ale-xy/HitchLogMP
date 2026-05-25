@@ -1,7 +1,7 @@
 package org.gmautostop.hitchlogmp.ui
 
 import kotlinx.serialization.Serializable
-import org.gmautostop.hitchlogmp.domain.HitchLogRecordType
+import org.gmautostop.hitchlogmp.domain.model.HitchLogRecordType
 
 sealed interface Screen {
 

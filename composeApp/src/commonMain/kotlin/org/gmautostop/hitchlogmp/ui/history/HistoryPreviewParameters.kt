@@ -3,8 +3,15 @@ package org.gmautostop.hitchlogmp.ui.history
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDateTime
-import org.gmautostop.hitchlogmp.domain.ChangeType
-import org.gmautostop.hitchlogmp.domain.HitchLogRecordType
+import org.gmautostop.hitchlogmp.domain.model.ChangeType
+import org.gmautostop.hitchlogmp.domain.model.CurrentRecord
+import org.gmautostop.hitchlogmp.domain.model.DateGroup
+import org.gmautostop.hitchlogmp.domain.model.HistoryData
+import org.gmautostop.hitchlogmp.domain.model.HitchLogRecordType
+import org.gmautostop.hitchlogmp.domain.model.LogHistoryEntry
+import org.gmautostop.hitchlogmp.domain.model.RecordFields
+import org.gmautostop.hitchlogmp.domain.model.RecordGroup
+import org.gmautostop.hitchlogmp.domain.model.RecordVersion
 
 /**
  * Preview parameter provider for RecordFields with text.
@@ -35,12 +42,12 @@ class RecordFieldsNoTextProvider : PreviewParameterProvider<RecordFields> {
 }
 
 /**
- * Preview parameter provider for LogHistoryEntryUi with different change types.
+ * Preview parameter provider for LogHistoryEntry with different change types.
  */
-class LogHistoryEntryUiProvider : PreviewParameterProvider<LogHistoryEntryUi> {
-    override val values: Sequence<LogHistoryEntryUi> = sequenceOf(
+class LogHistoryEntryProvider : PreviewParameterProvider<LogHistoryEntry> {
+    override val values: Sequence<LogHistoryEntry> = sequenceOf(
         // CREATE
-        LogHistoryEntryUi(
+        LogHistoryEntry(
             historyId = "h1",
             editedAt = Instant.fromEpochMilliseconds(0),
             formattedEditedAt = "14:30",
@@ -56,7 +63,7 @@ class LogHistoryEntryUiProvider : PreviewParameterProvider<LogHistoryEntryUi> {
             )
         ),
         // UPDATE
-        LogHistoryEntryUi(
+        LogHistoryEntry(
             historyId = "h2",
             editedAt = Instant.fromEpochMilliseconds(0),
             formattedEditedAt = "15:00",
@@ -80,19 +87,19 @@ class LogHistoryEntryUiProvider : PreviewParameterProvider<LogHistoryEntryUi> {
 }
 
 /**
- * Preview parameter provider for RecordGroupUi.
+ * Preview parameter provider for RecordGroup.
  */
-class RecordGroupUiProvider : PreviewParameterProvider<RecordGroupUi> {
-    override val values: Sequence<RecordGroupUi> = sequenceOf(
+class RecordGroupProvider : PreviewParameterProvider<RecordGroup> {
+    override val values: Sequence<RecordGroup> = sequenceOf(
         // Active record
-        RecordGroupUi(
+        RecordGroup(
             recordId = "r1",
             liveType = HitchLogRecordType.LIFT,
             formattedOriginalTime = "14:30",
             liveText = "Попутчик из Москвы",
             isDeleted = false,
             entries = listOf(
-                LogHistoryEntryUi(
+                LogHistoryEntry(
                     "h1",
                     Instant.fromEpochMilliseconds(0),
                     "19.05.2025 14:00",
@@ -107,7 +114,7 @@ class RecordGroupUiProvider : PreviewParameterProvider<RecordGroupUi> {
                         null
                     )
                 ),
-                LogHistoryEntryUi(
+                LogHistoryEntry(
                     "h2",
                     Instant.fromEpochMilliseconds(1000),
                     "19.05.2025 15:00",
@@ -130,14 +137,14 @@ class RecordGroupUiProvider : PreviewParameterProvider<RecordGroupUi> {
             )
         ),
         // Deleted record
-        RecordGroupUi(
+        RecordGroup(
             recordId = "r2",
             liveType = HitchLogRecordType.CHECKPOINT,
             formattedOriginalTime = "12:00",
             liveText = "",
             isDeleted = true,
             entries = listOf(
-                LogHistoryEntryUi(
+                LogHistoryEntry(
                     "h3",
                     Instant.fromEpochMilliseconds(0),
                     "19.05.2025 12:00",
@@ -152,7 +159,7 @@ class RecordGroupUiProvider : PreviewParameterProvider<RecordGroupUi> {
                         null
                     )
                 ),
-                LogHistoryEntryUi(
+                LogHistoryEntry(
                     "h4",
                     Instant.fromEpochMilliseconds(2000),
                     "19.05.2025 13:00",
@@ -173,19 +180,19 @@ class RecordGroupUiProvider : PreviewParameterProvider<RecordGroupUi> {
 }
 
 /**
- * Preview parameter provider for CurrentRecordUi.
+ * Preview parameter provider for CurrentRecord.
  */
-class CurrentRecordUiProvider : PreviewParameterProvider<CurrentRecordUi> {
-    override val values: Sequence<CurrentRecordUi> = sequenceOf(
+class CurrentRecordProvider : PreviewParameterProvider<CurrentRecord> {
+    override val values: Sequence<CurrentRecord> = sequenceOf(
         // Active record
-        CurrentRecordUi(
+        CurrentRecord(
             type = HitchLogRecordType.LIFT,
             formattedTime = "14:30",
             text = "Попутчик из Москвы",
             isDeleted = false
         ),
         // Deleted record
-        CurrentRecordUi(
+        CurrentRecord(
             type = HitchLogRecordType.MEET,
             formattedTime = "16:00",
             text = "",
@@ -195,12 +202,12 @@ class CurrentRecordUiProvider : PreviewParameterProvider<CurrentRecordUi> {
 }
 
 /**
- * Preview parameter provider for RecordVersionUi with different change types.
+ * Preview parameter provider for RecordVersion with different change types.
  */
-class RecordVersionUiProvider : PreviewParameterProvider<RecordVersionUi> {
-    override val values: Sequence<RecordVersionUi> = sequenceOf(
+class RecordVersionProvider : PreviewParameterProvider<RecordVersion> {
+    override val values: Sequence<RecordVersion> = sequenceOf(
         // CREATE
-        RecordVersionUi(
+        RecordVersion(
             historyId = "h1",
             editedAt = Instant.fromEpochMilliseconds(0),
             formattedEditedAt = "19.05.2025 14:30",
@@ -214,7 +221,7 @@ class RecordVersionUiProvider : PreviewParameterProvider<RecordVersionUi> {
             )
         ),
         // UPDATE
-        RecordVersionUi(
+        RecordVersion(
             historyId = "h2",
             editedAt = Instant.fromEpochMilliseconds(0),
             formattedEditedAt = "19.05.2025 15:00",
@@ -233,7 +240,7 @@ class RecordVersionUiProvider : PreviewParameterProvider<RecordVersionUi> {
             )
         ),
         // DELETE
-        RecordVersionUi(
+        RecordVersion(
             historyId = "h3",
             editedAt = Instant.fromEpochMilliseconds(0),
             formattedEditedAt = "19.05.2025 16:00",
@@ -250,18 +257,18 @@ class RecordVersionUiProvider : PreviewParameterProvider<RecordVersionUi> {
 }
 
 /**
- * Preview parameter provider for LogHistoryData with different states.
+ * Preview parameter provider for HistoryData with different states.
  */
-class LogHistoryDataProvider : PreviewParameterProvider<LogHistoryData> {
-    override val values: Sequence<LogHistoryData> = sequenceOf(
+class HistoryDataProvider : PreviewParameterProvider<HistoryData> {
+    override val values: Sequence<HistoryData> = sequenceOf(
         // With data
-        LogHistoryData(
+        HistoryData(
             byTimeGroups = listOf(
-                DateGroupUi(
+                DateGroup(
                     date = kotlinx.datetime.LocalDate(2025, 5, 19),
                     dateLabel = "19 мая 2025",
                     entries = listOf(
-                        LogHistoryEntryUi(
+                        LogHistoryEntry(
                             historyId = "h1",
                             editedAt = Instant.fromEpochMilliseconds(0),
                             formattedEditedAt = "14:30",
@@ -276,7 +283,7 @@ class LogHistoryDataProvider : PreviewParameterProvider<LogHistoryData> {
                                 text = "Попутчик из Москвы"
                             )
                         ),
-                        LogHistoryEntryUi(
+                        LogHistoryEntry(
                             historyId = "h2",
                             editedAt = Instant.fromEpochMilliseconds(1000),
                             formattedEditedAt = "15:00",
@@ -300,14 +307,14 @@ class LogHistoryDataProvider : PreviewParameterProvider<LogHistoryData> {
                 )
             ),
             byRecordGroups = listOf(
-                RecordGroupUi(
+                RecordGroup(
                     recordId = "r1",
                     liveType = HitchLogRecordType.LIFT,
                     formattedOriginalTime = "14:30",
                     liveText = "Попутчик из Москвы",
                     isDeleted = false,
                     entries = listOf(
-                        LogHistoryEntryUi(
+                        LogHistoryEntry(
                             "h1",
                             Instant.fromEpochMilliseconds(0),
                             "19.05.2025 14:00",
@@ -322,7 +329,7 @@ class LogHistoryDataProvider : PreviewParameterProvider<LogHistoryData> {
                                 null
                             )
                         ),
-                        LogHistoryEntryUi(
+                        LogHistoryEntry(
                             "h2",
                             Instant.fromEpochMilliseconds(1000),
                             "19.05.2025 15:00",
@@ -347,7 +354,7 @@ class LogHistoryDataProvider : PreviewParameterProvider<LogHistoryData> {
             )
         ),
         // Empty
-        LogHistoryData(
+        HistoryData(
             byTimeGroups = emptyList(),
             byRecordGroups = emptyList()
         )

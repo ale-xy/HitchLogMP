@@ -40,7 +40,12 @@ import hitchlogmp.composeapp.generated.resources.history_empty
 import hitchlogmp.composeapp.generated.resources.log_history_title
 import hitchlogmp.composeapp.generated.resources.sort_by_record
 import hitchlogmp.composeapp.generated.resources.sort_by_time
-import org.gmautostop.hitchlogmp.domain.ChangeType
+import org.gmautostop.hitchlogmp.domain.model.ChangeType
+import org.gmautostop.hitchlogmp.domain.model.DateGroup
+import org.gmautostop.hitchlogmp.domain.model.HistoryData
+import org.gmautostop.hitchlogmp.domain.model.LogHistoryEntry
+import org.gmautostop.hitchlogmp.domain.model.RecordGroup
+import org.gmautostop.hitchlogmp.domain.model.SortMode
 import org.gmautostop.hitchlogmp.ui.ViewState
 import org.gmautostop.hitchlogmp.ui.components.toStringResource
 import org.gmautostop.hitchlogmp.ui.designsystem.components.HLEmptyState
@@ -71,7 +76,7 @@ fun LogHistoryScreen(
 
 @Composable
 private fun LogHistoryScreen(
-    stateValue: ViewState<LogHistoryData>,
+    stateValue: ViewState<HistoryData>,
     sortMode: SortMode,
     onSortModeChange: (SortMode) -> Unit,
     navigateUp: () -> Unit
@@ -164,7 +169,7 @@ private fun SegmentedToggle(sortMode: SortMode, onToggle: (SortMode) -> Unit) {
 }
 
 @Composable
-private fun FlatByTimeGroupSection(group: DateGroupUi) {
+private fun FlatByTimeGroupSection(group: DateGroup) {
     HLSectionHeader(text = group.dateLabel.uppercase())
     Box(
         modifier = Modifier
@@ -186,7 +191,7 @@ private fun FlatByTimeGroupSection(group: DateGroupUi) {
 }
 
 @Composable
-private fun FullChangeRow(entry: LogHistoryEntryUi) {
+private fun FullChangeRow(entry: LogHistoryEntry) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -223,7 +228,7 @@ private fun FullChangeRow(entry: LogHistoryEntryUi) {
 }
 
 @Composable
-private fun RecordHistoryGroupItem(group: RecordGroupUi) {
+private fun RecordHistoryGroupItem(group: RecordGroup) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -326,7 +331,7 @@ private fun RecordHistoryGroupItem(group: RecordGroupUi) {
 @Preview
 @Composable
 private fun LogHistoryScreenPreview(
-    @PreviewParameter(LogHistoryDataProvider::class) data: LogHistoryData
+    @PreviewParameter(HistoryDataProvider::class) data: HistoryData
 ) {
     HLTheme {
         LogHistoryScreen(
@@ -341,7 +346,7 @@ private fun LogHistoryScreenPreview(
 @Preview
 @Composable
 private fun FullChangeRowPreview(
-    @PreviewParameter(LogHistoryEntryUiProvider::class) entry: LogHistoryEntryUi
+    @PreviewParameter(LogHistoryEntryProvider::class) entry: LogHistoryEntry
 ) {
     HLTheme {
         FullChangeRow(entry = entry)
@@ -351,7 +356,7 @@ private fun FullChangeRowPreview(
 @Preview
 @Composable
 private fun RecordHistoryGroupItemPreview(
-    @PreviewParameter(RecordGroupUiProvider::class) group: RecordGroupUi
+    @PreviewParameter(RecordGroupProvider::class) group: RecordGroup
 ) {
     HLTheme {
         RecordHistoryGroupItem(group = group)

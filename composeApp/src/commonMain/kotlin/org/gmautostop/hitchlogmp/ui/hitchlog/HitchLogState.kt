@@ -1,8 +1,8 @@
 package org.gmautostop.hitchlogmp.ui.hitchlog
 
-import org.gmautostop.hitchlogmp.domain.HitchLogRecord
-import org.gmautostop.hitchlogmp.domain.HitchLogRecordType
-import org.gmautostop.hitchlogmp.domain.LiveState
+import org.gmautostop.hitchlogmp.domain.model.HitchLogRecord
+import org.gmautostop.hitchlogmp.domain.model.HitchLogRecordType
+import org.gmautostop.hitchlogmp.domain.logic.LiveState
 
 data class SummaryCardState(
     val lifts: Int,

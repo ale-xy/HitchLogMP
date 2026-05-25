@@ -57,7 +57,8 @@ import hitchlogmp.composeapp.generated.resources.history_menu
 import hitchlogmp.composeapp.generated.resources.new_record
 import hitchlogmp.composeapp.generated.resources.start
 import org.gmautostop.hitchlogmp.domain.AppError
-import org.gmautostop.hitchlogmp.domain.HitchLogRecordType
+import org.gmautostop.hitchlogmp.domain.model.HitchLogRecordType
+import org.gmautostop.hitchlogmp.export.ExportFormat
 import org.gmautostop.hitchlogmp.ui.Error
 import org.gmautostop.hitchlogmp.ui.ViewState
 import org.gmautostop.hitchlogmp.ui.designsystem.components.ActionButtonSize
@@ -119,10 +120,7 @@ fun HitchLogScreen(
                 navigateToLogHistory = navigateToLogHistory,
                 snackbarHostState = snackbarHostState,
                 onToggleRest = { viewModel.toggleRestDisplay() },
-                onExportTxt = { viewModel.exportAsTxt() },
-                onExportCsv = { viewModel.exportAsCsv() },
-                onExportHtml = { viewModel.exportAsHtml() },
-                onExportXlsx = { viewModel.exportAsXlsx() },
+                onExport = { format -> viewModel.export(format) },
             )
         }
     }
@@ -140,10 +138,7 @@ private fun HitchLog(
     navigateToLogHistory: () -> Unit,
     snackbarHostState: SnackbarHostState,
     onToggleRest: () -> Unit,
-    onExportTxt: () -> Unit,
-    onExportCsv: () -> Unit,
-    onExportHtml: () -> Unit,
-    onExportXlsx: () -> Unit,
+    onExport: (ExportFormat) -> Unit,
 ) {
     val density = LocalDensity.current
     val listState = rememberLazyListState()
@@ -258,28 +253,28 @@ private fun HitchLog(
                                 text = { Text(stringResource(Res.string.export_text)) },
                                 onClick = {
                                     exportMenuExpanded = false
-                                    onExportTxt()
+                                    onExport(ExportFormat.Text)
                                 }
                             )
                             DropdownMenuItem(
                                 text = { Text(stringResource(Res.string.export_csv)) },
                                 onClick = {
                                     exportMenuExpanded = false
-                                    onExportCsv()
+                                    onExport(ExportFormat.Csv)
                                 }
                             )
                             DropdownMenuItem(
                                 text = { Text(stringResource(Res.string.export_html)) },
                                 onClick = {
                                     exportMenuExpanded = false
-                                    onExportHtml()
+                                    onExport(ExportFormat.Html)
                                 }
                             )
                             DropdownMenuItem(
                                 text = { Text(stringResource(Res.string.export_xlsx)) },
                                 onClick = {
                                     exportMenuExpanded = false
-                                    onExportXlsx()
+                                    onExport(ExportFormat.Xlsx)
                                 }
                             )
                         }
@@ -428,10 +423,7 @@ private fun HitchLogScreenPreview(
                         navigateToLogHistory = {},
                         snackbarHostState = remember { SnackbarHostState() },
                         onToggleRest = {},
-                        onExportTxt = {},
-                        onExportCsv = {},
-                        onExportHtml = {},
-                        onExportXlsx = {},
+                        onExport = {},
                     )
                 }
             }

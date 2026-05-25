@@ -15,7 +15,7 @@ import androidx.navigation.toRoute
 import kotlinx.coroutines.launch
 import org.gmautostop.hitchlogmp.data.AuthService
 import org.gmautostop.hitchlogmp.data.FirestoreSyncTracker
-import org.gmautostop.hitchlogmp.domain.HitchLogRecordType
+import org.gmautostop.hitchlogmp.domain.model.HitchLogRecordType
 import org.gmautostop.hitchlogmp.platformWindowInsetsPadding
 import org.gmautostop.hitchlogmp.ui.auth.AuthScreen
 import org.gmautostop.hitchlogmp.ui.auth.EmailLoginScreen

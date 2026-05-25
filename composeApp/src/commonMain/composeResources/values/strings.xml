@@ -42,6 +42,7 @@
     <string name="date">Дата</string>
     <string name="time">Время</string>
     <string name="text">Текст</string>
+    <string name="type">Тип</string>
 
     <string name="start">Старт</string>
     <string name="lift">Посадка</string>
@@ -60,6 +61,15 @@
     <string name="free_text">Прочее</string>
     <string name="ok">OK</string>
     <string name="chronicle_empty">Хроника пуста</string>
+    <string name="chronicle">Хроника</string>
+    <string name="note">Заметка</string>
+    <string name="summary">Сводка</string>
+    <string name="parameter">Параметр</string>
+    <string name="value">Значение</string>
+    <string name="records">Записей</string>
+    <string name="lifts">Машин</string>
+    <string name="checkpoints">КП</string>
+    <string name="rest_used_full">Rest использовано</string>
     <string name="different_record_type">Другой тип записи</string>
     <string name="new_record">Новая запись</string>
     <string name="more_actions">Ещё</string>
@@ -132,6 +142,13 @@
     <string name="history_deleted_record">Удалённая запись</string>
     <string name="history_record_created">Создана запись</string>
     <string name="history_record_deleted">Запись удалена</string>
+    
+    <!-- History Export Table Headers -->
+    <string name="history_column_action">Действие</string>
+    <string name="history_column_edit_datetime">Дата и время правки</string>
+    <string name="history_column_edit_time">Время правки</string>
+    <string name="history_column_changes">Изменения</string>
+    <string name="history_column_record">Запись</string>
     
     <!-- Auth Screen -->
     <string name="auth_title">HitchLog</string>

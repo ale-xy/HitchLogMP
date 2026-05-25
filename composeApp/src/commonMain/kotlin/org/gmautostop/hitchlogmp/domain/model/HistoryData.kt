@@ -1,10 +1,8 @@
-package org.gmautostop.hitchlogmp.ui.history
+package org.gmautostop.hitchlogmp.domain.model
 
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
-import org.gmautostop.hitchlogmp.domain.ChangeType
-import org.gmautostop.hitchlogmp.domain.HitchLogRecordType
 
 enum class SortMode { BY_TIME, BY_RECORD }
 
@@ -19,7 +17,7 @@ data class RecordFields(
     val text: String?               // null when the record has no text
 )
 
-data class RecordVersionUi(
+data class RecordVersion(
     val historyId: String,
     val editedAt: Instant,          // kept for sorting
     val formattedEditedAt: String,
@@ -28,7 +26,7 @@ data class RecordVersionUi(
     val after: RecordFields?        // null for DELETE (record no longer exists)
 )
 
-data class LogHistoryEntryUi(
+data class LogHistoryEntry(
     val historyId: String,
     val editedAt: Instant,          // kept for sorting
     val formattedEditedAt: String,
@@ -39,29 +37,29 @@ data class LogHistoryEntryUi(
     val after: RecordFields?
 )
 
-data class DateGroupUi(
+data class DateGroup(
     val dateLabel: String,
     val date: LocalDate,
-    val entries: List<LogHistoryEntryUi>
+    val entries: List<LogHistoryEntry>
 )
 
-data class RecordGroupUi(
+data class RecordGroup(
     val recordId: String,
     val liveType: HitchLogRecordType,
     val formattedOriginalTime: String?,   // time of first CREATE entry, null if absent
     val liveText: String,
     val isDeleted: Boolean,
-    val entries: List<LogHistoryEntryUi>  // ascending editedAt order
+    val entries: List<LogHistoryEntry>  // ascending editedAt order
 )
 
-data class CurrentRecordUi(
+data class CurrentRecord(
     val type: HitchLogRecordType,
     val formattedTime: String,
     val text: String,
     val isDeleted: Boolean
 )
 
-data class LogHistoryData(
-    val byTimeGroups: List<DateGroupUi>,
-    val byRecordGroups: List<RecordGroupUi>
+data class HistoryData(
+    val byTimeGroups: List<DateGroup>,
+    val byRecordGroups: List<RecordGroup>
 )

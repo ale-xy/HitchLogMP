@@ -13,9 +13,9 @@ import kotlinx.datetime.LocalDate
 import kotlinx.datetime.format.char
 import org.gmautostop.hitchlogmp.data.AuthService
 import org.gmautostop.hitchlogmp.data.FirestoreSyncTracker
-import org.gmautostop.hitchlogmp.domain.HitchLog
-import org.gmautostop.hitchlogmp.domain.Repository
-import org.gmautostop.hitchlogmp.domain.Response
+import org.gmautostop.hitchlogmp.domain.model.HitchLog
+import org.gmautostop.hitchlogmp.domain.repository.Repository
+import org.gmautostop.hitchlogmp.domain.repository.Response
 import org.gmautostop.hitchlogmp.toLocalDateTime
 
 /**

@@ -6,17 +6,17 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toInstant
 import kotlinx.datetime.toLocalDateTime
 import org.gmautostop.hitchlogmp.domain.AppError
-import org.gmautostop.hitchlogmp.domain.HitchLog
-import org.gmautostop.hitchlogmp.domain.HitchLogRecord
-import org.gmautostop.hitchlogmp.domain.HitchLogRecordType
 import org.gmautostop.hitchlogmp.domain.User
-import org.gmautostop.hitchlogmp.domain.computeLiveState
-import org.gmautostop.hitchlogmp.domain.computeRestDivisions
-import org.gmautostop.hitchlogmp.domain.computeRestDivisionsLeft
-import org.gmautostop.hitchlogmp.domain.computeRestLeft
-import org.gmautostop.hitchlogmp.domain.computeRestMinutes
-import org.gmautostop.hitchlogmp.domain.formatMinutes
-import org.gmautostop.hitchlogmp.domain.nextActionLadder
+import org.gmautostop.hitchlogmp.domain.logic.computeLiveState
+import org.gmautostop.hitchlogmp.domain.logic.computeRestDivisions
+import org.gmautostop.hitchlogmp.domain.logic.computeRestDivisionsLeft
+import org.gmautostop.hitchlogmp.domain.logic.computeRestLeft
+import org.gmautostop.hitchlogmp.domain.logic.computeRestMinutes
+import org.gmautostop.hitchlogmp.domain.logic.formatMinutes
+import org.gmautostop.hitchlogmp.domain.logic.nextActionLadder
+import org.gmautostop.hitchlogmp.domain.model.HitchLog
+import org.gmautostop.hitchlogmp.domain.model.HitchLogRecord
+import org.gmautostop.hitchlogmp.domain.model.HitchLogRecordType
 import org.gmautostop.hitchlogmp.ui.ViewState
 import kotlin.time.Duration.Companion.minutes
 

@@ -32,8 +32,9 @@ import hitchlogmp.composeapp.generated.resources.change_type_update
 import hitchlogmp.composeapp.generated.resources.history_record_created
 import hitchlogmp.composeapp.generated.resources.history_record_deleted
 import kotlinx.datetime.LocalDateTime
-import org.gmautostop.hitchlogmp.domain.ChangeType
-import org.gmautostop.hitchlogmp.domain.HitchLogRecordType
+import org.gmautostop.hitchlogmp.domain.model.ChangeType
+import org.gmautostop.hitchlogmp.domain.model.HitchLogRecordType
+import org.gmautostop.hitchlogmp.domain.model.RecordFields
 import org.gmautostop.hitchlogmp.ui.components.toStringResource
 import org.gmautostop.hitchlogmp.ui.components.toUi
 import org.gmautostop.hitchlogmp.ui.designsystem.theme.HLTheme

@@ -11,7 +11,6 @@ import com.google.firebase.Firebase
 import com.google.firebase.firestore.firestore
 import kotlinx.coroutines.tasks.await
 import kotlinx.datetime.LocalDate
-import org.gmautostop.hitchlogmp.domain.MimeTypes
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import java.io.File
@@ -37,7 +36,7 @@ actual fun shareFile(content: String, mimeType: String, fileName: String) {
     val file = File(context.cacheDir, fileName)
     
     // For CSV files, write UTF-8 BOM for Excel/LibreOffice compatibility
-    if (mimeType == MimeTypes.TEXT_CSV) {
+    if (mimeType == "text/csv") {
         file.outputStream().use { output ->
             output.write(byteArrayOf(0xEF.toByte(), 0xBB.toByte(), 0xBF.toByte()))
             output.write(content.toByteArray(Charsets.UTF_8))
@@ -53,7 +52,7 @@ actual fun shareFile(content: String, mimeType: String, fileName: String) {
     )
     
     // For HTML files, offer both VIEW and SEND options
-    if (mimeType == MimeTypes.TEXT_HTML || mimeType == MimeTypes.TEXT_CSV) {
+    if (mimeType == "text/html" || mimeType == "text/csv") {
         // Primary intent: VIEW (open in browser)
         val viewIntent = Intent(Intent.ACTION_VIEW).apply {
             setDataAndType(uri, mimeType)
@@ -101,7 +100,7 @@ actual fun shareFileBytes(content: ByteArray, mimeType: String, fileName: String
     )
     
     // For XLSX files, offer both VIEW and SEND options
-    if (mimeType == MimeTypes.APPLICATION_XLSX) {
+    if (mimeType == "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet") {
         val viewIntent = Intent(Intent.ACTION_VIEW).apply {
             setDataAndType(uri, mimeType)
             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)

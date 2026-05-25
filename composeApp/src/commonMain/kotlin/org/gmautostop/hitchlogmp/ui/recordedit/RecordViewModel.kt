@@ -24,10 +24,10 @@ import kotlinx.datetime.until
 import org.gmautostop.hitchlogmp.dateFormat
 import org.gmautostop.hitchlogmp.dateTimeFormat
 import org.gmautostop.hitchlogmp.domain.AppError
-import org.gmautostop.hitchlogmp.domain.HitchLogRecord
-import org.gmautostop.hitchlogmp.domain.HitchLogRecordType
-import org.gmautostop.hitchlogmp.domain.Repository
-import org.gmautostop.hitchlogmp.domain.Response
+import org.gmautostop.hitchlogmp.domain.model.HitchLogRecord
+import org.gmautostop.hitchlogmp.domain.model.HitchLogRecordType
+import org.gmautostop.hitchlogmp.domain.repository.Repository
+import org.gmautostop.hitchlogmp.domain.repository.Response
 import org.gmautostop.hitchlogmp.localTZDateTime
 import org.gmautostop.hitchlogmp.timeFormat
 import org.lighthousegames.logging.logging

@@ -3,8 +3,8 @@ package org.gmautostop.hitchlogmp.data
 import dev.gitlive.firebase.firestore.Timestamp
 import kotlinx.datetime.LocalDateTime
 import kotlinx.serialization.Serializable
-import org.gmautostop.hitchlogmp.domain.HitchLogRecord
-import org.gmautostop.hitchlogmp.domain.HitchLogRecordType
+import org.gmautostop.hitchlogmp.domain.model.HitchLogRecord
+import org.gmautostop.hitchlogmp.domain.model.HitchLogRecordType
 import org.gmautostop.hitchlogmp.toLocalDateTime
 import org.gmautostop.hitchlogmp.toTimestamp
 

@@ -1,6 +1,9 @@
-package org.gmautostop.hitchlogmp.domain
+package org.gmautostop.hitchlogmp.domain.repository
 
 import kotlinx.coroutines.flow.Flow
+import org.gmautostop.hitchlogmp.domain.model.HitchLog
+import org.gmautostop.hitchlogmp.domain.model.HitchLogRecord
+import org.gmautostop.hitchlogmp.domain.model.HitchLogRecordHistoryEntry
 
 interface Repository {
     fun getLogs(): Flow<Response<List<HitchLog>>>

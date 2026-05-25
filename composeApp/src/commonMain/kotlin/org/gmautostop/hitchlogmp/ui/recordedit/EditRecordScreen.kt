@@ -37,7 +37,7 @@ import hitchlogmp.composeapp.generated.resources.history
 import hitchlogmp.composeapp.generated.resources.new_record_title
 import hitchlogmp.composeapp.generated.resources.save
 import kotlinx.datetime.LocalDateTime
-import org.gmautostop.hitchlogmp.domain.HitchLogRecordType
+import org.gmautostop.hitchlogmp.domain.model.HitchLogRecordType
 import org.gmautostop.hitchlogmp.ui.designsystem.components.DateFieldRow
 import org.gmautostop.hitchlogmp.ui.designsystem.components.HLLoadingState
 import org.gmautostop.hitchlogmp.ui.designsystem.components.HLRestHintBanner

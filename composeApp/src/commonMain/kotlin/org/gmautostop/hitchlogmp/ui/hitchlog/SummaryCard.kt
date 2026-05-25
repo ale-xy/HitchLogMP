@@ -34,8 +34,8 @@ import hitchlogmp.composeapp.generated.resources.retire
 import hitchlogmp.composeapp.generated.resources.status_finished
 import hitchlogmp.composeapp.generated.resources.status_in_car
 import kotlinx.datetime.LocalDateTime
-import org.gmautostop.hitchlogmp.domain.LiveState
-import org.gmautostop.hitchlogmp.domain.LiveStatus
+import org.gmautostop.hitchlogmp.domain.logic.LiveState
+import org.gmautostop.hitchlogmp.domain.logic.LiveStatus
 import org.gmautostop.hitchlogmp.timeFormatForDisplay
 import org.gmautostop.hitchlogmp.ui.designsystem.components.HLStatCell
 import org.gmautostop.hitchlogmp.ui.designsystem.components.HLStatusBadge
