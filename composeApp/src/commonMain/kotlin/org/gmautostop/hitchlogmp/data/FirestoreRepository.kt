@@ -309,7 +309,7 @@ class FirestoreRepository(
                     val recordId = recordDoc.id
                     // For each record, get its history subcollection
                     val historyDocs = recordHistoryRef(logId, recordId)
-                        .get(Source.CACHE)
+                        .get()
                         .documents
                     
                     historyDocs.forEach { historyDoc ->
