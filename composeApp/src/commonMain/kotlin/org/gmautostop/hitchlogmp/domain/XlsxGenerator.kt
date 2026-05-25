@@ -17,4 +17,4 @@ fun getExcelColumnName(columnIndex: Int): String {
  * Creates a ZIP archive from a map of file paths to byte arrays.
  * Platform-specific implementation.
  */
-expect fun createZipArchive(files: Map<String, ByteArray>): ByteArray
+expect suspend fun createZipArchive(files: Map<String, ByteArray>): ByteArray

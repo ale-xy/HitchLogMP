@@ -68,7 +68,7 @@ class XlsxChronicleFormatter : ChronicleFormatter {
             }
             
             // Add history sheets if available
-            if (history != null && history.isNotEmpty()) {
+            if (!history.isNullOrEmpty()) {
                 XlsxHistoryFormatter.addHistorySheets(this, history, exportStrings)
             }
         }
