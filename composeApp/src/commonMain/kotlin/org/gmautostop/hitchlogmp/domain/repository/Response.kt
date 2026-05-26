@@ -1,4 +1,6 @@
-package org.gmautostop.hitchlogmp.domain
+package org.gmautostop.hitchlogmp.domain.repository
+
+import org.gmautostop.hitchlogmp.domain.AppError
 
 sealed class Response<out T> {
     class Loading<out T>: Response<T>()

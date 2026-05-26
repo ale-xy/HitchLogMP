@@ -34,8 +34,8 @@ import hitchlogmp.composeapp.generated.resources.retire
 import hitchlogmp.composeapp.generated.resources.status_finished
 import hitchlogmp.composeapp.generated.resources.status_in_car
 import kotlinx.datetime.LocalDateTime
-import org.gmautostop.hitchlogmp.domain.LiveState
-import org.gmautostop.hitchlogmp.domain.LiveStatus
+import org.gmautostop.hitchlogmp.domain.logic.LiveState
+import org.gmautostop.hitchlogmp.domain.logic.LiveStatus
 import org.gmautostop.hitchlogmp.timeFormatForDisplay
 import org.gmautostop.hitchlogmp.ui.designsystem.components.HLStatCell
 import org.gmautostop.hitchlogmp.ui.designsystem.components.HLStatusBadge
@@ -65,12 +65,12 @@ internal fun SummaryCard(
             HLStatCell(
                 icon = Icons.Filled.DirectionsCar,
                 value = "${summary.lifts}",
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(0.5f)
             )
             HLStatCell(
                 icon = Icons.Filled.LocationOn,
                 value = "${summary.checkpoints}",
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(0.5f)
             )
             HLStatCell(
                 icon = Icons.Filled.Hotel,
@@ -126,8 +126,8 @@ private class SummaryCardStateProvider : PreviewParameterProvider<SummaryCardSta
         SummaryCardState(
             lifts = 5,
             checkpoints = 3,
-            restUsedDisplay = "02:30",
-            restLeftDisplay = "01:30",
+            restUsedDisplay = "02:30/5",
+            restLeftDisplay = "01:30/2",
             showUsed = false,
             liveState = null
         ),
@@ -135,8 +135,8 @@ private class SummaryCardStateProvider : PreviewParameterProvider<SummaryCardSta
         SummaryCardState(
             lifts = 8,
             checkpoints = 5,
-            restUsedDisplay = "03:45",
-            restLeftDisplay = "00:15",
+            restUsedDisplay = "03:45/10",
+            restLeftDisplay = "00:15/1",
             showUsed = true,
             liveState = LiveState(
                 status = LiveStatus.IN_CAR,
@@ -147,8 +147,8 @@ private class SummaryCardStateProvider : PreviewParameterProvider<SummaryCardSta
         SummaryCardState(
             lifts = 12,
             checkpoints = 8,
-            restUsedDisplay = "04:00",
-            restLeftDisplay = "00:00",
+            restUsedDisplay = "04:00/5",
+            restLeftDisplay = "00:00/0",
             showUsed = true,
             liveState = LiveState(
                 status = LiveStatus.FINISH,
@@ -159,8 +159,8 @@ private class SummaryCardStateProvider : PreviewParameterProvider<SummaryCardSta
         SummaryCardState(
             lifts = 6,
             checkpoints = 4,
-            restUsedDisplay = "01:15",
-            restLeftDisplay = "02:45",
+            restUsedDisplay = "01:15/1",
+            restLeftDisplay = "02:45/2",
             showUsed = false,
             liveState = LiveState(
                 status = LiveStatus.REST,
@@ -171,8 +171,8 @@ private class SummaryCardStateProvider : PreviewParameterProvider<SummaryCardSta
         SummaryCardState(
             lifts = 3,
             checkpoints = 2,
-            restUsedDisplay = "00:30",
-            restLeftDisplay = "03:30",
+            restUsedDisplay = "00:30/1",
+            restLeftDisplay = "03:30/4",
             showUsed = true,
             liveState = LiveState(
                 status = LiveStatus.OFFSIDE,
@@ -183,8 +183,8 @@ private class SummaryCardStateProvider : PreviewParameterProvider<SummaryCardSta
         SummaryCardState(
             lifts = 7,
             checkpoints = 5,
-            restUsedDisplay = "02:00",
-            restLeftDisplay = "02:00",
+            restUsedDisplay = "02:00/10",
+            restLeftDisplay = "02:00/20",
             showUsed = false,
             liveState = LiveState(
                 status = LiveStatus.RETIRE,

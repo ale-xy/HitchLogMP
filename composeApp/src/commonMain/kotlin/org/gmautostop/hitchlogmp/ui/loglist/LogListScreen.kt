@@ -1,4 +1,4 @@
-package org.gmautostop.hitchlogmp.ui
+package org.gmautostop.hitchlogmp.ui.loglist
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -48,7 +48,8 @@ import hitchlogmp.composeapp.generated.resources.my_logs
 import hitchlogmp.composeapp.generated.resources.no_logs
 import org.gmautostop.hitchlogmp.domain.AppError
 import org.gmautostop.hitchlogmp.getAppVersion
-import org.gmautostop.hitchlogmp.ui.components.ChronicleCard
+import org.gmautostop.hitchlogmp.ui.Error
+import org.gmautostop.hitchlogmp.ui.ViewState
 import org.gmautostop.hitchlogmp.ui.designsystem.components.HLConfirmationDialog
 import org.gmautostop.hitchlogmp.ui.designsystem.components.HLEmptyState
 import org.gmautostop.hitchlogmp.ui.designsystem.components.HLLoadingState

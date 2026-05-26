@@ -1,7 +1,10 @@
 package org.gmautostop.hitchlogmp.ui.recordedit
 
+import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -16,7 +19,6 @@ import kotlinx.coroutines.launch
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
-import kotlinx.datetime.LocalTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.plus
 import kotlinx.datetime.toInstant
@@ -24,11 +26,12 @@ import kotlinx.datetime.until
 import org.gmautostop.hitchlogmp.dateFormat
 import org.gmautostop.hitchlogmp.dateTimeFormat
 import org.gmautostop.hitchlogmp.domain.AppError
-import org.gmautostop.hitchlogmp.domain.HitchLogRecord
-import org.gmautostop.hitchlogmp.domain.HitchLogRecordType
-import org.gmautostop.hitchlogmp.domain.Repository
-import org.gmautostop.hitchlogmp.domain.Response
+import org.gmautostop.hitchlogmp.domain.model.HitchLogRecord
+import org.gmautostop.hitchlogmp.domain.model.HitchLogRecordType
+import org.gmautostop.hitchlogmp.domain.repository.Repository
+import org.gmautostop.hitchlogmp.domain.repository.Response
 import org.gmautostop.hitchlogmp.localTZDateTime
+import org.gmautostop.hitchlogmp.parseFlexibleTime
 import org.gmautostop.hitchlogmp.timeFormat
 import org.lighthousegames.logging.logging
 import kotlin.time.Clock
@@ -39,7 +42,7 @@ import kotlin.time.Clock
  */
 interface EditRecordCallbacks {
     fun updateDate(date: String)
-    fun updateTime(time: String)
+    fun updateTime(time: TextFieldValue)
     fun updateText(text: String)
     fun adjustDate(days: Int)
     fun adjustTime(minutes: Int)
@@ -51,7 +54,7 @@ interface EditRecordCallbacks {
 data class EditRecordUiState(
     val record: HitchLogRecord = HitchLogRecord(),
     val dateText: String = "",
-    val timeText: String = "",
+    val timeValue: TextFieldValue = TextFieldValue(""),
     val validationError: String? = null,
     val isLoading: Boolean = true,
     val error: AppError? = null,
@@ -82,6 +85,9 @@ class EditRecordViewModel(
     
     // For REST_OFF real-time clock
     private val _currentTime = MutableStateFlow(Clock.System.now())
+    
+    // For time normalization debouncing
+    private var timeNormalizationJob: Job? = null
 
     init {
         if (recordId.isNullOrEmpty()) {
@@ -89,7 +95,7 @@ class EditRecordViewModel(
             uiState.value = EditRecordUiState(
                 record = newRecord,
                 dateText = dateFormat.format(newRecord.time.date),
-                timeText = timeFormat.format(newRecord.time.time),
+                timeValue = TextFieldValue(timeFormat.format(newRecord.time.time)),
                 isLoading = false,
                 originalTime = null  // New record, no original time
             )
@@ -103,7 +109,7 @@ class EditRecordViewModel(
                             is Response.Success -> EditRecordUiState(
                                 record = response.data,
                                 dateText = dateFormat.format(response.data.time.date),
-                                timeText = timeFormat.format(response.data.time.time),
+                                timeValue = TextFieldValue(timeFormat.format(response.data.time.time)),
                                 isLoading = false,
                                 originalTime = response.data.time  // Store original time for reset
                             )
@@ -160,7 +166,7 @@ class EditRecordViewModel(
     }
 
     private fun validateAndUpdateState() {
-        log.d { "validateAndUpdateState() called - dateText=${uiState.value.dateText}, timeText=${uiState.value.timeText}, isLoading=${uiState.value.isLoading}" }
+        log.d { "validateAndUpdateState() called - dateText=${uiState.value.dateText}, timeText=${uiState.value.timeValue.text}, isLoading=${uiState.value.isLoading}" }
         
         val dateValid = try {
             LocalDate.parse(uiState.value.dateText, dateFormat)
@@ -172,9 +178,9 @@ class EditRecordViewModel(
         }
         
         val timeValid = try {
-            LocalTime.parse(uiState.value.timeText, timeFormat)
-            log.d { "Time parsed successfully" }
-            true
+            val parsed = parseFlexibleTime(uiState.value.timeValue.text)
+            log.d { "Time parsed successfully: $parsed" }
+            parsed != null
         } catch (e: Exception) {
             log.e(err = e) { "Time parse failed" }
             false
@@ -206,8 +212,34 @@ class EditRecordViewModel(
         validateAndUpdateState()
     }
 
-    override fun updateTime(time: String) {
-        uiState.update { it.copy(timeText = time) }
+    override fun updateTime(time: TextFieldValue) {
+        // Update immediately for responsive typing (preserve cursor position)
+        uiState.update { it.copy(timeValue = time) }
+        
+        // Cancel previous normalization job
+        timeNormalizationJob?.cancel()
+        
+        // Schedule normalization after 500ms
+        timeNormalizationJob = viewModelScope.launch {
+            delay(500)
+            normalizeAndValidateTime()
+        }
+    }
+    
+    private fun normalizeAndValidateTime() {
+        val currentTimeText = uiState.value.timeValue.text
+        val parsed = parseFlexibleTime(currentTimeText)
+        
+        if (parsed != null) {
+            // Normalize to HH:mm format
+            val normalized = timeFormat.format(parsed)
+            if (normalized != currentTimeText) {
+                // Set cursor to end after normalization
+                uiState.update { it.copy(timeValue = TextFieldValue(normalized, TextRange(normalized.length))) }
+            }
+        }
+        
+        // Always validate after normalization attempt
         validateAndUpdateState()
     }
 
@@ -217,9 +249,9 @@ class EditRecordViewModel(
 
     override fun adjustDate(days: Int) {
         val current = try {
-            dateTimeFormat.parse("${uiState.value.dateText} ${uiState.value.timeText}")
+            dateTimeFormat.parse("${uiState.value.dateText} ${uiState.value.timeValue.text}")
         } catch (e: Exception) {
-            log.e(err = e) { "Failed to parse date for adjustment: ${uiState.value.dateText} ${uiState.value.timeText}" }
+            log.e(err = e) { "Failed to parse date for adjustment: ${uiState.value.dateText} ${uiState.value.timeValue.text}" }
             Clock.System.now().localTZDateTime()
         }
         
@@ -234,9 +266,9 @@ class EditRecordViewModel(
 
     override fun adjustTime(minutes: Int) {
         val current = try {
-            dateTimeFormat.parse("${uiState.value.dateText} ${uiState.value.timeText}")
+            dateTimeFormat.parse("${uiState.value.dateText} ${uiState.value.timeValue.text}")
         } catch (e: Exception) {
-            log.e(err = e) { "Failed to parse time for adjustment: ${uiState.value.dateText} ${uiState.value.timeText}" }
+            log.e(err = e) { "Failed to parse time for adjustment: ${uiState.value.dateText} ${uiState.value.timeValue.text}" }
             Clock.System.now().localTZDateTime()
         }
         
@@ -247,7 +279,7 @@ class EditRecordViewModel(
         uiState.update { 
             it.copy(
                 dateText = dateFormat.format(adjusted.date),
-                timeText = timeFormat.format(adjusted.time)
+                timeValue = TextFieldValue(timeFormat.format(adjusted.time))
             )
         }
         validateAndUpdateState()
@@ -266,7 +298,7 @@ class EditRecordViewModel(
         uiState.update { 
             it.copy(
                 dateText = dateFormat.format(targetTime.date),
-                timeText = timeFormat.format(targetTime.time)
+                timeValue = TextFieldValue(timeFormat.format(targetTime.time))
             )
         }
         validateAndUpdateState()
@@ -275,12 +307,16 @@ class EditRecordViewModel(
     override fun save() {
         log.d { "save() called" }
         val current = uiState.value
-        log.d { "Current state: canSave=${current.canSave}, dateText=${current.dateText}, timeText=${current.timeText}, recordId=${current.record.id}" }
+        log.d { "Current state: canSave=${current.canSave}, dateText=${current.dateText}, timeText=${current.timeValue.text}, recordId=${current.record.id}" }
         
         val recordToSave = try {
-            current.record.copy(time = dateTimeFormat.parse("${current.dateText} ${current.timeText}"))
+            val parsedTime = parseFlexibleTime(current.timeValue.text)
+                ?: throw IllegalArgumentException("Invalid time format")
+            val parsedDate = LocalDate.parse(current.dateText, dateFormat)
+            val dateTime = LocalDateTime(parsedDate, parsedTime)
+            current.record.copy(time = dateTime)
         } catch (e: IllegalArgumentException) {
-            log.e(err = e) { "Failed to parse date/time: ${current.dateText} ${current.timeText}" }
+            log.e(err = e) { "Failed to parse date/time: ${current.dateText} ${current.timeValue.text}" }
             uiState.update { it.copy(isLoading = false, error = AppError.ParseError("date/time")) }
             return
         }

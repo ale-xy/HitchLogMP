@@ -105,7 +105,7 @@ val events: Flow<T> = _events.receiveAsFlow()
 - ❌ Computed properties
 - ❌ Delegated properties
 
-**Git:** Auto-stage code files only. Never commit unless explicitly requested.
+**Git:** After completing implementation, immediately run `git add composeApp/src/` and show `git status --short`. Never commit unless requested.
 
 ---
 

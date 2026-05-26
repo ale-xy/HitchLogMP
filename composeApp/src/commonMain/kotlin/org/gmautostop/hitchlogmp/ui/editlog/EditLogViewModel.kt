@@ -1,4 +1,4 @@
-package org.gmautostop.hitchlogmp.ui
+package org.gmautostop.hitchlogmp.ui.editlog
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -13,9 +13,9 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.gmautostop.hitchlogmp.data.AuthService
 import org.gmautostop.hitchlogmp.domain.AppError
-import org.gmautostop.hitchlogmp.domain.HitchLog
-import org.gmautostop.hitchlogmp.domain.Repository
-import org.gmautostop.hitchlogmp.domain.Response
+import org.gmautostop.hitchlogmp.domain.model.HitchLog
+import org.gmautostop.hitchlogmp.domain.repository.Repository
+import org.gmautostop.hitchlogmp.domain.repository.Response
 import org.lighthousegames.logging.logging
 
 data class EditLogState(
@@ -37,6 +37,7 @@ sealed interface EditLogAction {
 
 sealed interface EditLogEvent {
     data object NavigateBack : EditLogEvent
+    data class NavigateToLog(val logId: String) : EditLogEvent
 }
 
 class EditLogViewModel(
@@ -130,20 +131,26 @@ class EditLogViewModel(
 
     private fun saveLog() {
         val log = state.value.log ?: return
+        val isNewLog = log.id.isEmpty()
         
         viewModelScope.launch {
             state.update { it.copy(isLoading = true) }
             
-            val flow = when {
-                log.id.isEmpty() -> repository.addLog(log)
-                else -> repository.updateLog(log)
+            val flow = if (isNewLog) {
+                repository.addLog(log)
+            } else {
+                repository.updateLog(log)
             }
             
             flow.collect { response ->
                 when (response) {
                     is Response.Loading -> Unit
                     is Response.Success -> {
-                        _events.send(EditLogEvent.NavigateBack)
+                        if (isNewLog) {
+                            _events.send(EditLogEvent.NavigateToLog(response.data))
+                        } else {
+                            _events.send(EditLogEvent.NavigateBack)
+                        }
                     }
                     is Response.Failure -> {
                         logger.e { response.error.displayMessage }

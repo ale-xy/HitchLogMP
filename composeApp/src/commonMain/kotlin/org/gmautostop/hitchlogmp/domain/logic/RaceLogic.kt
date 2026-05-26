@@ -1,10 +1,12 @@
-package org.gmautostop.hitchlogmp.domain
+package org.gmautostop.hitchlogmp.domain.logic
 
 import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toInstant
 import kotlinx.datetime.until
+import org.gmautostop.hitchlogmp.domain.model.HitchLogRecord
+import org.gmautostop.hitchlogmp.domain.model.HitchLogRecordType
 
 enum class LiveStatus { IN_CAR, REST, OFFSIDE, FINISH, RETIRE }
 

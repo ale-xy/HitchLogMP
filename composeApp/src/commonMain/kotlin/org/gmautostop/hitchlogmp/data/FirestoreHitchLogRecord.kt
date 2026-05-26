@@ -3,8 +3,8 @@ package org.gmautostop.hitchlogmp.data
 import dev.gitlive.firebase.firestore.Timestamp
 import kotlinx.datetime.LocalDateTime
 import kotlinx.serialization.Serializable
-import org.gmautostop.hitchlogmp.domain.HitchLogRecord
-import org.gmautostop.hitchlogmp.domain.HitchLogRecordType
+import org.gmautostop.hitchlogmp.domain.model.HitchLogRecord
+import org.gmautostop.hitchlogmp.domain.model.HitchLogRecordType
 import org.gmautostop.hitchlogmp.toLocalDateTime
 import org.gmautostop.hitchlogmp.toTimestamp
 
@@ -13,7 +13,9 @@ data class FirestoreHitchLogRecord(
     val id: String = "",
     val timestamp: Timestamp = Timestamp.now(),
     val type: HitchLogRecordType = HitchLogRecordType.FREE_TEXT,
-    val text: String = ""
+    val text: String = "",
+    val deleted: Boolean = false,
+    val edited: Boolean = false,
 )  {
     constructor(id: String, time: LocalDateTime, type: HitchLogRecordType, text: String) : this(
         id, time.toTimestamp(), type, text
@@ -27,8 +29,17 @@ data class FirestoreHitchLogRecord(
         id = id,
         timestamp = timestamp,
         type = from.type,
-        text = from.text
+        text = from.text,
+        deleted = from.deleted,
+        edited = from.edited,
     )
 
-    fun toHitchLogRecord() = HitchLogRecord(id, timestamp.toLocalDateTime(), type, text)
+    fun toHitchLogRecord() = HitchLogRecord(
+        id = id,
+        time = timestamp.toLocalDateTime(),
+        type = type,
+        text = text,
+        deleted = deleted,
+        edited = edited,
+    )
 }

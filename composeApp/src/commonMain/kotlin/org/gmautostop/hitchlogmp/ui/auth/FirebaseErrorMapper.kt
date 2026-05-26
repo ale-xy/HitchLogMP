@@ -15,7 +15,7 @@ import hitchlogmp.composeapp.generated.resources.error_too_many_requests
 import hitchlogmp.composeapp.generated.resources.error_unknown
 import hitchlogmp.composeapp.generated.resources.error_user_not_found
 import hitchlogmp.composeapp.generated.resources.error_weak_password
-import org.gmautostop.hitchlogmp.ui.UiText
+import org.gmautostop.hitchlogmp.ui.components.UiText
 
 fun Exception.toAuthErrorUiText(): UiText {
     return when (this) {

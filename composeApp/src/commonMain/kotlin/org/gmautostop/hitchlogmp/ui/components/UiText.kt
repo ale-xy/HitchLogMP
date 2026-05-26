@@ -1,4 +1,4 @@
-package org.gmautostop.hitchlogmp.ui
+package org.gmautostop.hitchlogmp.ui.components
 
 import androidx.compose.runtime.Composable
 import org.jetbrains.compose.resources.StringResource

@@ -12,7 +12,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeout
 import org.gmautostop.hitchlogmp.data.AuthService
 import org.gmautostop.hitchlogmp.domain.User
-import org.gmautostop.hitchlogmp.ui.UiText
+import org.gmautostop.hitchlogmp.ui.components.UiText
 import org.lighthousegames.logging.logging
 
 data class AuthState(

@@ -42,6 +42,7 @@
     <string name="date">Дата</string>
     <string name="time">Время</string>
     <string name="text">Текст</string>
+    <string name="type">Тип</string>
 
     <string name="start">Старт</string>
     <string name="lift">Посадка</string>
@@ -60,6 +61,13 @@
     <string name="free_text">Прочее</string>
     <string name="ok">OK</string>
     <string name="chronicle_empty">Хроника пуста</string>
+    <string name="chronicle">Хроника</string>
+    <string name="note">Заметка</string>
+    <string name="summary">Сводка</string>
+    <string name="records">Записей</string>
+    <string name="lifts">Машин</string>
+    <string name="checkpoints">КП</string>
+    <string name="rest_used_full">Rest использовано</string>
     <string name="different_record_type">Другой тип записи</string>
     <string name="new_record">Новая запись</string>
     <string name="more_actions">Ещё</string>
@@ -74,6 +82,7 @@
     <string name="save">Сохранить</string>
     <string name="close">Закрыть</string>
     <string name="time_label">Время</string>
+    <string name="history">История</string>
 
     <!-- Field labels by type -->
     <string name="field_label_note">Комментарий</string>
@@ -113,6 +122,33 @@
     <string name="export_xlsx">XLSX</string>
     <string name="export_preparing">Подготовка...</string>
     <string name="export_error">Ошибка: %1$s</string>
+    <string name="history_menu">История правок</string>
+    
+    <!-- History Screen -->
+    <string name="record_history_title">История записи</string>
+    <string name="log_history_title">История правок</string>
+    <string name="change_type_create">Создана</string>
+    <string name="change_type_update">Изменена</string>
+    <string name="change_type_delete">Удалена</string>
+    <string name="history_empty">История пуста</string>
+    <string name="history_field_time">Время</string>
+    <string name="history_field_type">Тип</string>
+    <string name="history_field_text">Текст</string>
+    <string name="sort_by_time">По времени правок</string>
+    <string name="sort_by_record">По записям</string>
+    <string name="history_current_state">Текущее состояние</string>
+    <string name="history_deleted_record">Удалённая запись</string>
+    <string name="history_record_created">Создана запись</string>
+    <string name="history_record_deleted">Запись удалена</string>
+    
+    <!-- History Export Table Headers -->
+    <string name="history_column_action">Действие</string>
+    <string name="history_column_edit_datetime">Дата и время правки</string>
+    <string name="history_column_edit_time">Время правки</string>
+    <string name="history_column_changes">Изменения</string>
+    <string name="history_column_before">До</string>
+    <string name="history_column_after">После</string>
+    <string name="history_column_record">Запись</string>
     
     <!-- Auth Screen -->
     <string name="auth_title">HitchLog</string>

@@ -14,6 +14,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.History
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
@@ -24,6 +25,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
@@ -32,10 +34,11 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import hitchlogmp.composeapp.generated.resources.Res
 import hitchlogmp.composeapp.generated.resources.delete
 import hitchlogmp.composeapp.generated.resources.edit_record_title
+import hitchlogmp.composeapp.generated.resources.history
 import hitchlogmp.composeapp.generated.resources.new_record_title
 import hitchlogmp.composeapp.generated.resources.save
 import kotlinx.datetime.LocalDateTime
-import org.gmautostop.hitchlogmp.domain.HitchLogRecordType
+import org.gmautostop.hitchlogmp.domain.model.HitchLogRecordType
 import org.gmautostop.hitchlogmp.ui.designsystem.components.DateFieldRow
 import org.gmautostop.hitchlogmp.ui.designsystem.components.HLLoadingState
 import org.gmautostop.hitchlogmp.ui.designsystem.components.HLRestHintBanner
@@ -44,17 +47,18 @@ import org.gmautostop.hitchlogmp.ui.designsystem.components.HLTopBar
 import org.gmautostop.hitchlogmp.ui.designsystem.components.HLTypeChip
 import org.gmautostop.hitchlogmp.ui.designsystem.components.NoteFieldRow
 import org.gmautostop.hitchlogmp.ui.designsystem.components.TimeFieldRow
-import org.gmautostop.hitchlogmp.ui.designsystem.preview.sampleRecord
 import org.gmautostop.hitchlogmp.ui.designsystem.theme.HLTheme
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLColors
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLSpacing
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLTypography
+import org.gmautostop.hitchlogmp.ui.hitchlog.sampleRecord
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun EditRecordScreen(
     viewModel: EditRecordViewModel,
-    finish: () -> Unit
+    finish: () -> Unit,
+    navigateToHistory: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val focusRequester = remember { FocusRequester() }
@@ -73,6 +77,7 @@ fun EditRecordScreen(
         state = uiState,
         callbacks = viewModel,
         onClose = finish,
+        onHistory = navigateToHistory,
         focusRequester = focusRequester
     )
 }
@@ -82,6 +87,7 @@ private fun EditRecordContent(
     state: EditRecordUiState,
     callbacks: EditRecordCallbacks,
     onClose: () -> Unit,
+    onHistory: () -> Unit,
     focusRequester: FocusRequester
 ) {
     val isEditMode = state.record.id.isNotEmpty()
@@ -107,6 +113,15 @@ private fun EditRecordContent(
                 onNavigateUp = onClose,
                 navigationIcon = Icons.Default.Close,
                 actions = {
+                    if (isEditMode && state.record.edited) {
+                        IconButton(onClick = onHistory) {
+                            Icon(
+                                imageVector = Icons.Default.History,
+                                contentDescription = stringResource(Res.string.history),
+                                tint = HLColors.OnSurfaceVariant
+                            )
+                        }
+                    }
                     if (isEditMode) {
                         IconButton(onClick = { callbacks.delete() }) {
                             Icon(
@@ -159,7 +174,7 @@ private fun EditRecordContent(
                     
                     // Time row
                     TimeFieldRow(
-                        timeText = state.timeText,
+                        timeValue = state.timeValue,
                         timeError = null,
                         onTimeChange = { callbacks.updateTime(it) },
                         onSubtract = { callbacks.adjustTime(-1) },
@@ -239,7 +254,7 @@ private class EditRecordStateProvider : PreviewParameterProvider<EditRecordUiSta
         EditRecordUiState(
             record = sampleRecord(id = "", type = HitchLogRecordType.LIFT),
             dateText = "29.04.2026",
-            timeText = "14:30",
+            timeValue = TextFieldValue("14:30"),
             validationError = null,
             isLoading = false,
             error = null,
@@ -255,7 +270,7 @@ private class EditRecordStateProvider : PreviewParameterProvider<EditRecordUiSta
                 text = "КП-1 Сестрорецк"
             ),
             dateText = "29.04.2026",
-            timeText = "14:30",
+            timeValue = TextFieldValue("14:30"),
             validationError = null,
             isLoading = false,
             error = null,
@@ -267,7 +282,7 @@ private class EditRecordStateProvider : PreviewParameterProvider<EditRecordUiSta
         EditRecordUiState(
             record = sampleRecord(id = "", type = HitchLogRecordType.REST_OFF),
             dateText = "29.04.2026",
-            timeText = "14:30",
+            timeValue = TextFieldValue("14:30"),
             validationError = null,
             isLoading = false,
             error = null,
@@ -279,7 +294,7 @@ private class EditRecordStateProvider : PreviewParameterProvider<EditRecordUiSta
         EditRecordUiState(
             record = sampleRecord(id = "", type = HitchLogRecordType.LIFT),
             dateText = "32.13.2026",
-            timeText = "25:99",
+            timeValue = TextFieldValue("25:99"),
             validationError = "Неверный формат даты и времени",
             isLoading = false,
             error = null,
@@ -291,7 +306,7 @@ private class EditRecordStateProvider : PreviewParameterProvider<EditRecordUiSta
         EditRecordUiState(
             record = sampleRecord(),
             dateText = "29.04.2026",
-            timeText = "14:30",
+            timeValue = TextFieldValue("14:30"),
             validationError = null,
             isLoading = true,
             error = null,
@@ -312,7 +327,7 @@ private fun EditRecordScreenPreview(
             state = state,
             callbacks = object : EditRecordCallbacks {
                 override fun updateDate(date: String) {}
-                override fun updateTime(time: String) {}
+                override fun updateTime(time: TextFieldValue) {}
                 override fun updateText(text: String) {}
                 override fun adjustDate(days: Int) {}
                 override fun adjustTime(minutes: Int) {}
@@ -321,6 +336,7 @@ private fun EditRecordScreenPreview(
                 override fun delete() {}
             },
             onClose = { },
+            onHistory = { },
             focusRequester = FocusRequester()
         )
     }

@@ -25,21 +25,20 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import kotlinx.datetime.LocalDate
-import org.gmautostop.hitchlogmp.domain.HitchLogRecord
-import org.gmautostop.hitchlogmp.domain.HitchLogRecordType
+import org.gmautostop.hitchlogmp.domain.model.HitchLogRecord
+import org.gmautostop.hitchlogmp.domain.model.HitchLogRecordType
 import org.gmautostop.hitchlogmp.formatDateLocale
 import org.gmautostop.hitchlogmp.timeFormatForDisplay
+import org.gmautostop.hitchlogmp.ui.components.toStringResource
+import org.gmautostop.hitchlogmp.ui.components.toUi
 import org.gmautostop.hitchlogmp.ui.designsystem.components.HLCard
 import org.gmautostop.hitchlogmp.ui.designsystem.components.HLIconBadge
 import org.gmautostop.hitchlogmp.ui.designsystem.components.HLSectionHeader
 import org.gmautostop.hitchlogmp.ui.designsystem.components.IconBadgeSize
-import org.gmautostop.hitchlogmp.ui.designsystem.preview.sampleRecord
 import org.gmautostop.hitchlogmp.ui.designsystem.theme.HLTheme
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLColors
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLTypography
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.chipColorsForRole
-import org.gmautostop.hitchlogmp.ui.toStringResource
-import org.gmautostop.hitchlogmp.ui.toUi
 import org.jetbrains.compose.resources.stringResource
 
 @Composable

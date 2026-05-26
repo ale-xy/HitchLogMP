@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.gmautostop.hitchlogmp.data.AuthService
-import org.gmautostop.hitchlogmp.ui.UiText
+import org.gmautostop.hitchlogmp.ui.components.UiText
 import org.lighthousegames.logging.logging
 
 data class ForgotPasswordState(

@@ -15,7 +15,7 @@ import androidx.navigation.toRoute
 import kotlinx.coroutines.launch
 import org.gmautostop.hitchlogmp.data.AuthService
 import org.gmautostop.hitchlogmp.data.FirestoreSyncTracker
-import org.gmautostop.hitchlogmp.domain.HitchLogRecordType
+import org.gmautostop.hitchlogmp.domain.model.HitchLogRecordType
 import org.gmautostop.hitchlogmp.platformWindowInsetsPadding
 import org.gmautostop.hitchlogmp.ui.auth.AuthScreen
 import org.gmautostop.hitchlogmp.ui.auth.EmailLoginScreen
@@ -26,8 +26,16 @@ import org.gmautostop.hitchlogmp.ui.auth.ForgotPasswordScreen
 import org.gmautostop.hitchlogmp.ui.auth.ForgotPasswordSentScreen
 import org.gmautostop.hitchlogmp.ui.auth.ForgotPasswordViewModel
 import org.gmautostop.hitchlogmp.ui.designsystem.theme.HLTheme
+import org.gmautostop.hitchlogmp.ui.editlog.EditLogScreen
+import org.gmautostop.hitchlogmp.ui.editlog.EditLogViewModel
+import org.gmautostop.hitchlogmp.ui.history.LogHistoryScreen
+import org.gmautostop.hitchlogmp.ui.history.LogHistoryViewModel
+import org.gmautostop.hitchlogmp.ui.history.RecordHistoryScreen
+import org.gmautostop.hitchlogmp.ui.history.RecordHistoryViewModel
 import org.gmautostop.hitchlogmp.ui.hitchlog.HitchLogScreen
 import org.gmautostop.hitchlogmp.ui.hitchlog.HitchLogViewModel
+import org.gmautostop.hitchlogmp.ui.loglist.LogListScreen
+import org.gmautostop.hitchlogmp.ui.loglist.LogListViewModel
 import org.gmautostop.hitchlogmp.ui.recordedit.EditRecordScreen
 import org.gmautostop.hitchlogmp.ui.recordedit.EditRecordViewModel
 import org.koin.compose.koinInject
@@ -137,7 +145,12 @@ fun HitchLogApp(navController: NavHostController) {
                     val editLog: Screen.EditLog = backStackEntry.toRoute()
                     EditLogScreen(
                         viewModel = koinViewModel<EditLogViewModel> { parametersOf(editLog.logId) },
-                        onNavigateBack = { navController.popBackStack() }
+                        onNavigateBack = { navController.popBackStack() },
+                        onNavigateToLog = { logId ->
+                            navController.navigate(Screen.Log(logId)) {
+                                popUpTo(Screen.LogList) { inclusive = false }
+                            }
+                        }
                     )
                 }
                 composable<Screen.Log> { backStackEntry ->
@@ -151,6 +164,9 @@ fun HitchLogApp(navController: NavHostController) {
                         },
                         editRecord = { id ->
                             navController.navigate(Screen.EditRecord(logId = hitchLog.logId, recordId = id))
+                        },
+                        navigateToLogHistory = {
+                            navController.navigate(Screen.LogHistory(hitchLog.logId))
                         }
                     )
                 }
@@ -164,7 +180,29 @@ fun HitchLogApp(navController: NavHostController) {
                                 HitchLogRecordType.valueOf(editRecord.recordType)
                             )
                         },
-                        finish = { navController.popBackStack() }
+                        finish = { navController.popBackStack() },
+                        navigateToHistory = {
+                            navController.navigate(
+                                Screen.RecordHistory(editRecord.logId, editRecord.recordId)
+                            )
+                        }
+                    )
+                }
+                composable<Screen.RecordHistory> { backStackEntry ->
+                    val recordHistory: Screen.RecordHistory = backStackEntry.toRoute()
+                    val viewModel = koinViewModel<RecordHistoryViewModel> {
+                        parametersOf(recordHistory.logId, recordHistory.recordId)
+                    }
+                    RecordHistoryScreen(
+                        viewModel = viewModel,
+                        navigateUp = { navController.navigateUp() }
+                    )
+                }
+                composable<Screen.LogHistory> { backStackEntry ->
+                    val logHistory: Screen.LogHistory = backStackEntry.toRoute()
+                    LogHistoryScreen(
+                        viewModel = koinViewModel<LogHistoryViewModel> { parametersOf(logHistory.logId) },
+                        navigateUp = { navController.navigateUp() }
                     )
                 }
             }

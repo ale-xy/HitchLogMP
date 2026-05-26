@@ -1,11 +1,29 @@
 package org.gmautostop.hitchlogmp.domain
 
-internal actual fun createZipArchive(files: Map<String, ByteArray>): ByteArray {
-    // For JS target, we'll use JSZip library via dynamic calls
-    // This is a simplified implementation that creates a basic ZIP structure
-    // In production, you would want to use a proper JS ZIP library
+import kotlinx.coroutines.await
+import org.khronos.webgl.Uint8Array
+import org.khronos.webgl.get
+
+actual suspend fun createZipArchive(files: Map<String, ByteArray>): ByteArray {
+    val zip = JSZip()
     
-    // For now, return empty array as XLSX export is not critical for web
-    // TODO: Implement using JSZip library or similar
-    return ByteArray(0)
+    // Add each file to the ZIP
+    files.forEach { (path, bytes) ->
+        // Convert Kotlin ByteArray to JS Uint8Array
+        val uint8Array = Uint8Array(bytes.size)
+        for (i in bytes.indices) {
+            uint8Array.asDynamic()[i] = bytes[i].toInt() and 0xFF
+        }
+        zip.file(path, uint8Array)
+    }
+    
+    // Generate ZIP as Uint8Array
+    val options = js("({ type: 'uint8array' })")
+    val result = zip.generateAsync(options).await()
+    
+    // Convert JS Uint8Array back to Kotlin ByteArray
+    val uint8Result = result.unsafeCast<Uint8Array>()
+    return ByteArray(uint8Result.length) { i ->
+        uint8Result[i].toByte()
+    }
 }

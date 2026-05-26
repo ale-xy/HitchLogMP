@@ -1,4 +1,4 @@
-package org.gmautostop.hitchlogmp.ui
+package org.gmautostop.hitchlogmp.ui.components
 
 import hitchlogmp.composeapp.generated.resources.Res
 import hitchlogmp.composeapp.generated.resources.checkpoint
@@ -15,7 +15,7 @@ import hitchlogmp.composeapp.generated.resources.retire
 import hitchlogmp.composeapp.generated.resources.start
 import hitchlogmp.composeapp.generated.resources.walk
 import hitchlogmp.composeapp.generated.resources.walk_end
-import org.gmautostop.hitchlogmp.domain.HitchLogRecordType
+import org.gmautostop.hitchlogmp.domain.model.HitchLogRecordType
 import org.jetbrains.compose.resources.StringResource
 
 fun HitchLogRecordType.toStringResource(): StringResource = when (this) {

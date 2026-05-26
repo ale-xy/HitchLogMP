@@ -16,6 +16,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.DirectionsWalk
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -52,10 +53,12 @@ import hitchlogmp.composeapp.generated.resources.export_preparing
 import hitchlogmp.composeapp.generated.resources.export_text
 import hitchlogmp.composeapp.generated.resources.export_title
 import hitchlogmp.composeapp.generated.resources.export_xlsx
+import hitchlogmp.composeapp.generated.resources.history_menu
 import hitchlogmp.composeapp.generated.resources.new_record
 import hitchlogmp.composeapp.generated.resources.start
 import org.gmautostop.hitchlogmp.domain.AppError
-import org.gmautostop.hitchlogmp.domain.HitchLogRecordType
+import org.gmautostop.hitchlogmp.domain.model.HitchLogRecordType
+import org.gmautostop.hitchlogmp.export.ExportFormat
 import org.gmautostop.hitchlogmp.ui.Error
 import org.gmautostop.hitchlogmp.ui.ViewState
 import org.gmautostop.hitchlogmp.ui.designsystem.components.ActionButtonSize
@@ -64,14 +67,6 @@ import org.gmautostop.hitchlogmp.ui.designsystem.components.HLBottomSheet
 import org.gmautostop.hitchlogmp.ui.designsystem.components.HLEmptyState
 import org.gmautostop.hitchlogmp.ui.designsystem.components.HLLoadingState
 import org.gmautostop.hitchlogmp.ui.designsystem.components.HLTopBar
-import org.gmautostop.hitchlogmp.ui.designsystem.preview.sampleFinishedRecords
-import org.gmautostop.hitchlogmp.ui.designsystem.preview.sampleHitchLogRecords
-import org.gmautostop.hitchlogmp.ui.designsystem.preview.sampleHitchLogState
-import org.gmautostop.hitchlogmp.ui.designsystem.preview.sampleInCarRecords
-import org.gmautostop.hitchlogmp.ui.designsystem.preview.sampleMinimalRecords
-import org.gmautostop.hitchlogmp.ui.designsystem.preview.sampleOffsideRecords
-import org.gmautostop.hitchlogmp.ui.designsystem.preview.sampleRestRecords
-import org.gmautostop.hitchlogmp.ui.designsystem.preview.sampleRetiredRecords
 import org.gmautostop.hitchlogmp.ui.designsystem.theme.HLTheme
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLColors
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLSpacing
@@ -86,6 +81,7 @@ fun HitchLogScreen(
     editLog: (logId: String) -> Unit,
     createRecord: (type: HitchLogRecordType) -> Unit,
     editRecord: (id: String) -> Unit,
+    navigateToLogHistory: () -> Unit
 ) {
     val state: ViewState<HitchLogState> by viewModel.state.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -121,12 +117,10 @@ fun HitchLogScreen(
                 editLog = editLog,
                 createRecord = createRecord,
                 editRecord = editRecord,
+                navigateToLogHistory = navigateToLogHistory,
                 snackbarHostState = snackbarHostState,
                 onToggleRest = { viewModel.toggleRestDisplay() },
-                onExportTxt = { viewModel.exportAsTxt() },
-                onExportCsv = { viewModel.exportAsCsv() },
-                onExportHtml = { viewModel.exportAsHtml() },
-                onExportXlsx = { viewModel.exportAsXlsx() },
+                onExport = { format -> viewModel.export(format) },
             )
         }
     }
@@ -141,12 +135,10 @@ private fun HitchLog(
     editLog: (logId: String) -> Unit,
     createRecord: (HitchLogRecordType) -> Unit,
     editRecord: (id: String) -> Unit,
+    navigateToLogHistory: () -> Unit,
     snackbarHostState: SnackbarHostState,
     onToggleRest: () -> Unit,
-    onExportTxt: () -> Unit,
-    onExportCsv: () -> Unit,
-    onExportHtml: () -> Unit,
-    onExportXlsx: () -> Unit,
+    onExport: (ExportFormat) -> Unit,
 ) {
     val density = LocalDensity.current
     val listState = rememberLazyListState()
@@ -221,6 +213,22 @@ private fun HitchLog(
                         )
                     }
                     
+                    // History icon
+                    IconButton(
+                        onClick = navigateToLogHistory,
+                        enabled = !isEmpty
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.History,
+                            contentDescription = stringResource(Res.string.history_menu),
+                            tint = if (isEmpty) {
+                                HLColors.OnSurfaceVariant.copy(alpha = 0.38f)
+                            } else {
+                                HLColors.OnSurfaceVariant
+                            }
+                        )
+                    }
+
                     // Export icon with menu
                     Box {
                         IconButton(
@@ -245,28 +253,28 @@ private fun HitchLog(
                                 text = { Text(stringResource(Res.string.export_text)) },
                                 onClick = {
                                     exportMenuExpanded = false
-                                    onExportTxt()
+                                    onExport(ExportFormat.Text)
                                 }
                             )
                             DropdownMenuItem(
                                 text = { Text(stringResource(Res.string.export_csv)) },
                                 onClick = {
                                     exportMenuExpanded = false
-                                    onExportCsv()
+                                    onExport(ExportFormat.Csv)
                                 }
                             )
                             DropdownMenuItem(
                                 text = { Text(stringResource(Res.string.export_html)) },
                                 onClick = {
                                     exportMenuExpanded = false
-                                    onExportHtml()
+                                    onExport(ExportFormat.Html)
                                 }
                             )
                             DropdownMenuItem(
                                 text = { Text(stringResource(Res.string.export_xlsx)) },
                                 onClick = {
                                     exportMenuExpanded = false
-                                    onExportXlsx()
+                                    onExport(ExportFormat.Xlsx)
                                 }
                             )
                         }
@@ -412,12 +420,10 @@ private fun HitchLogScreenPreview(
                         editLog = {},
                         createRecord = {},
                         editRecord = {},
+                        navigateToLogHistory = {},
                         snackbarHostState = remember { SnackbarHostState() },
                         onToggleRest = {},
-                        onExportTxt = {},
-                        onExportCsv = {},
-                        onExportHtml = {},
-                        onExportXlsx = {},
+                        onExport = {},
                     )
                 }
             }

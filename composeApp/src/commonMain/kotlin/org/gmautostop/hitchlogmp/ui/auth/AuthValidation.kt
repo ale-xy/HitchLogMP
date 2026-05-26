@@ -6,7 +6,7 @@ import hitchlogmp.composeapp.generated.resources.error_empty_password
 import hitchlogmp.composeapp.generated.resources.error_invalid_email
 import hitchlogmp.composeapp.generated.resources.error_password_too_short
 import hitchlogmp.composeapp.generated.resources.error_passwords_dont_match
-import org.gmautostop.hitchlogmp.ui.UiText
+import org.gmautostop.hitchlogmp.ui.components.UiText
 
 fun validateEmail(email: String): UiText? = when {
     email.isBlank() -> UiText.StringResourceRef(Res.string.error_empty_email)

@@ -1,4 +1,4 @@
-package org.gmautostop.hitchlogmp.ui
+package org.gmautostop.hitchlogmp.ui.loglist
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -13,9 +13,9 @@ import kotlinx.datetime.LocalDate
 import kotlinx.datetime.format.char
 import org.gmautostop.hitchlogmp.data.AuthService
 import org.gmautostop.hitchlogmp.data.FirestoreSyncTracker
-import org.gmautostop.hitchlogmp.domain.HitchLog
-import org.gmautostop.hitchlogmp.domain.Repository
-import org.gmautostop.hitchlogmp.domain.Response
+import org.gmautostop.hitchlogmp.domain.model.HitchLog
+import org.gmautostop.hitchlogmp.domain.repository.Repository
+import org.gmautostop.hitchlogmp.domain.repository.Response
 import org.gmautostop.hitchlogmp.toLocalDateTime
 
 /**
@@ -31,7 +31,7 @@ data class HitchLogUi(
  * UI state for LogList screen combining logs and user authentication status.
  */
 data class LogListUiState(
-    val logsState: ViewState<List<HitchLogUi>>,
+    val logsState: org.gmautostop.hitchlogmp.ui.ViewState<List<HitchLogUi>>,
     val isAnonymousUser: Boolean,
     val hasPendingWrites: Boolean
 )
@@ -64,7 +64,7 @@ class LogListViewModel(
     authService: AuthService,
     syncTracker: FirestoreSyncTracker
 ): ViewModel() {
-    private val _logsState = MutableStateFlow<ViewState<List<HitchLogUi>>>(ViewState.Loading)
+    private val _logsState = MutableStateFlow<org.gmautostop.hitchlogmp.ui.ViewState<List<HitchLogUi>>>(_root_ide_package_.org.gmautostop.hitchlogmp.ui.ViewState.Loading)
 
     val state: StateFlow<LogListUiState> = combine(
         _logsState,
@@ -80,7 +80,7 @@ class LogListViewModel(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
         initialValue = LogListUiState(
-            logsState = ViewState.Loading,
+            logsState = _root_ide_package_.org.gmautostop.hitchlogmp.ui.ViewState.Loading,
             isAnonymousUser = false,
             hasPendingWrites = false
         )
@@ -88,14 +88,14 @@ class LogListViewModel(
 
     init {
         viewModelScope.launch {
-            _logsState.value = ViewState.Loading
+            _logsState.value = _root_ide_package_.org.gmautostop.hitchlogmp.ui.ViewState.Loading
 
             repository.getLogs().distinctUntilChanged()
                 .collect { response ->
                     _logsState.value = when(response) {
-                        is Response.Loading -> ViewState.Loading
-                        is Response.Failure -> ViewState.Error(response.error)
-                        is Response.Success -> ViewState.Show(response.data.map { it.toUi() })
+                        is Response.Loading -> _root_ide_package_.org.gmautostop.hitchlogmp.ui.ViewState.Loading
+                        is Response.Failure -> _root_ide_package_.org.gmautostop.hitchlogmp.ui.ViewState.Error(response.error)
+                        is Response.Success -> _root_ide_package_.org.gmautostop.hitchlogmp.ui.ViewState.Show(response.data.map { it.toUi() })
                     }
                 }
         }

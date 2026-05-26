@@ -92,7 +92,7 @@ kotlin {
         }
         
         jsMain.dependencies {
-            implementation(npm("exceljs", "4.3.0"))
+            implementation(npm("jszip", "3.10.1"))
             implementation(npm("@js-joda/timezone", "2.3.0"))
         }
         

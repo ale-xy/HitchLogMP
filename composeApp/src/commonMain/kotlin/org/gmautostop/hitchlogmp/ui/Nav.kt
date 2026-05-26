@@ -1,7 +1,7 @@
 package org.gmautostop.hitchlogmp.ui
 
 import kotlinx.serialization.Serializable
-import org.gmautostop.hitchlogmp.domain.HitchLogRecordType
+import org.gmautostop.hitchlogmp.domain.model.HitchLogRecordType
 
 sealed interface Screen {
 
@@ -35,6 +35,15 @@ sealed interface Screen {
         val recordId: String = "",
         val recordType: String = HitchLogRecordType.FREE_TEXT.name
     ) : Screen
+
+    @Serializable
+    data class RecordHistory(
+        val logId: String,
+        val recordId: String
+    ) : Screen
+
+    @Serializable
+    data class LogHistory(val logId: String) : Screen
 
 }
 
