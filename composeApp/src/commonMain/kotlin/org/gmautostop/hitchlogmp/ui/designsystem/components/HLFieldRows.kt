@@ -34,6 +34,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -157,9 +158,9 @@ fun DateFieldRow(
  * Time field row with icon, large editable time value, steppers, and shortcut rail.
  * Used in EditRecordScreen for time adjustment with keyboard input.
  *
- * @param timeText Current time text (HH:mm format)
+ * @param timeValue Current time value with cursor position
  * @param timeError Optional error message
- * @param onTimeChange Callback when time text changes
+ * @param onTimeChange Callback when time value changes
  * @param onSubtract Callback for subtracting one minute
  * @param onAdd Callback for adding one minute
  * @param onShortcut Callback for shortcut buttons (minutes to adjust, 0 = now)
@@ -167,9 +168,9 @@ fun DateFieldRow(
  */
 @Composable
 fun TimeFieldRow(
-    timeText: String,
+    timeValue: TextFieldValue,
     timeError: String?,
-    onTimeChange: (String) -> Unit,
+    onTimeChange: (TextFieldValue) -> Unit,
     onSubtract: () -> Unit,
     onAdd: () -> Unit,
     onShortcut: (Int) -> Unit,
@@ -188,7 +189,7 @@ fun TimeFieldRow(
             modifier = Modifier.padding(top = 16.dp)
         ) {
             BasicTextField(
-                value = timeText,
+                value = timeValue,
                 onValueChange = onTimeChange,
                 textStyle = TextStyle(
                     fontSize = 40.sp,
@@ -349,7 +350,7 @@ private fun TimeFieldRowPreview() {
     HLTheme {
         Column(Modifier.padding(16.dp)) {
             TimeFieldRow(
-                timeText = "11:12",
+                timeValue = TextFieldValue("11:12"),
                 timeError = null,
                 onTimeChange = { },
                 onSubtract = { },
@@ -366,7 +367,7 @@ private fun TimeFieldRowWithErrorPreview() {
     HLTheme {
         Column(Modifier.padding(16.dp)) {
             TimeFieldRow(
-                timeText = "25:99",
+                timeValue = TextFieldValue("25:99"),
                 timeError = "Неверный формат времени",
                 onTimeChange = { },
                 onSubtract = { },

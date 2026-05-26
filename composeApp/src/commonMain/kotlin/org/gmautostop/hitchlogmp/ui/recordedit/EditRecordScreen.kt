@@ -25,6 +25,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
@@ -173,7 +174,7 @@ private fun EditRecordContent(
                     
                     // Time row
                     TimeFieldRow(
-                        timeText = state.timeText,
+                        timeValue = state.timeValue,
                         timeError = null,
                         onTimeChange = { callbacks.updateTime(it) },
                         onSubtract = { callbacks.adjustTime(-1) },
@@ -253,7 +254,7 @@ private class EditRecordStateProvider : PreviewParameterProvider<EditRecordUiSta
         EditRecordUiState(
             record = sampleRecord(id = "", type = HitchLogRecordType.LIFT),
             dateText = "29.04.2026",
-            timeText = "14:30",
+            timeValue = TextFieldValue("14:30"),
             validationError = null,
             isLoading = false,
             error = null,
@@ -269,7 +270,7 @@ private class EditRecordStateProvider : PreviewParameterProvider<EditRecordUiSta
                 text = "КП-1 Сестрорецк"
             ),
             dateText = "29.04.2026",
-            timeText = "14:30",
+            timeValue = TextFieldValue("14:30"),
             validationError = null,
             isLoading = false,
             error = null,
@@ -281,7 +282,7 @@ private class EditRecordStateProvider : PreviewParameterProvider<EditRecordUiSta
         EditRecordUiState(
             record = sampleRecord(id = "", type = HitchLogRecordType.REST_OFF),
             dateText = "29.04.2026",
-            timeText = "14:30",
+            timeValue = TextFieldValue("14:30"),
             validationError = null,
             isLoading = false,
             error = null,
@@ -293,7 +294,7 @@ private class EditRecordStateProvider : PreviewParameterProvider<EditRecordUiSta
         EditRecordUiState(
             record = sampleRecord(id = "", type = HitchLogRecordType.LIFT),
             dateText = "32.13.2026",
-            timeText = "25:99",
+            timeValue = TextFieldValue("25:99"),
             validationError = "Неверный формат даты и времени",
             isLoading = false,
             error = null,
@@ -305,7 +306,7 @@ private class EditRecordStateProvider : PreviewParameterProvider<EditRecordUiSta
         EditRecordUiState(
             record = sampleRecord(),
             dateText = "29.04.2026",
-            timeText = "14:30",
+            timeValue = TextFieldValue("14:30"),
             validationError = null,
             isLoading = true,
             error = null,
@@ -326,7 +327,7 @@ private fun EditRecordScreenPreview(
             state = state,
             callbacks = object : EditRecordCallbacks {
                 override fun updateDate(date: String) {}
-                override fun updateTime(time: String) {}
+                override fun updateTime(time: TextFieldValue) {}
                 override fun updateText(text: String) {}
                 override fun adjustDate(days: Int) {}
                 override fun adjustTime(minutes: Int) {}

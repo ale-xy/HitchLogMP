@@ -78,7 +78,6 @@ fun ChronicleCard(
                 text = chronicle.name,
                 style = HLTypography.titleMedium.copy(fontWeight = FontWeight.Medium),
                 color = HLColors.OnSurface,
-                maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
         }
