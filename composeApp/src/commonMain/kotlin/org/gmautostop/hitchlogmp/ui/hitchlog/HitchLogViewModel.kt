@@ -37,11 +37,6 @@ import org.gmautostop.hitchlogmp.ui.ViewState
 import org.gmautostop.hitchlogmp.ui.export.ExportStrings
 import org.gmautostop.hitchlogmp.ui.export.buildExportStrings
 import org.lighthousegames.logging.logging
-import kotlin.collections.List
-import kotlin.collections.Map
-import kotlin.collections.copy
-import kotlin.collections.count
-import kotlin.collections.isNotEmpty
 import kotlin.time.Clock
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -125,6 +120,8 @@ class HitchLogViewModel(
                                                     logId = logId,
                                                     logName = logResponse.data.name,
                                                     teamId = logResponse.data.teamId,
+                                                    team = logResponse.data.team,
+                                                    comment = logResponse.data.comment,
                                                     records = records,
                                                     summary = SummaryCardState(
                                                         lifts = records.count { it.type == HitchLogRecordType.LIFT },

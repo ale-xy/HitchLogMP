@@ -327,6 +327,88 @@ fun NoteFieldRow(
     }
 }
 
+/**
+ * Labeled field row with icon, label above value, and optional placeholder.
+ * Used for form fields like name, team, comment in EditLogScreen.
+ *
+ * @param icon Leading icon
+ * @param label Field label shown above the value
+ * @param value Current text value
+ * @param onValueChange Callback when text changes
+ * @param singleLine Whether the field is single-line
+ * @param isFocused Whether the field is currently focused (colors icon & label)
+ * @param placeholder Optional placeholder text when empty
+ * @param modifier Optional modifier for the outer Row
+ * @param fieldModifier Optional modifier for the BasicTextField
+ */
+@Composable
+fun LabeledFieldRow(
+    icon: ImageVector,
+    label: String,
+    value: String,
+    onValueChange: (String) -> Unit,
+    singleLine: Boolean,
+    isFocused: Boolean,
+    modifier: Modifier = Modifier,
+    placeholder: String? = null,
+    fieldModifier: Modifier = Modifier,
+) {
+    val tintColor = if (isFocused) HLColors.Primary else HLColors.OnSurfaceVariant
+
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .background(HLColors.Surface)
+            .padding(start = 20.dp, top = 14.dp, end = 20.dp, bottom = 14.dp),
+        verticalAlignment = Alignment.Top,
+        horizontalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = null,
+            tint = tintColor,
+            modifier = Modifier
+                .size(24.dp)
+                .padding(top = 2.dp)
+        )
+
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = label,
+                style = TextStyle(fontSize = 14.sp, color = tintColor)
+            )
+
+            BasicTextField(
+                value = value,
+                onValueChange = onValueChange,
+                singleLine = singleLine,
+                textStyle = TextStyle(
+                    fontSize = 18.sp,
+                    color = HLColors.OnSurface,
+                    lineHeight = 25.sp
+                ),
+                cursorBrush = SolidColor(HLColors.Primary),
+                modifier = fieldModifier
+                    .fillMaxWidth()
+                    .padding(top = 4.dp),
+                decorationBox = { innerTextField ->
+                    if (value.isEmpty() && placeholder != null) {
+                        Text(
+                            text = placeholder,
+                            style = TextStyle(
+                                fontSize = 18.sp,
+                                lineHeight = 25.sp,
+                                color = HLColors.OutlineVariant
+                            )
+                        )
+                    }
+                    innerTextField()
+                }
+            )
+        }
+    }
+}
+
 // ── Previews ─────────────────────────────────────────────────────────────────
 
 @Preview

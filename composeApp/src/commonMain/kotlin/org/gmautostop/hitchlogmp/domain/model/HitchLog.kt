@@ -10,5 +10,9 @@ data class HitchLog(
     val raceId: String = "",
     val teamId: String = "",
     val name: String = "",
-    val creationTime: Timestamp = Timestamp.now()
+    val creationTime: Timestamp = Timestamp.now(),
+    val team: String? = null,
+    val comment: String? = null,
+    val startDate: Timestamp? = null,
+    val endDate: Timestamp? = null,
 )

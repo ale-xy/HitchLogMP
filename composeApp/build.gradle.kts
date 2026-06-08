@@ -124,6 +124,7 @@ kotlin {
             implementation(libs.kotlinx.datetime)
             implementation(libs.kotlinx.html)
             implementation(libs.kotlinx.serialization.json)
+            implementation(libs.multiplatform.settings.no.arg)
         }
     }
 }

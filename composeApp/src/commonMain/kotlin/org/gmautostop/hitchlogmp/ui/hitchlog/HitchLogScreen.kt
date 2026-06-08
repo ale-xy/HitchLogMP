@@ -11,15 +11,19 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.DirectionsWalk
+import androidx.compose.material.icons.filled.Chat
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Group
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
@@ -36,10 +40,12 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import hitchlogmp.composeapp.generated.resources.Res
@@ -70,6 +76,7 @@ import org.gmautostop.hitchlogmp.ui.designsystem.components.HLTopBar
 import org.gmautostop.hitchlogmp.ui.designsystem.theme.HLTheme
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLColors
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLSpacing
+import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLTypography
 import org.jetbrains.compose.resources.stringResource
 
 // ── Top-level screen ─────────────────────────────────────────────────────────
@@ -183,7 +190,7 @@ private fun HitchLog(
 
     LaunchedEffect(state.records.size) {
         if (state.records.isNotEmpty()) {
-            val totalItems = groups.size * 2
+            val totalItems = 1 + groups.size * 2 // +1 for props section
             listState.animateScrollToItem(totalItems - 1)
         }
     }
@@ -197,22 +204,6 @@ private fun HitchLog(
                 subtitle = state.teamId.takeIf { it.isNotEmpty() },
                 onNavigateUp = navigateUp,
                 actions = {
-                    // Edit icon
-                    IconButton(
-                        onClick = { editLog(state.logId) },
-                        enabled = !isEmpty
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Edit,
-                            contentDescription = stringResource(Res.string.edit_chronicle),
-                            tint = if (isEmpty) {
-                                HLColors.OnSurfaceVariant.copy(alpha = 0.38f)
-                            } else {
-                                HLColors.OnSurfaceVariant
-                            }
-                        )
-                    }
-                    
                     // History icon
                     IconButton(
                         onClick = navigateToLogHistory,
@@ -307,6 +298,14 @@ private fun HitchLog(
                             state = listState,
                             modifier = Modifier.fillMaxSize(),
                         ) {
+                            item(key = "props") {
+                                ChroniclePropertiesSection(
+                                    logName = state.logName,
+                                    team = state.team,
+                                    comment = state.comment,
+                                    onEdit = { editLog(state.logId) }
+                                )
+                            }
                             groups.forEach { (date, items) ->
                                 item(key = "header_${date}") {
                                     DateHeader(date = date)
@@ -374,6 +373,93 @@ private fun HitchLog(
                 }
             )
         }
+    }
+}
+
+// ── Chronicle Properties Section ─────────────────────────────────────────────
+
+@Composable
+private fun ChroniclePropertiesSection(
+    logName: String,
+    team: String?,
+    comment: String?,
+    onEdit: () -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(HLColors.Surface)
+    ) {
+        HorizontalDivider(color = HLColors.OutlineVariant, thickness = 0.5.dp)
+
+        Column(Modifier.padding(start = 32.dp, end = 32.dp, top = 16.dp, bottom = 16.dp)) {
+            // Title row with edit button
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = logName,
+                    style = HLTypography.titleMedium.copy(fontSize = 18.sp),
+                    color = HLColors.OnSurface,
+                    modifier = Modifier.weight(1f)
+                )
+                IconButton(onClick = onEdit) {
+                    Icon(
+                        imageVector = Icons.Default.Edit,
+                        contentDescription = stringResource(Res.string.edit_chronicle),
+                        tint = HLColors.Primary,
+                        modifier = Modifier.size(22.dp)
+                    )
+                }
+            }
+
+            // Team
+            if (!team.isNullOrBlank()) {
+                Row(
+                    modifier = Modifier.padding(top = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Group,
+                        contentDescription = null,
+                        tint = HLColors.OnSurfaceVariant,
+                        modifier = Modifier.size(18.dp)
+                    )
+                    Text(
+                        text = team,
+                        style = HLTypography.bodyLarge,
+                        color = HLColors.OnSurfaceVariant,
+                        modifier = Modifier.padding(start = 8.dp)
+                    )
+                }
+            }
+
+            // Comment
+            if (!comment.isNullOrBlank()) {
+                Row(
+                    modifier = Modifier.padding(top = 8.dp),
+                    verticalAlignment = Alignment.Top
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Chat,
+                        contentDescription = null,
+                        tint = HLColors.OnSurfaceVariant,
+                        modifier = Modifier
+                            .padding(top = 2.dp)
+                            .size(18.dp)
+                    )
+                    Text(
+                        text = comment,
+                        style = HLTypography.bodyLarge.copy(fontWeight = FontWeight.Normal),
+                        color = HLColors.OnSurfaceVariant,
+                        modifier = Modifier.padding(start = 8.dp)
+                    )
+                }
+            }
+        }
+
+        HorizontalDivider(color = HLColors.OutlineVariant, thickness = 0.5.dp)
+        Spacer(Modifier.height(4.dp))
     }
 }
 

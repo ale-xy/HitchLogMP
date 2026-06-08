@@ -241,6 +241,7 @@ class FirestoreRepository(
         }
 
         writeHistory(logId, id, ChangeType.CREATE, firestoreRecord.toHitchLogRecord())
+        updateDateCache(logId)
     }
 
     override fun updateRecord(logId: String, record: HitchLogRecord) = repositoryFlow(isWrite = true) {
@@ -262,6 +263,7 @@ class FirestoreRepository(
         firestoreWrite("updateRecord") {
             logRecordsRef(logId).document(updatedRecord.id).set(updatedRecord)
         }
+        updateDateCache(logId)
     }
 
     override fun deleteRecord(logId: String, record: HitchLogRecord) = repositoryFlow(isWrite = true) {
@@ -276,6 +278,7 @@ class FirestoreRepository(
                 "edited" to true
             )
         }
+        updateDateCache(logId)
     }
 
     override fun saveRecord(logId: String, record: HitchLogRecord) =
@@ -347,6 +350,27 @@ class FirestoreRepository(
             recordHistoryRef(logId, recordId)
                 .document(entry.historyId)
                 .set(firestoreEntry)
+        }
+    }
+
+    private suspend fun updateDateCache(logId: String) {
+        try {
+            val records = logRecordsRef(logId).get().documents
+                .map { it.data<FirestoreHitchLogRecord>() }
+                .filter { !it.deleted }
+
+            val timestamps = records.map { it.timestamp }
+            val startDate = timestamps.minByOrNull { it.seconds }
+            val endDate = timestamps.maxByOrNull { it.seconds }
+
+            firestoreWrite("updateDateCache") {
+                logsRef.document(logId).update(
+                    "startDate" to startDate,
+                    "endDate" to endDate
+                )
+            }
+        } catch (e: Exception) {
+            log.e(err = e) { "updateDateCache failed for $logId" }
         }
     }
 

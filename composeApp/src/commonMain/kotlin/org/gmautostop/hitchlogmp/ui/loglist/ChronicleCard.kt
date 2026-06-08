@@ -80,6 +80,15 @@ fun ChronicleCard(
                 color = HLColors.OnSurface,
                 overflow = TextOverflow.Ellipsis
             )
+            // Start date
+            if (chronicle.formattedStartDate != null) {
+                Text(
+                    text = chronicle.formattedStartDate,
+                    style = HLTypography.bodyMedium,
+                    color = HLColors.OnSurfaceVariant,
+                    modifier = Modifier.padding(top = 3.dp)
+                )
+            }
         }
 
         // Edit button

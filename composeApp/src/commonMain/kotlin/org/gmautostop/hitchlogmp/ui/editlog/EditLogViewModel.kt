@@ -29,6 +29,8 @@ data class EditLogState(
 
 sealed interface EditLogAction {
     data class OnNameChange(val name: String) : EditLogAction
+    data class OnTeamChange(val team: String) : EditLogAction
+    data class OnCommentChange(val comment: String) : EditLogAction
     data object OnSaveClick : EditLogAction
     data object OnDeleteClick : EditLogAction
     data object OnShowDeleteDialog : EditLogAction
@@ -107,6 +109,8 @@ class EditLogViewModel(
     fun onAction(action: EditLogAction) {
         when (action) {
             is EditLogAction.OnNameChange -> updateName(action.name)
+            is EditLogAction.OnTeamChange -> updateTeam(action.team)
+            is EditLogAction.OnCommentChange -> updateComment(action.comment)
             is EditLogAction.OnSaveClick -> saveLog()
             is EditLogAction.OnDeleteClick -> deleteLog()
             is EditLogAction.OnShowDeleteDialog -> {
@@ -120,12 +124,24 @@ class EditLogViewModel(
 
     private fun updateName(name: String) {
         state.value.log?.let { log ->
-            state.update { 
+            state.update {
                 it.copy(
                     log = log.copy(name = name),
                     isSaveEnabled = name.trim().isNotEmpty()
                 )
             }
+        }
+    }
+
+    private fun updateTeam(team: String) {
+        state.value.log?.let { log ->
+            state.update { it.copy(log = log.copy(team = team)) }
+        }
+    }
+
+    private fun updateComment(comment: String) {
+        state.value.log?.let { log ->
+            state.update { it.copy(log = log.copy(comment = comment)) }
         }
     }
 

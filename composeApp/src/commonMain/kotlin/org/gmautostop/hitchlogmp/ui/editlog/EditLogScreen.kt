@@ -3,28 +3,34 @@ package org.gmautostop.hitchlogmp.ui.editlog
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.MenuBook
+import androidx.compose.material.icons.filled.Chat
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Group
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
@@ -34,12 +40,15 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import hitchlogmp.composeapp.generated.resources.Res
 import hitchlogmp.composeapp.generated.resources.cancel
 import hitchlogmp.composeapp.generated.resources.chronicle_name_label
+import hitchlogmp.composeapp.generated.resources.comment_label
+import hitchlogmp.composeapp.generated.resources.comment_placeholder
 import hitchlogmp.composeapp.generated.resources.delete_chronicle_message
 import hitchlogmp.composeapp.generated.resources.delete_chronicle_title
 import hitchlogmp.composeapp.generated.resources.delete_confirm
 import hitchlogmp.composeapp.generated.resources.edit_chronicle_title
 import hitchlogmp.composeapp.generated.resources.new_chronicle
 import hitchlogmp.composeapp.generated.resources.save
+import hitchlogmp.composeapp.generated.resources.team_label
 import org.gmautostop.hitchlogmp.domain.AppError
 import org.gmautostop.hitchlogmp.domain.model.HitchLog
 import org.gmautostop.hitchlogmp.ui.Error
@@ -47,10 +56,10 @@ import org.gmautostop.hitchlogmp.ui.ObserveAsEvents
 import org.gmautostop.hitchlogmp.ui.designsystem.components.HLConfirmationDialog
 import org.gmautostop.hitchlogmp.ui.designsystem.components.HLLoadingState
 import org.gmautostop.hitchlogmp.ui.designsystem.components.HLTopBar
+import org.gmautostop.hitchlogmp.ui.designsystem.components.LabeledFieldRow
 import org.gmautostop.hitchlogmp.ui.designsystem.theme.HLTheme
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLColors
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLTypography
-import org.gmautostop.hitchlogmp.ui.designsystem.tokens.hlFilledTextFieldColors
 import org.jetbrains.compose.resources.stringResource
 
 // ── Root Composable ──────────────────────────────────────────────────────────
@@ -111,11 +120,15 @@ private fun EditLogContent(
     onNavigateBack: () -> Unit
 ) {
     val focusRequester = remember { FocusRequester() }
+    var nameFocused by remember { mutableStateOf(false) }
+    var teamFocused by remember { mutableStateOf(false) }
+    var commentFocused by remember { mutableStateOf(false) }
 
     Box(
         Modifier
             .fillMaxSize()
-            .background(HLColors.Background)
+            .background(HLColors.Surface)
+            .imePadding()
     ) {
         Column(Modifier.fillMaxSize()) {
             // Top Bar
@@ -136,38 +149,56 @@ private fun EditLogContent(
                 }
             )
 
-            // Content
-            Column(
-                Modifier
-                    .fillMaxSize()
-                    .padding(top = 24.dp, start = 20.dp, end = 20.dp)
-            ) {
-                // Text Field
-                TextField(
-                    value = log.name,
-                    onValueChange = { onAction(EditLogAction.OnNameChange(it)) },
-                    label = { Text(stringResource(Res.string.chronicle_name_label)) },
-                    colors = hlFilledTextFieldColors(),
-                    singleLine = true,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .focusRequester(focusRequester)
-                )
+            // Name field row
+            LabeledFieldRow(
+                icon = Icons.AutoMirrored.Filled.MenuBook,
+                label = stringResource(Res.string.chronicle_name_label),
+                value = log.name,
+                onValueChange = { onAction(EditLogAction.OnNameChange(it)) },
+                singleLine = false,
+                isFocused = nameFocused,
+                fieldModifier = Modifier
+                    .focusRequester(focusRequester)
+                    .onFocusChanged { nameFocused = it.isFocused }
+            )
 
-                LaunchedEffect(Unit) {
-                    focusRequester.requestFocus()
-                }
+            HorizontalDivider(color = HLColors.OutlineVariant, thickness = 0.5.dp)
 
-                Spacer(Modifier.height(20.dp))
+            // Team field row
+            LabeledFieldRow(
+                icon = Icons.Default.Group,
+                label = stringResource(Res.string.team_label),
+                value = log.team ?: "",
+                onValueChange = { onAction(EditLogAction.OnTeamChange(it)) },
+                singleLine = true,
+                isFocused = teamFocused,
+                fieldModifier = Modifier.onFocusChanged { teamFocused = it.isFocused }
+            )
 
-                // Save Button
+            HorizontalDivider(color = HLColors.OutlineVariant, thickness = 0.5.dp)
+
+            // Comment field row — takes remaining space
+            LabeledFieldRow(
+                icon = Icons.Default.Chat,
+                label = stringResource(Res.string.comment_label),
+                value = log.comment ?: "",
+                onValueChange = { onAction(EditLogAction.OnCommentChange(it)) },
+                singleLine = false,
+                isFocused = commentFocused,
+                placeholder = stringResource(Res.string.comment_placeholder),
+                modifier = Modifier.weight(1f),
+                fieldModifier = Modifier.onFocusChanged { commentFocused = it.isFocused }
+            )
+
+            // Save Button
+            Box(Modifier.padding(16.dp)) {
                 Button(
                     onClick = { onAction(EditLogAction.OnSaveClick) },
                     enabled = isSaveEnabled,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(48.dp),
-                    shape = RoundedCornerShape(24.dp),
+                        .height(52.dp),
+                    shape = RoundedCornerShape(28.dp),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = HLColors.Primary,
                         contentColor = HLColors.OnPrimary,
@@ -183,6 +214,10 @@ private fun EditLogContent(
                     )
                 }
             }
+        }
+
+        LaunchedEffect(Unit) {
+            focusRequester.requestFocus()
         }
 
         // Delete Dialog
@@ -202,13 +237,8 @@ private fun EditLogContent(
 
 // ── Previews ─────────────────────────────────────────────────────────────────
 
-/**
- * Preview parameter provider for EditLogScreen.
- * Provides different states: loading, new mode, edit mode, delete dialog, error.
- */
 private class EditLogStatePreviewProvider : PreviewParameterProvider<EditLogState> {
     override val values: Sequence<EditLogState> = sequenceOf(
-        // Loading state
         EditLogState(
             log = null,
             isLoading = true,
@@ -217,7 +247,6 @@ private class EditLogStatePreviewProvider : PreviewParameterProvider<EditLogStat
             isNewMode = true,
             isSaveEnabled = false
         ),
-        // New mode - empty name, save disabled
         EditLogState(
             log = HitchLog(id = "", userId = "user1", name = ""),
             isLoading = false,
@@ -226,16 +255,20 @@ private class EditLogStatePreviewProvider : PreviewParameterProvider<EditLogStat
             isNewMode = true,
             isSaveEnabled = false
         ),
-        // Edit mode - filled name, save enabled
         EditLogState(
-            log = HitchLog(id = "log1", userId = "user1", name = "Москва → Санкт-Петербург"),
+            log = HitchLog(
+                id = "log1",
+                userId = "user1",
+                name = "Москва → Санкт-Петербург",
+                team = "Иванов + Сидорова",
+                comment = "Тренировочная гонка"
+            ),
             isLoading = false,
             error = null,
             showDeleteDialog = false,
             isNewMode = false,
             isSaveEnabled = true
         ),
-        // Edit mode with delete dialog shown
         EditLogState(
             log = HitchLog(id = "log1", userId = "user1", name = "Москва → Санкт-Петербург"),
             isLoading = false,
@@ -244,7 +277,6 @@ private class EditLogStatePreviewProvider : PreviewParameterProvider<EditLogStat
             isNewMode = false,
             isSaveEnabled = true
         ),
-        // Error state
         EditLogState(
             log = HitchLog(id = "log1", userId = "user1", name = "Москва → Санкт-Петербург"),
             isLoading = false,

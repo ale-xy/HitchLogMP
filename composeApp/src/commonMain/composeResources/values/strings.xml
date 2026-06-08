@@ -18,6 +18,17 @@
     <string name="new_chronicle">Новая хроника</string>
     <string name="edit_chronicle_title">Редактирование</string>
     <string name="chronicle_name_label">Название хроники</string>
+    <string name="team_label">Команда</string>
+    <string name="comment_label">Комментарий</string>
+    <string name="comment_placeholder">Заметки для себя...</string>
+
+    <!-- Sort Menu -->
+    <string name="sort_title">Сортировка</string>
+    <string name="sort_by_creation_date">По дате создания</string>
+    <string name="sort_by_record_date">По дате записей</string>
+    <string name="sort_by_name">По названию</string>
+    <string name="sort_descending">По убыванию</string>
+    <string name="sort_ascending">По возрастанию</string>
     
     <!-- Logout Dialog -->
     <string name="logout_title">Выйти?</string>
