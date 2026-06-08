@@ -20,6 +20,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -58,7 +59,6 @@ import org.gmautostop.hitchlogmp.ui.designsystem.components.HLLoadingState
 import org.gmautostop.hitchlogmp.ui.designsystem.components.HLTopBar
 import org.gmautostop.hitchlogmp.ui.designsystem.components.LabeledFieldRow
 import org.gmautostop.hitchlogmp.ui.designsystem.theme.HLTheme
-import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLColors
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLTypography
 import org.jetbrains.compose.resources.stringResource
 
@@ -127,7 +127,7 @@ private fun EditLogContent(
     Box(
         Modifier
             .fillMaxSize()
-            .background(HLColors.Surface)
+            .background(MaterialTheme.colorScheme.surface)
             .imePadding()
     ) {
         Column(Modifier.fillMaxSize()) {
@@ -142,7 +142,7 @@ private fun EditLogContent(
                             Icon(
                                 imageVector = Icons.Default.Delete,
                                 contentDescription = stringResource(Res.string.delete_confirm),
-                                tint = HLColors.Error
+                                tint = MaterialTheme.colorScheme.error
                             )
                         }
                     }
@@ -162,7 +162,7 @@ private fun EditLogContent(
                     .onFocusChanged { nameFocused = it.isFocused }
             )
 
-            HorizontalDivider(color = HLColors.OutlineVariant, thickness = 0.5.dp)
+            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant, thickness = 0.5.dp)
 
             // Team field row
             LabeledFieldRow(
@@ -175,7 +175,7 @@ private fun EditLogContent(
                 fieldModifier = Modifier.onFocusChanged { teamFocused = it.isFocused }
             )
 
-            HorizontalDivider(color = HLColors.OutlineVariant, thickness = 0.5.dp)
+            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant, thickness = 0.5.dp)
 
             // Comment field row — takes remaining space
             LabeledFieldRow(
@@ -200,10 +200,10 @@ private fun EditLogContent(
                         .height(52.dp),
                     shape = RoundedCornerShape(28.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = HLColors.Primary,
-                        contentColor = HLColors.OnPrimary,
-                        disabledContainerColor = HLColors.SurfaceVariant,
-                        disabledContentColor = HLColors.OnSurfaceVariant
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        contentColor = MaterialTheme.colorScheme.onPrimary,
+                        disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                        disabledContentColor = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 ) {
                     Text(

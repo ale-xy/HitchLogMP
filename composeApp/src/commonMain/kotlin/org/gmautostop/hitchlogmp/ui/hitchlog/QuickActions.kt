@@ -21,6 +21,7 @@ import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -37,7 +38,6 @@ import org.gmautostop.hitchlogmp.domain.model.HitchLogRecordType
 import org.gmautostop.hitchlogmp.ui.components.toStringResource
 import org.gmautostop.hitchlogmp.ui.designsystem.components.ActionButtonSize
 import org.gmautostop.hitchlogmp.ui.designsystem.components.HLActionButton
-import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLColors
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLShapes
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLSpacing
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLTypography
@@ -67,7 +67,7 @@ internal fun QuickActions(
                         .align(Alignment.BottomEnd)
                         .padding(end = HLSpacing.lg, bottom = HLSpacing.lg)
                         .clip(HLShapes.large)
-                        .background(HLColors.Primary)
+                        .background(MaterialTheme.colorScheme.primary)
                         .onSizeChanged { size ->
                             onHeightMeasured(true, with(density) { size.height.toDp() })
                         },
@@ -83,20 +83,20 @@ internal fun QuickActions(
                         Icon(
                             Icons.Filled.Add,
                             contentDescription = null,
-                            tint = HLColors.OnPrimary,
+                            tint = MaterialTheme.colorScheme.onPrimary,
                             modifier = Modifier.size(22.dp)
                         )
                         Text(
                             topLabel,
                             style = HLTypography.labelLarge,
-                            color = HLColors.OnPrimary
+                            color = MaterialTheme.colorScheme.onPrimary
                         )
                     }
                     Box(
                         Modifier
                             .width(1.dp)
                             .height(36.dp)
-                            .background(HLColors.OnPrimary.copy(alpha = 0.25f))
+                            .background(MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.25f))
                     )
                     Box(
                         Modifier
@@ -107,7 +107,7 @@ internal fun QuickActions(
                         Icon(
                             Icons.Filled.KeyboardArrowUp,
                             contentDescription = "Развернуть",
-                            tint = HLColors.OnPrimary,
+                            tint = MaterialTheme.colorScheme.onPrimary,
                             modifier = Modifier.size(22.dp)
                         )
                     }
@@ -118,10 +118,10 @@ internal fun QuickActions(
                 Modifier
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp))
-                    .background(HLColors.Surface)
+                    .background(MaterialTheme.colorScheme.surface)
                     .border(
                         width = 1.dp,
-                        color = HLColors.OutlineVariant,
+                        color = MaterialTheme.colorScheme.outlineVariant,
                         shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)
                     )
                     .padding(start = HLSpacing.lg, end = HLSpacing.lg, top = HLSpacing.xs, bottom = HLSpacing.lg)
@@ -137,7 +137,7 @@ internal fun QuickActions(
                         Icon(
                             Icons.Filled.KeyboardArrowDown,
                             contentDescription = "Свернуть",
-                            tint = HLColors.OnSurfaceVariant
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                 }
@@ -195,7 +195,7 @@ private fun MoreTile(onClick: () -> Unit, modifier: Modifier = Modifier) {
         modifier
             .height(44.dp)
             .clip(HLShapes.medium)
-            .background(HLColors.PrimaryContainer)
+            .background(MaterialTheme.colorScheme.primaryContainer)
             .clickable(onClick = onClick)
             .padding(horizontal = HLSpacing.md),
         verticalAlignment = Alignment.CenterVertically,
@@ -204,14 +204,14 @@ private fun MoreTile(onClick: () -> Unit, modifier: Modifier = Modifier) {
         Icon(
             Icons.Filled.Apps,
             contentDescription = null,
-            tint = HLColors.Primary,
+            tint = MaterialTheme.colorScheme.primary,
             modifier = Modifier.size(18.dp)
         )
         Spacer(Modifier.width(HLSpacing.sm))
         Text(
             stringResource(Res.string.more_actions),
             style = HLTypography.labelMedium.copy(fontWeight = FontWeight.Medium),
-            color = HLColors.OnPrimaryContainer
+            color = MaterialTheme.colorScheme.onPrimaryContainer
         )
     }
 }

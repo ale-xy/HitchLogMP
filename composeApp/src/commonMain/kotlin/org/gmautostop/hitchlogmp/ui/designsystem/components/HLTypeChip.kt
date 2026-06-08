@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -16,7 +17,6 @@ import org.gmautostop.hitchlogmp.domain.model.HitchLogRecordType
 import org.gmautostop.hitchlogmp.ui.components.toStringResource
 import org.gmautostop.hitchlogmp.ui.components.toUi
 import org.gmautostop.hitchlogmp.ui.designsystem.theme.HLTheme
-import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLColors
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLShapes
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLTypography
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.chipColorsForRole
@@ -41,7 +41,7 @@ fun HLTypeChip(
     Row(
         modifier = modifier
             .clip(HLShapes.pill)
-            .background(HLColors.SurfaceVariant)
+            .background(MaterialTheme.colorScheme.surfaceVariant)
             .padding(start = 4.dp, end = 14.dp, top = 4.dp, bottom = 4.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -54,7 +54,7 @@ fun HLTypeChip(
         Text(
             text = label,
             style = HLTypography.labelMedium,
-            color = HLColors.OnSurface
+            color = MaterialTheme.colorScheme.onSurface
         )
     }
 }
@@ -67,7 +67,7 @@ private fun TypeChipPreview() {
     HLTheme {
         Column(
             Modifier
-                .background(HLColors.Background)
+                .background(MaterialTheme.colorScheme.background)
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {

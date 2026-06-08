@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.Text
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
@@ -11,7 +12,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import kotlinx.coroutines.flow.Flow
 import org.gmautostop.hitchlogmp.ui.designsystem.theme.HLTheme
-import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLColors
 
 @Composable
 fun Error(error: String) {
@@ -19,7 +19,7 @@ fun Error(error: String) {
         Text(
             text = error,
             modifier = Modifier.align(Alignment.Center),
-            color = HLColors.Error
+            color = MaterialTheme.colorScheme.error
         )
     }
 }
@@ -46,7 +46,7 @@ fun <T> ObserveAsEvents(
 @Composable
 private fun ErrorPreview() {
     HLTheme {
-        Box(Modifier.fillMaxSize().background(HLColors.Background)) {
+        Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
             Error("Не удалось загрузить данные")
         }
     }

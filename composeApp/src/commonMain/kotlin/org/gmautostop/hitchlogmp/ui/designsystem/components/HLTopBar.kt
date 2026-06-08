@@ -13,6 +13,7 @@ import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -22,7 +23,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import org.gmautostop.hitchlogmp.ui.designsystem.theme.HLTheme
-import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLColors
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLTypography
 
 @Composable
@@ -37,7 +37,7 @@ fun HLTopBar(
     Row(
         Modifier
             .fillMaxWidth()
-            .background(HLColors.Surface)
+            .background(MaterialTheme.colorScheme.surface)
             .height(56.dp)
             .padding(horizontal = 4.dp),
         verticalAlignment = Alignment.CenterVertically
@@ -47,7 +47,7 @@ fun HLTopBar(
                 Icon(
                     imageVector = navigationIcon,
                     contentDescription = "Назад",
-                    tint = HLColors.OnSurfaceVariant
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         }
@@ -60,7 +60,7 @@ fun HLTopBar(
             Text(
                 text = title,
                 style = HLTypography.titleLarge,
-                color = HLColors.OnSurface,
+                color = MaterialTheme.colorScheme.onSurface,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
@@ -68,7 +68,7 @@ fun HLTopBar(
                 Text(
                     text = subtitle,
                     style = HLTypography.subtitle,
-                    color = HLColors.OnSurfaceVariant,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -121,7 +121,7 @@ private fun TopBarWithActionsPreview() {
                         Icon(
                             imageVector = Icons.Filled.MoreVert,
                             contentDescription = null,
-                            tint = HLColors.OnSurfaceVariant
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                 }
@@ -144,7 +144,7 @@ private fun TopBarNoNavigationPreview() {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.Logout,
                             contentDescription = null,
-                            tint = HLColors.OnSurfaceVariant
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                 }

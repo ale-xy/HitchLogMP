@@ -11,11 +11,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -26,7 +26,7 @@ import androidx.compose.ui.unit.sp
 import kotlinx.datetime.LocalDateTime
 import org.gmautostop.hitchlogmp.timeFormatForDisplay
 import org.gmautostop.hitchlogmp.ui.designsystem.theme.HLTheme
-import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLColors
+import org.gmautostop.hitchlogmp.ui.designsystem.theme.LocalHLExtendedColors
 
 /**
  * Amber banner showing REST_ON start time and elapsed duration.
@@ -43,16 +43,13 @@ fun HLRestHintBanner(
     modifier: Modifier = Modifier
 ) {
     val formattedTime = timeFormatForDisplay.format(restOnTime)
-    
-    val amberBg = Color(0xFFFFF8E1) // Amber 50
-    val amberText = Color(0xFF854F0B) // Amber 900
-    val amberBorder = Color(0xFFFFE082) // Amber 200
+    val extendedColors = LocalHLExtendedColors.current
     
     Column(modifier = modifier.fillMaxWidth()) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(amberBg)
+                .background(extendedColors.restBannerBg)
                 .padding(horizontal = 16.dp, vertical = 8.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(10.dp)
@@ -60,7 +57,7 @@ fun HLRestHintBanner(
             Icon(
                 imageVector = Icons.Default.Schedule,
                 contentDescription = null,
-                tint = amberText,
+                tint = extendedColors.restBannerText,
                 modifier = Modifier.size(18.dp)
             )
             
@@ -76,10 +73,10 @@ fun HLRestHintBanner(
                     }
                 },
                 fontSize = 12.sp,
-                color = amberText
+                color = extendedColors.restBannerText
             )
         }
-        HorizontalDivider(color = amberBorder, thickness = 1.dp)
+        HorizontalDivider(color = extendedColors.restBannerBorder, thickness = 1.dp)
     }
 }
 
@@ -89,7 +86,7 @@ fun HLRestHintBanner(
 @Composable
 private fun RestHintBannerPreview() {
     HLTheme {
-        Column(Modifier.background(HLColors.Background)) {
+        Column(Modifier.background(MaterialTheme.colorScheme.background)) {
             HLRestHintBanner(
                 restOnTime = LocalDateTime(2026, 4, 29, 12, 20),
                 elapsedMinutes = 34
@@ -102,7 +99,7 @@ private fun RestHintBannerPreview() {
 @Composable
 private fun RestHintBannerLongDurationPreview() {
     HLTheme {
-        Column(Modifier.background(HLColors.Background)) {
+        Column(Modifier.background(MaterialTheme.colorScheme.background)) {
             HLRestHintBanner(
                 restOnTime = LocalDateTime(2026, 4, 29, 8, 15),
                 elapsedMinutes = 185

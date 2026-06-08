@@ -1,47 +1,8 @@
 package org.gmautostop.hitchlogmp.ui.designsystem.tokens
 
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
-
-/**
- * HitchLog color palette following Material3 design principles.
- * All colors are defined as semantic tokens for consistent theming.
- */
-object HLColors {
-    // Primary colors - used for key actions and important UI elements
-    val Primary = Color(0xFF1A3A8F)
-    val OnPrimary = Color.White
-    val PrimaryContainer = Color(0xFFD9E2FF)
-    val OnPrimaryContainer = Color(0xFF001258)
-
-    // Secondary colors - used for less prominent actions and accents
-    val Secondary = Color(0xFFFFCC00)
-    val OnSecondary = Color(0xFF1A1A00)
-    val SecondaryContainer = Color(0xFFFFF0A0)
-    val OnSecondaryContainer = Color(0xFF1A1400)
-
-    // Tertiary colors - used for contrasting accents
-    val Tertiary = Color(0xFF5C6BC0)
-    val OnTertiary = Color.White
-
-    // Error colors - used for errors and destructive actions
-    val Error = Color(0xFFBA1A1A)
-    val OnError = Color.White
-    val ErrorContainer = Color(0xFFFFDAD6)
-    val OnErrorContainer = Color(0xFF410002)
-
-    // Surface colors - used for backgrounds and containers
-    val Background = Color(0xFFF8F9FF)
-    val Surface = Color.White
-    val OnSurface = Color(0xFF1A1B20)
-    val SurfaceVariant = Color(0xFFE4E5F0)
-    val OnSurfaceVariant = Color(0xFF44464F)
-    val SurfaceContainerLow = Color(0xFFF2F3FA)
-    val SurfaceContainer = Color(0xFFECEDF4)
-
-    // Outline colors - used for borders and dividers
-    val Outline = Color(0xFF74757F)
-    val OutlineVariant = Color(0xFFC4C5D0)
-}
 
 /**
  * Semantic color roles for record type badges and icons.
@@ -69,13 +30,18 @@ data class ChipColors(
 
 /**
  * Maps a ColorRole to its corresponding ChipColors configuration.
+ * Reads colors from MaterialTheme.colorScheme to support light and dark themes.
  */
-fun chipColorsForRole(role: ColorRole): ChipColors = when (role) {
-    ColorRole.PRIMARY -> ChipColors(HLColors.Primary, HLColors.OnPrimary)
-    ColorRole.SECONDARY -> ChipColors(HLColors.Secondary, HLColors.OnSecondary)
-    ColorRole.TERTIARY -> ChipColors(HLColors.Tertiary, HLColors.OnTertiary)
-    ColorRole.ERROR -> ChipColors(HLColors.ErrorContainer, HLColors.OnErrorContainer, HLColors.Error)
-    ColorRole.ERROR_BOLD -> ChipColors(HLColors.Error, HLColors.OnError)
-    ColorRole.OUTLINE -> ChipColors(HLColors.Surface, HLColors.OnSurfaceVariant, HLColors.OutlineVariant)
-    ColorRole.SURFACE -> ChipColors(HLColors.SurfaceVariant, HLColors.OnSurfaceVariant)
+@Composable
+fun chipColorsForRole(role: ColorRole): ChipColors {
+    val colorScheme = MaterialTheme.colorScheme
+    return when (role) {
+        ColorRole.PRIMARY -> ChipColors(colorScheme.primary, colorScheme.onPrimary)
+        ColorRole.SECONDARY -> ChipColors(colorScheme.secondary, colorScheme.onSecondary)
+        ColorRole.TERTIARY -> ChipColors(colorScheme.tertiary, colorScheme.onTertiary)
+        ColorRole.ERROR -> ChipColors(colorScheme.errorContainer, colorScheme.onErrorContainer, colorScheme.error)
+        ColorRole.ERROR_BOLD -> ChipColors(colorScheme.error, colorScheme.onError)
+        ColorRole.OUTLINE -> ChipColors(colorScheme.surface, colorScheme.onSurfaceVariant, colorScheme.outlineVariant)
+        ColorRole.SURFACE -> ChipColors(colorScheme.surfaceVariant, colorScheme.onSurfaceVariant)
+    }
 }

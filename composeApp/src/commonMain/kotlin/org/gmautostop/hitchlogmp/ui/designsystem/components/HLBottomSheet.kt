@@ -17,6 +17,7 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -27,7 +28,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import org.gmautostop.hitchlogmp.domain.model.HitchLogRecordType
 import org.gmautostop.hitchlogmp.ui.designsystem.theme.HLTheme
-import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLColors
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLShapes
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLSpacing
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLTypography
@@ -67,7 +67,7 @@ fun HLBottomSheet(
                     .align(Alignment.BottomCenter)
                     .fillMaxWidth()
                     .clip(HLShapes.bottomSheet)
-                    .background(HLColors.SurfaceContainerLow)
+                    .background(MaterialTheme.colorScheme.surfaceContainerLow)
                     .padding(bottom = 20.dp)
             ) {
                 // Drag handle
@@ -77,7 +77,7 @@ fun HLBottomSheet(
                         .padding(top = HLSpacing.lg, bottom = HLSpacing.xs)
                         .size(width = 32.dp, height = 4.dp)
                         .clip(RoundedCornerShape(2.dp))
-                        .background(HLColors.OutlineVariant)
+                        .background(MaterialTheme.colorScheme.outlineVariant)
                 )
 
                 // Header with title and close button
@@ -91,13 +91,13 @@ fun HLBottomSheet(
                     Text(
                         text = title,
                         style = HLTypography.titleMedium.copy(fontWeight = FontWeight.Medium),
-                        color = HLColors.OnSurface
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                     IconButton(onClick = onClose) {
                         Icon(
                             imageVector = Icons.Filled.Close,
                             contentDescription = "Закрыть",
-                            tint = HLColors.OnSurfaceVariant
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                 }
@@ -115,7 +115,7 @@ fun HLBottomSheet(
 @Composable
 private fun BottomSheetOpenPreview() {
     HLTheme {
-        Box(Modifier.fillMaxSize().background(HLColors.Background)) {
+        Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
             HLBottomSheet(
                 open = true,
                 title = "Новая запись",

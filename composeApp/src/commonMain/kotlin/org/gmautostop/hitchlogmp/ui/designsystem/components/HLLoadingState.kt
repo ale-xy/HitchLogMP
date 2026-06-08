@@ -4,12 +4,12 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import org.gmautostop.hitchlogmp.ui.designsystem.theme.HLTheme
-import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLColors
 
 /**
  * Standard loading state component for full-screen loading indicators.
@@ -26,11 +26,11 @@ fun HLLoadingState(
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(HLColors.Background),
+            .background(MaterialTheme.colorScheme.background),
         contentAlignment = Alignment.Center
     ) {
         CircularProgressIndicator(
-            color = HLColors.Primary
+            color = MaterialTheme.colorScheme.primary
         )
     }
 }

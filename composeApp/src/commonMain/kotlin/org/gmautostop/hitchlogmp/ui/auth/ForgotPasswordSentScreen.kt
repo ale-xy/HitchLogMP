@@ -14,6 +14,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MarkEmailRead
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -29,7 +30,6 @@ import hitchlogmp.composeapp.generated.resources.email_sent_description
 import hitchlogmp.composeapp.generated.resources.email_sent_icon_desc
 import hitchlogmp.composeapp.generated.resources.email_sent_title
 import org.gmautostop.hitchlogmp.ui.designsystem.theme.HLTheme
-import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLColors
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLTypography
 import org.jetbrains.compose.resources.stringResource
 
@@ -42,7 +42,7 @@ fun ForgotPasswordSentScreen(
     onNavigateToAuth: () -> Unit
 ) {
     Scaffold(
-        containerColor = HLColors.Background
+        containerColor = MaterialTheme.colorScheme.background
     ) { paddingValues ->
         Box(
             modifier = Modifier
@@ -60,7 +60,7 @@ fun ForgotPasswordSentScreen(
                     modifier = Modifier
                         .size(64.dp)
                         .background(
-                            color = HLColors.PrimaryContainer,
+                            color = MaterialTheme.colorScheme.primaryContainer,
                             shape = CircleShape
                         ),
                     contentAlignment = Alignment.Center
@@ -68,7 +68,7 @@ fun ForgotPasswordSentScreen(
                     Icon(
                         imageVector = Icons.Default.MarkEmailRead,
                         contentDescription = stringResource(Res.string.email_sent_icon_desc),
-                        tint = HLColors.OnPrimaryContainer,
+                        tint = MaterialTheme.colorScheme.onPrimaryContainer,
                         modifier = Modifier.size(32.dp)
                     )
                 }
@@ -79,7 +79,7 @@ fun ForgotPasswordSentScreen(
                 Text(
                     text = stringResource(Res.string.email_sent_title),
                     style = HLTypography.titleLarge,
-                    color = HLColors.OnSurface,
+                    color = MaterialTheme.colorScheme.onSurface,
                     textAlign = TextAlign.Center
                 )
 
@@ -87,7 +87,7 @@ fun ForgotPasswordSentScreen(
                 Text(
                     text = stringResource(Res.string.email_sent_description, email),
                     style = HLTypography.bodyMedium,
-                    color = HLColors.OnSurfaceVariant,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.widthIn(max = 280.dp)
                 )
@@ -99,7 +99,7 @@ fun ForgotPasswordSentScreen(
                     Text(
                         text = stringResource(Res.string.back_to_login),
                         style = HLTypography.labelLarge,
-                        color = HLColors.Primary
+                        color = MaterialTheme.colorScheme.primary
                     )
                 }
             }

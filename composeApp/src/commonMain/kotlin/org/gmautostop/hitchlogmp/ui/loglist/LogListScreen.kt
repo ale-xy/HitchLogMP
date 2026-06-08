@@ -32,6 +32,7 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -76,7 +77,6 @@ import org.gmautostop.hitchlogmp.ui.designsystem.components.HLEmptyState
 import org.gmautostop.hitchlogmp.ui.designsystem.components.HLLoadingState
 import org.gmautostop.hitchlogmp.ui.designsystem.components.HLTopBar
 import org.gmautostop.hitchlogmp.ui.designsystem.theme.HLTheme
-import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLColors
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLTypography
 import org.jetbrains.compose.resources.stringResource
 
@@ -129,7 +129,7 @@ private fun LogListScreen(
     Box(
         Modifier
             .fillMaxSize()
-            .background(HLColors.Background)
+            .background(MaterialTheme.colorScheme.background)
     ) {
         Column(Modifier.fillMaxSize()) {
             // Top Bar
@@ -145,7 +145,7 @@ private fun LogListScreen(
                             modifier = if (showSortMenu) {
                                 Modifier
                                     .clip(RoundedCornerShape(8.dp))
-                                    .background(HLColors.Primary.copy(alpha = 0.12f))
+                                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.12f))
                             } else {
                                 Modifier
                             }
@@ -153,7 +153,7 @@ private fun LogListScreen(
                             Icon(
                                 imageVector = Icons.AutoMirrored.Filled.Sort,
                                 contentDescription = stringResource(Res.string.sort_title),
-                                tint = if (showSortMenu) HLColors.Primary else HLColors.OnSurfaceVariant
+                                tint = if (showSortMenu) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
                         SortDropdownMenu(
@@ -171,7 +171,7 @@ private fun LogListScreen(
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.Logout,
                             contentDescription = stringResource(Res.string.logout),
-                            tint = HLColors.OnSurfaceVariant
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                 }
@@ -217,8 +217,8 @@ private fun LogListScreen(
                 .align(Alignment.BottomEnd)
                 .padding(end = 16.dp, bottom = 24.dp)
                 .size(56.dp),
-            containerColor = HLColors.Primary,
-            contentColor = HLColors.OnPrimary,
+            containerColor = MaterialTheme.colorScheme.primary,
+            contentColor = MaterialTheme.colorScheme.onPrimary,
             shape = RoundedCornerShape(16.dp),
             elevation = FloatingActionButtonDefaults.elevation(defaultElevation = 3.dp)
         ) {
@@ -239,7 +239,7 @@ private fun LogListScreen(
                 style = TextStyle(
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Normal,
-                    color = HLColors.OnSurfaceVariant.copy(alpha = 0.6f)
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                 )
             )
         }
@@ -283,7 +283,7 @@ private fun SortDropdownMenu(
         Text(
             text = stringResource(Res.string.sort_title),
             style = HLTypography.labelSmall,
-            color = HLColors.OnSurfaceVariant,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(start = 14.dp, end = 8.dp, top = 8.dp, bottom = 4.dp)
         )
 
@@ -331,13 +331,13 @@ private fun SortMenuItem(
         Icon(
             imageVector = icon,
             contentDescription = null,
-            tint = HLColors.OnSurfaceVariant,
+            tint = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.size(16.dp)
         )
         Text(
             text = label,
             style = HLTypography.bodyMedium,
-            color = HLColors.OnSurface,
+            color = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.weight(1f)
         )
         Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
@@ -370,9 +370,9 @@ private fun DirectionButton(
             .clip(RoundedCornerShape(6.dp))
             .then(
                 if (isActive) {
-                    Modifier.background(HLColors.Primary)
+                    Modifier.background(MaterialTheme.colorScheme.primary)
                 } else {
-                    Modifier.border(0.5.dp, HLColors.OutlineVariant, RoundedCornerShape(6.dp))
+                    Modifier.border(0.5.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(6.dp))
                 }
             )
             .clickable(onClick = onClick),
@@ -381,7 +381,7 @@ private fun DirectionButton(
         Icon(
             imageVector = icon,
             contentDescription = contentDescription,
-            tint = if (isActive) HLColors.OnPrimary else HLColors.OnSurfaceVariant,
+            tint = if (isActive) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.size(16.dp)
         )
     }

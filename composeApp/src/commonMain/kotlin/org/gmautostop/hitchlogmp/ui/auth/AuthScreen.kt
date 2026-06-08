@@ -17,6 +17,7 @@ import androidx.compose.material.icons.filled.PersonOff
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -58,7 +59,6 @@ import org.gmautostop.hitchlogmp.ui.designsystem.components.ButtonVariant
 import org.gmautostop.hitchlogmp.ui.designsystem.components.HLButton
 import org.gmautostop.hitchlogmp.ui.designsystem.components.HLConfirmationDialog
 import org.gmautostop.hitchlogmp.ui.designsystem.theme.HLTheme
-import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLColors
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLTypography
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
@@ -106,7 +106,7 @@ fun AuthScreen(
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() }
 ) {
     Scaffold(
-        containerColor = HLColors.Background,
+        containerColor = MaterialTheme.colorScheme.background,
         snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { paddingValues ->
         Box(
@@ -132,7 +132,7 @@ fun AuthScreen(
                 Text(
                     text = stringResource(Res.string.auth_title),
                     style = HLTypography.displaySmall,
-                    color = HLColors.OnSurface
+                    color = MaterialTheme.colorScheme.onSurface
                 )
                 
                 Spacer(Modifier.height(6.dp))
@@ -140,7 +140,7 @@ fun AuthScreen(
                 Text(
                     text = stringResource(Res.string.auth_subtitle),
                     style = HLTypography.bodyMedium,
-                    color = HLColors.OnSurfaceVariant
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 
                 Spacer(Modifier.weight(1f))
@@ -200,7 +200,7 @@ fun AuthScreen(
                             CircularProgressIndicator(
                                 modifier = Modifier.size(20.dp),
                                 strokeWidth = 2.5.dp,
-                                color = HLColors.Primary
+                                color = MaterialTheme.colorScheme.primary
                             )
                                     } else {
                                         Image(
@@ -251,17 +251,17 @@ fun AuthScreen(
                         HorizontalDivider(
                             modifier = Modifier.weight(1f),
                             thickness = 1.dp,
-                            color = HLColors.OutlineVariant
+                            color = MaterialTheme.colorScheme.outlineVariant
                         )
                         Text(
                             text = stringResource(Res.string.auth_divider_or),
                             style = HLTypography.bodySmall,
-                            color = HLColors.OnSurfaceVariant
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                         HorizontalDivider(
                             modifier = Modifier.weight(1f),
                             thickness = 1.dp,
-                            color = HLColors.OutlineVariant
+                            color = MaterialTheme.colorScheme.outlineVariant
                         )
                     }
                     
@@ -275,7 +275,7 @@ fun AuthScreen(
                         CircularProgressIndicator(
                             modifier = Modifier.size(20.dp),
                             strokeWidth = 2.5.dp,
-                            color = HLColors.Primary
+                            color = MaterialTheme.colorScheme.primary
                         )
                             } else {
                                 Icon(

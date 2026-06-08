@@ -20,6 +20,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
@@ -53,7 +54,6 @@ import org.gmautostop.hitchlogmp.ui.designsystem.components.HLLoadingState
 import org.gmautostop.hitchlogmp.ui.designsystem.components.HLSectionHeader
 import org.gmautostop.hitchlogmp.ui.designsystem.components.HLTopBar
 import org.gmautostop.hitchlogmp.ui.designsystem.theme.HLTheme
-import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLColors
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLSpacing
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLTypography
 import org.jetbrains.compose.resources.stringResource
@@ -86,7 +86,7 @@ private fun LogHistoryScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(HLColors.Background)
+            .background(MaterialTheme.colorScheme.background)
     ) {
         HLTopBar(
             title = stringResource(Res.string.log_history_title),
@@ -106,7 +106,7 @@ private fun LogHistoryScreen(
             ) {
                 Text(
                     text = stateValue.error.displayMessage,
-                    color = HLColors.Error
+                    color = MaterialTheme.colorScheme.error
                 )
             }
             is ViewState.Show -> {
@@ -176,14 +176,14 @@ private fun FlatByTimeGroupSection(group: DateGroup) {
             .fillMaxWidth()
             .padding(horizontal = 16.dp)
             .padding(bottom = 8.dp)
-            .background(HLColors.Surface, RoundedCornerShape(12.dp))
-            .border(1.dp, HLColors.OutlineVariant, RoundedCornerShape(12.dp))
+            .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(12.dp))
+            .border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(12.dp))
     ) {
         Column {
             group.entries.forEachIndexed { index, entry ->
                 FullChangeRow(entry = entry)
                 if (index < group.entries.lastIndex) {
-                    HorizontalDivider(color = HLColors.OutlineVariant)
+                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
                 }
             }
         }
@@ -213,7 +213,7 @@ private fun FullChangeRow(entry: LogHistoryEntry) {
                 Text(
                     text = stringResource(entry.recordType.toStringResource()),
                     style = HLTypography.bodyLarge.copy(fontWeight = FontWeight.Medium),
-                    color = HLColors.OnSurface
+                    color = MaterialTheme.colorScheme.onSurface
                 )
                 ChangeTypeChip(changeType = entry.changeType, compact = true)
             }
@@ -222,7 +222,7 @@ private fun FullChangeRow(entry: LogHistoryEntry) {
         Text(
             text = entry.formattedEditedAt,
             style = HLTypography.labelMedium.copy(fontWeight = FontWeight.Medium),
-            color = HLColors.OnSurfaceVariant
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
     }
 }
@@ -233,13 +233,13 @@ private fun RecordHistoryGroupItem(group: RecordGroup) {
         modifier = Modifier
             .fillMaxWidth()
             .padding(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 4.dp)
-            .background(HLColors.Surface, RoundedCornerShape(16.dp))
-            .border(1.dp, HLColors.OutlineVariant, RoundedCornerShape(16.dp))
+            .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(16.dp))
+            .border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(16.dp))
     ) {
         Column {
             // Group header
-            val headerBg = if (group.isDeleted) HLColors.ErrorContainer else HLColors.SurfaceContainerLow
-            val headerFg = if (group.isDeleted) HLColors.OnErrorContainer else HLColors.OnSurface
+            val headerBg = if (group.isDeleted) MaterialTheme.colorScheme.errorContainer else MaterialTheme.colorScheme.surfaceContainerLow
+            val headerFg = if (group.isDeleted) MaterialTheme.colorScheme.onErrorContainer else MaterialTheme.colorScheme.onSurface
 
             Row(
                 modifier = Modifier
@@ -281,13 +281,13 @@ private fun RecordHistoryGroupItem(group: RecordGroup) {
                 // Edit-count pill
                 Box(
                     modifier = Modifier
-                        .background(HLColors.PrimaryContainer, RoundedCornerShape(100.dp))
+                        .background(MaterialTheme.colorScheme.primaryContainer, RoundedCornerShape(100.dp))
                         .padding(horizontal = 8.dp, vertical = 4.dp),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
                         text = group.entries.size.toString(),
-                        color = HLColors.OnPrimaryContainer,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer,
                         fontSize = 11.sp,
                         fontWeight = FontWeight.Bold
                     )
@@ -296,7 +296,7 @@ private fun RecordHistoryGroupItem(group: RecordGroup) {
 
             // Per-entry rows
             group.entries.forEach { entry ->
-                HorizontalDivider(color = HLColors.OutlineVariant)
+                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -312,7 +312,7 @@ private fun RecordHistoryGroupItem(group: RecordGroup) {
                         Text(
                             text = entry.formattedEditedAt,
                             style = HLTypography.bodySmall,
-                            color = HLColors.OnSurfaceVariant
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                     InlineDiff(

@@ -14,6 +14,7 @@ import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -29,7 +30,6 @@ import org.gmautostop.hitchlogmp.ui.designsystem.components.HLIconBadge
 import org.gmautostop.hitchlogmp.ui.designsystem.components.IconBadgeSize
 import org.gmautostop.hitchlogmp.ui.designsystem.theme.HLTheme
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.ColorRole
-import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLColors
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLTypography
 import org.jetbrains.compose.resources.stringResource
 
@@ -54,7 +54,7 @@ fun ChronicleCard(
             .clip(RoundedCornerShape(12.dp))
             .border(
                 width = 1.dp,
-                color = HLColors.OutlineVariant,
+                color = MaterialTheme.colorScheme.outlineVariant,
                 shape = RoundedCornerShape(12.dp)
             )
             .clickable(onClick = onOpen)
@@ -77,7 +77,7 @@ fun ChronicleCard(
             Text(
                 text = chronicle.name,
                 style = HLTypography.titleMedium.copy(fontWeight = FontWeight.Medium),
-                color = HLColors.OnSurface,
+                color = MaterialTheme.colorScheme.onSurface,
                 overflow = TextOverflow.Ellipsis
             )
             // Start date
@@ -85,7 +85,7 @@ fun ChronicleCard(
                 Text(
                     text = chronicle.formattedStartDate,
                     style = HLTypography.bodyMedium,
-                    color = HLColors.OnSurfaceVariant,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(top = 3.dp)
                 )
             }
@@ -99,7 +99,7 @@ fun ChronicleCard(
             Icon(
                 imageVector = Icons.Default.Edit,
                 contentDescription = stringResource(Res.string.edit_chronicle),
-                tint = HLColors.OnSurfaceVariant,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.size(24.dp)
             )
         }

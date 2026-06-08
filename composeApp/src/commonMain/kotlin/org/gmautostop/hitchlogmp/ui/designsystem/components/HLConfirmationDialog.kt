@@ -16,6 +16,7 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -28,7 +29,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import org.gmautostop.hitchlogmp.ui.designsystem.theme.HLTheme
-import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLColors
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLTypography
 
 /**
@@ -70,7 +70,7 @@ fun HLConfirmationDialog(
             modifier = Modifier
                 .width(312.dp)
                 .background(
-                    color = HLColors.SurfaceContainerLow,
+                    color = MaterialTheme.colorScheme.surfaceContainerLow,
                     shape = RoundedCornerShape(28.dp)
                 )
                 .padding(24.dp),
@@ -81,7 +81,7 @@ fun HLConfirmationDialog(
                 Icon(
                     imageVector = icon,
                     contentDescription = null,
-                    tint = if (isDestructive) HLColors.Error else HLColors.OnSurfaceVariant,
+                    tint = if (isDestructive) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.size(24.dp)
                 )
                 Spacer(Modifier.height(16.dp))
@@ -91,7 +91,7 @@ fun HLConfirmationDialog(
             Text(
                 text = title,
                 style = HLTypography.titleLarge,
-                color = HLColors.OnSurface
+                color = MaterialTheme.colorScheme.onSurface
             )
 
             Spacer(Modifier.height(16.dp))
@@ -100,7 +100,7 @@ fun HLConfirmationDialog(
             Text(
                 text = message,
                 style = HLTypography.bodyLarge,
-                color = HLColors.OnSurfaceVariant
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
 
             Spacer(Modifier.height(24.dp))
@@ -115,7 +115,7 @@ fun HLConfirmationDialog(
                 TextButton(
                     onClick = onDismiss,
                     colors = ButtonDefaults.textButtonColors(
-                        contentColor = HLColors.Primary
+                        contentColor = MaterialTheme.colorScheme.primary
                     )
                 ) {
                     Text(
@@ -133,8 +133,8 @@ fun HLConfirmationDialog(
                         onDismiss()
                     },
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = if (isDestructive) HLColors.Error else HLColors.Primary,
-                        contentColor = if (isDestructive) HLColors.OnError else HLColors.OnPrimary
+                        containerColor = if (isDestructive) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary,
+                        contentColor = if (isDestructive) MaterialTheme.colorScheme.onError else MaterialTheme.colorScheme.onPrimary
                     ),
                     shape = RoundedCornerShape(100.dp)
                 ) {

@@ -1,5 +1,6 @@
 package org.gmautostop.hitchlogmp.ui.designsystem.tokens
 
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 
@@ -8,21 +9,21 @@ import androidx.compose.runtime.Composable
  */
 @Composable
 fun hlOutlinedTextFieldColors() = TextFieldDefaults.colors(
-    focusedTextColor = HLColors.OnSurface,
-    unfocusedTextColor = HLColors.OnSurface,
-    focusedContainerColor = HLColors.Surface,
-    unfocusedContainerColor = HLColors.Surface,
-    focusedIndicatorColor = HLColors.Primary,
-    unfocusedIndicatorColor = HLColors.OutlineVariant,
-    focusedLabelColor = HLColors.Primary,
-    unfocusedLabelColor = HLColors.OnSurfaceVariant,
-    cursorColor = HLColors.Primary,
-    errorTextColor = HLColors.OnSurface,
-    errorContainerColor = HLColors.Surface,
-    errorIndicatorColor = HLColors.Error,
-    errorLabelColor = HLColors.Error,
-    errorCursorColor = HLColors.Error,
-    errorSupportingTextColor = HLColors.Error
+    focusedTextColor = MaterialTheme.colorScheme.onSurface,
+    unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+    focusedContainerColor = MaterialTheme.colorScheme.surface,
+    unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+    focusedIndicatorColor = MaterialTheme.colorScheme.primary,
+    unfocusedIndicatorColor = MaterialTheme.colorScheme.outlineVariant,
+    focusedLabelColor = MaterialTheme.colorScheme.primary,
+    unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+    cursorColor = MaterialTheme.colorScheme.primary,
+    errorTextColor = MaterialTheme.colorScheme.onSurface,
+    errorContainerColor = MaterialTheme.colorScheme.surface,
+    errorIndicatorColor = MaterialTheme.colorScheme.error,
+    errorLabelColor = MaterialTheme.colorScheme.error,
+    errorCursorColor = MaterialTheme.colorScheme.error,
+    errorSupportingTextColor = MaterialTheme.colorScheme.error
 )
 
 /**
@@ -30,19 +31,19 @@ fun hlOutlinedTextFieldColors() = TextFieldDefaults.colors(
  */
 @Composable
 fun hlFilledTextFieldColors() = TextFieldDefaults.colors(
-    focusedTextColor = HLColors.OnSurface,
-    unfocusedTextColor = HLColors.OnSurface,
-    focusedContainerColor = HLColors.SurfaceContainer,
-    unfocusedContainerColor = HLColors.SurfaceContainer,
-    focusedIndicatorColor = HLColors.Primary,
-    unfocusedIndicatorColor = HLColors.OnSurfaceVariant,
-    focusedLabelColor = HLColors.Primary,
-    unfocusedLabelColor = HLColors.OnSurfaceVariant,
-    cursorColor = HLColors.Primary,
-    errorTextColor = HLColors.OnSurface,
-    errorContainerColor = HLColors.SurfaceContainer,
-    errorIndicatorColor = HLColors.Error,
-    errorLabelColor = HLColors.Error,
-    errorCursorColor = HLColors.Error,
-    errorSupportingTextColor = HLColors.Error
+    focusedTextColor = MaterialTheme.colorScheme.onSurface,
+    unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+    focusedContainerColor = MaterialTheme.colorScheme.surfaceContainer,
+    unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainer,
+    focusedIndicatorColor = MaterialTheme.colorScheme.primary,
+    unfocusedIndicatorColor = MaterialTheme.colorScheme.onSurfaceVariant,
+    focusedLabelColor = MaterialTheme.colorScheme.primary,
+    unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+    cursorColor = MaterialTheme.colorScheme.primary,
+    errorTextColor = MaterialTheme.colorScheme.onSurface,
+    errorContainerColor = MaterialTheme.colorScheme.surfaceContainer,
+    errorIndicatorColor = MaterialTheme.colorScheme.error,
+    errorLabelColor = MaterialTheme.colorScheme.error,
+    errorCursorColor = MaterialTheme.colorScheme.error,
+    errorSupportingTextColor = MaterialTheme.colorScheme.error
 )

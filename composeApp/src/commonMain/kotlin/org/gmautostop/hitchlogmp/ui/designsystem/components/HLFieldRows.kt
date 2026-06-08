@@ -21,6 +21,7 @@ import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.filled.TextFields
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -48,7 +49,6 @@ import hitchlogmp.composeapp.generated.resources.time_shortcut_plus_10
 import hitchlogmp.composeapp.generated.resources.time_shortcut_plus_5
 import kotlinx.coroutines.launch
 import org.gmautostop.hitchlogmp.ui.designsystem.theme.HLTheme
-import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLColors
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLTypography
 import org.jetbrains.compose.resources.stringResource
 
@@ -76,7 +76,7 @@ private fun StepperFieldRow(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(HLColors.Surface)
+                .background(MaterialTheme.colorScheme.surface)
                 .padding(horizontal = 20.dp)
                 .height(56.dp),
             verticalAlignment = Alignment.CenterVertically,
@@ -90,7 +90,7 @@ private fun StepperFieldRow(
                 Icon(
                     imageVector = icon,
                     contentDescription = null,
-                    tint = HLColors.OnSurfaceVariant,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.size(24.dp)
                 )
                 content()
@@ -112,7 +112,7 @@ private fun StepperFieldRow(
             }
         }
         if (showDivider) {
-            HorizontalDivider(color = HLColors.OutlineVariant, thickness = 1.dp)
+            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant, thickness = 1.dp)
         }
     }
 }
@@ -146,9 +146,9 @@ fun DateFieldRow(
             textStyle = TextStyle(
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Normal,
-                color = HLColors.OnSurface
+                color = MaterialTheme.colorScheme.onSurface
             ),
-            cursorBrush = SolidColor(HLColors.Primary),
+            cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
         )
     }
@@ -179,7 +179,7 @@ fun TimeFieldRow(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .background(HLColors.Surface)
+            .background(MaterialTheme.colorScheme.surface)
     ) {
         StepperFieldRow(
             icon = Icons.Default.Schedule,
@@ -194,9 +194,9 @@ fun TimeFieldRow(
                 textStyle = TextStyle(
                     fontSize = 40.sp,
                     fontWeight = FontWeight.Medium,
-                    color = HLColors.OnSurface
+                    color = MaterialTheme.colorScheme.onSurface
                 ),
-                cursorBrush = SolidColor(HLColors.Primary),
+                cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
             )
         }
@@ -205,7 +205,7 @@ fun TimeFieldRow(
             Text(
                 text = timeError,
                 style = HLTypography.bodySmall,
-                color = HLColors.Error,
+                color = MaterialTheme.colorScheme.error,
                 modifier = Modifier.padding(start = 60.dp, top = 4.dp, bottom = 4.dp)
             )
         }
@@ -244,7 +244,7 @@ fun TimeFieldRow(
             )
         }
         
-        HorizontalDivider(color = HLColors.OutlineVariant, thickness = 1.dp)
+        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant, thickness = 1.dp)
     }
 }
 
@@ -272,7 +272,7 @@ fun NoteFieldRow(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .background(HLColors.Surface)
+            .background(MaterialTheme.colorScheme.surface)
     ) {
         Row(
             modifier = Modifier
@@ -284,7 +284,7 @@ fun NoteFieldRow(
             Icon(
                 imageVector = Icons.Default.TextFields,
                 contentDescription = null,
-                tint = HLColors.OnSurfaceVariant,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier
                     .size(24.dp)
                     .padding(top = 2.dp)
@@ -305,10 +305,10 @@ fun NoteFieldRow(
                 textStyle = TextStyle(
                     fontSize = 18.sp,
                     lineHeight = 25.sp,
-                    color = HLColors.OnSurface
+                    color = MaterialTheme.colorScheme.onSurface
                 ),
                 maxLines = Int.MAX_VALUE,
-                cursorBrush = SolidColor(HLColors.Primary),
+                cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
                 decorationBox = { innerTextField ->
                     if (text.isEmpty()) {
                         Text(
@@ -316,7 +316,7 @@ fun NoteFieldRow(
                             style = TextStyle(
                                 fontSize = 18.sp,
                                 lineHeight = 25.sp,
-                                color = HLColors.OutlineVariant
+                                color = MaterialTheme.colorScheme.outlineVariant
                             )
                         )
                     }
@@ -353,12 +353,12 @@ fun LabeledFieldRow(
     placeholder: String? = null,
     fieldModifier: Modifier = Modifier,
 ) {
-    val tintColor = if (isFocused) HLColors.Primary else HLColors.OnSurfaceVariant
+    val tintColor = if (isFocused) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
 
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .background(HLColors.Surface)
+            .background(MaterialTheme.colorScheme.surface)
             .padding(start = 20.dp, top = 14.dp, end = 20.dp, bottom = 14.dp),
         verticalAlignment = Alignment.Top,
         horizontalArrangement = Arrangement.spacedBy(16.dp)
@@ -384,10 +384,10 @@ fun LabeledFieldRow(
                 singleLine = singleLine,
                 textStyle = TextStyle(
                     fontSize = 18.sp,
-                    color = HLColors.OnSurface,
+                    color = MaterialTheme.colorScheme.onSurface,
                     lineHeight = 25.sp
                 ),
-                cursorBrush = SolidColor(HLColors.Primary),
+                cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
                 modifier = fieldModifier
                     .fillMaxWidth()
                     .padding(top = 4.dp),
@@ -398,7 +398,7 @@ fun LabeledFieldRow(
                             style = TextStyle(
                                 fontSize = 18.sp,
                                 lineHeight = 25.sp,
-                                color = HLColors.OutlineVariant
+                                color = MaterialTheme.colorScheme.outlineVariant
                             )
                         )
                     }
