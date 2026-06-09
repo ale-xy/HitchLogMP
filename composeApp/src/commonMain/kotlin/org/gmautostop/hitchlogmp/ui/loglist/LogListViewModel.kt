@@ -17,6 +17,7 @@ import org.gmautostop.hitchlogmp.data.AuthService
 import org.gmautostop.hitchlogmp.data.FirestoreSyncTracker
 import org.gmautostop.hitchlogmp.data.SortPreferences
 import org.gmautostop.hitchlogmp.domain.model.HitchLog
+import org.gmautostop.hitchlogmp.domain.model.LogColor
 import org.gmautostop.hitchlogmp.domain.repository.Repository
 import org.gmautostop.hitchlogmp.domain.repository.Response
 import org.gmautostop.hitchlogmp.toLocalDateTime
@@ -32,6 +33,7 @@ data class HitchLogUi(
     val formattedStartDate: String? = null,
     val startDate: Timestamp? = null,
     val creationTime: Timestamp? = null,
+    val color: LogColor = LogColor.BLUE,
 )
 
 /**
@@ -105,6 +107,7 @@ fun HitchLog.toUi(): HitchLogUi {
         formattedStartDate = startDateFormatted,
         startDate = startDate,
         creationTime = creationTime,
+        color = color,
     )
 }
 

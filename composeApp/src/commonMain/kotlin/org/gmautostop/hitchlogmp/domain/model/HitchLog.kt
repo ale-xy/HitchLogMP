@@ -15,4 +15,5 @@ data class HitchLog(
     val comment: String? = null,
     val startDate: Timestamp? = null,
     val endDate: Timestamp? = null,
+    val color: LogColor = LogColor.BLUE,
 )

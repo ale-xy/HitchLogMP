@@ -122,6 +122,7 @@ class HitchLogViewModel(
                                                     teamId = logResponse.data.teamId,
                                                     team = logResponse.data.team,
                                                     comment = logResponse.data.comment,
+                                                    color = logResponse.data.color,
                                                     records = records,
                                                     summary = SummaryCardState(
                                                         lifts = records.count { it.type == HitchLogRecordType.LIFT },

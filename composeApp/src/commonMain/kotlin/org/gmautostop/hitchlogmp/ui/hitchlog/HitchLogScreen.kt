@@ -2,18 +2,23 @@ package org.gmautostop.hitchlogmp.ui.hitchlog
 
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.DirectionsWalk
 import androidx.compose.material.icons.filled.Chat
@@ -23,7 +28,6 @@ import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -40,6 +44,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -65,6 +70,7 @@ import hitchlogmp.composeapp.generated.resources.new_record
 import hitchlogmp.composeapp.generated.resources.start
 import org.gmautostop.hitchlogmp.domain.AppError
 import org.gmautostop.hitchlogmp.domain.model.HitchLogRecordType
+import org.gmautostop.hitchlogmp.domain.model.LogColor
 import org.gmautostop.hitchlogmp.export.ExportFormat
 import org.gmautostop.hitchlogmp.ui.Error
 import org.gmautostop.hitchlogmp.ui.ViewState
@@ -77,6 +83,7 @@ import org.gmautostop.hitchlogmp.ui.designsystem.components.HLTopBar
 import org.gmautostop.hitchlogmp.ui.designsystem.theme.HLTheme
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLSpacing
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLTypography
+import org.gmautostop.hitchlogmp.ui.designsystem.tokens.resolve
 import org.jetbrains.compose.resources.stringResource
 
 // ── Top-level screen ─────────────────────────────────────────────────────────
@@ -303,6 +310,7 @@ private fun HitchLog(
                                     logName = state.logName,
                                     team = state.team,
                                     comment = state.comment,
+                                    color = state.color,
                                     onEdit = { editLog(state.logId) }
                                 )
                             }
@@ -376,27 +384,39 @@ private fun HitchLog(
     }
 }
 
-// ── Chronicle Properties Section ─────────────────────────────────────────────
-
 @Composable
 private fun ChroniclePropertiesSection(
     logName: String,
     team: String?,
     comment: String?,
+    color: LogColor,
     onEdit: () -> Unit
 ) {
-    Column(
+    val cardShape = RoundedCornerShape(12.dp)
+    Row(
         modifier = Modifier
             .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.surface)
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .height(IntrinsicSize.Min)
+            .clip(cardShape)
+            .border(1.dp, MaterialTheme.colorScheme.outlineVariant, cardShape)
     ) {
-        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant, thickness = 0.5.dp)
+        // Left color stripe
+        Box(
+            modifier = Modifier
+                .width(12.dp)
+                .fillMaxHeight()
+                .background(color.resolve())
+        )
 
-        Column(Modifier.padding(start = 32.dp, end = 32.dp, top = 16.dp, bottom = 16.dp)) {
-            // Title row with edit button
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
+        // Content
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .padding(start = 16.dp, end = 8.dp, top = 8.dp, bottom = 16.dp)
+        ) {
+            // Title row with edit button aligned to the title
+            Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     text = logName,
                     style = HLTypography.titleMedium.copy(fontSize = 18.sp),
@@ -416,7 +436,9 @@ private fun ChroniclePropertiesSection(
             // Team
             if (!team.isNullOrBlank()) {
                 Row(
-                    modifier = Modifier.padding(top = 8.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 8.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Icon(
@@ -429,7 +451,9 @@ private fun ChroniclePropertiesSection(
                         text = team,
                         style = HLTypography.bodyLarge,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(start = 8.dp)
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(start = 8.dp)
                     )
                 }
             }
@@ -437,7 +461,9 @@ private fun ChroniclePropertiesSection(
             // Comment
             if (!comment.isNullOrBlank()) {
                 Row(
-                    modifier = Modifier.padding(top = 8.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 8.dp),
                     verticalAlignment = Alignment.Top
                 ) {
                     Icon(
@@ -452,14 +478,13 @@ private fun ChroniclePropertiesSection(
                         text = comment,
                         style = HLTypography.bodyLarge.copy(fontWeight = FontWeight.Normal),
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(start = 8.dp)
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(start = 8.dp)
                     )
                 }
             }
         }
-
-        HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant, thickness = 0.5.dp)
-        Spacer(Modifier.height(4.dp))
     }
 }
 

@@ -1,20 +1,28 @@
 package org.gmautostop.hitchlogmp.ui.editlog
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.filled.Chat
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Group
+import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.HorizontalDivider
@@ -28,19 +36,25 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import hitchlogmp.composeapp.generated.resources.Res
 import hitchlogmp.composeapp.generated.resources.cancel
 import hitchlogmp.composeapp.generated.resources.chronicle_name_label
+import hitchlogmp.composeapp.generated.resources.color_label
 import hitchlogmp.composeapp.generated.resources.comment_label
 import hitchlogmp.composeapp.generated.resources.comment_placeholder
 import hitchlogmp.composeapp.generated.resources.delete_chronicle_message
@@ -52,6 +66,7 @@ import hitchlogmp.composeapp.generated.resources.save
 import hitchlogmp.composeapp.generated.resources.team_label
 import org.gmautostop.hitchlogmp.domain.AppError
 import org.gmautostop.hitchlogmp.domain.model.HitchLog
+import org.gmautostop.hitchlogmp.domain.model.LogColor
 import org.gmautostop.hitchlogmp.ui.Error
 import org.gmautostop.hitchlogmp.ui.ObserveAsEvents
 import org.gmautostop.hitchlogmp.ui.designsystem.components.HLConfirmationDialog
@@ -60,6 +75,8 @@ import org.gmautostop.hitchlogmp.ui.designsystem.components.HLTopBar
 import org.gmautostop.hitchlogmp.ui.designsystem.components.LabeledFieldRow
 import org.gmautostop.hitchlogmp.ui.designsystem.theme.HLTheme
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLTypography
+import org.gmautostop.hitchlogmp.ui.designsystem.tokens.needsOutline
+import org.gmautostop.hitchlogmp.ui.designsystem.tokens.resolve
 import org.jetbrains.compose.resources.stringResource
 
 // ── Root Composable ──────────────────────────────────────────────────────────
@@ -177,6 +194,14 @@ private fun EditLogContent(
 
             HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant, thickness = 0.5.dp)
 
+            // Color picker row
+            ColorPickerRow(
+                selectedColor = log.color,
+                onColorSelected = { onAction(EditLogAction.OnColorChange(it)) }
+            )
+
+            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant, thickness = 0.5.dp)
+
             // Comment field row — takes remaining space
             LabeledFieldRow(
                 icon = Icons.Default.Chat,
@@ -232,6 +257,96 @@ private fun EditLogContent(
             icon = Icons.Default.Delete,
             isDestructive = true
         )
+    }
+}
+
+// ── Color Picker Row ─────────────────────────────────────────────────────────
+
+@Composable
+private fun ColorPickerRow(
+    selectedColor: LogColor,
+    onColorSelected: (LogColor) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val tintColor = MaterialTheme.colorScheme.onSurfaceVariant
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .background(MaterialTheme.colorScheme.surface)
+            .padding(start = 20.dp, top = 14.dp, end = 20.dp, bottom = 14.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        Icon(
+            imageVector = Icons.Default.Palette,
+            contentDescription = null,
+            tint = tintColor,
+            modifier = Modifier
+                .size(24.dp)
+                .padding(top = 2.dp)
+        )
+
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = stringResource(Res.string.color_label),
+                style = TextStyle(fontSize = 14.sp, color = tintColor)
+            )
+
+            Row(
+                modifier = Modifier.padding(top = 8.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                LogColor.entries.forEach { entry ->
+                    ColorSwatch(
+                        color = entry,
+                        isSelected = entry == selectedColor,
+                        onClick = { onColorSelected(entry) }
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ColorSwatch(
+    color: LogColor,
+    isSelected: Boolean,
+    onClick: () -> Unit
+) {
+    val resolvedColor = color.resolve()
+    val outlineVariant = MaterialTheme.colorScheme.outlineVariant
+    val onSurface = MaterialTheme.colorScheme.onSurface
+
+    // Check tint: dark for YELLOW and WHITE, white otherwise
+    val checkTint = when (color) {
+        LogColor.YELLOW, LogColor.WHITE -> onSurface
+        else -> Color.White
+    }
+
+    Box(
+        modifier = Modifier
+            .size(24.dp)
+            .clip(CircleShape)
+            .background(resolvedColor)
+            .then(
+                when {
+                    isSelected -> Modifier.border(1.dp, onSurface, CircleShape)
+                    color.needsOutline -> Modifier.border(0.5.dp, outlineVariant, CircleShape)
+                    else -> Modifier
+                }
+            )
+            .clickable(onClick = onClick),
+        contentAlignment = Alignment.Center
+    ) {
+        if (isSelected) {
+            Icon(
+                imageVector = Icons.Default.Check,
+                contentDescription = null,
+                tint = checkTint,
+                modifier = Modifier.size(14.dp)
+            )
+        }
     }
 }
 

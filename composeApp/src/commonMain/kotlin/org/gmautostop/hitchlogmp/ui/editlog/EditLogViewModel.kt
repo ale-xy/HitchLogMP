@@ -14,6 +14,7 @@ import kotlinx.coroutines.launch
 import org.gmautostop.hitchlogmp.data.AuthService
 import org.gmautostop.hitchlogmp.domain.AppError
 import org.gmautostop.hitchlogmp.domain.model.HitchLog
+import org.gmautostop.hitchlogmp.domain.model.LogColor
 import org.gmautostop.hitchlogmp.domain.repository.Repository
 import org.gmautostop.hitchlogmp.domain.repository.Response
 import org.lighthousegames.logging.logging
@@ -31,6 +32,7 @@ sealed interface EditLogAction {
     data class OnNameChange(val name: String) : EditLogAction
     data class OnTeamChange(val team: String) : EditLogAction
     data class OnCommentChange(val comment: String) : EditLogAction
+    data class OnColorChange(val color: LogColor) : EditLogAction
     data object OnSaveClick : EditLogAction
     data object OnDeleteClick : EditLogAction
     data object OnShowDeleteDialog : EditLogAction
@@ -111,6 +113,7 @@ class EditLogViewModel(
             is EditLogAction.OnNameChange -> updateName(action.name)
             is EditLogAction.OnTeamChange -> updateTeam(action.team)
             is EditLogAction.OnCommentChange -> updateComment(action.comment)
+            is EditLogAction.OnColorChange -> updateColor(action.color)
             is EditLogAction.OnSaveClick -> saveLog()
             is EditLogAction.OnDeleteClick -> deleteLog()
             is EditLogAction.OnShowDeleteDialog -> {
@@ -142,6 +145,12 @@ class EditLogViewModel(
     private fun updateComment(comment: String) {
         state.value.log?.let { log ->
             state.update { it.copy(log = log.copy(comment = comment)) }
+        }
+    }
+
+    private fun updateColor(color: LogColor) {
+        state.value.log?.let { log ->
+            state.update { it.copy(log = log.copy(color = color)) }
         }
     }
 
