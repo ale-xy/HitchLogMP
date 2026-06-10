@@ -58,7 +58,7 @@
 
     <string name="start">Старт</string>
     <string name="lift">Посадка</string>
-    <string name="get_off">Выход</string>
+    <string name="get_off">Высадка</string>
     <string name="walk">ППХ</string>
     <string name="walk_end">Конец ППХ</string>
     <string name="checkpoint">КП</string>

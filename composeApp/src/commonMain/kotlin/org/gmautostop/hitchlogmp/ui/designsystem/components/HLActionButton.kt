@@ -28,7 +28,7 @@ import org.gmautostop.hitchlogmp.ui.designsystem.theme.HLTheme
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLShapes
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLSpacing
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLTypography
-import org.gmautostop.hitchlogmp.ui.designsystem.tokens.chipColorsForRole
+import org.gmautostop.hitchlogmp.ui.designsystem.tokens.recordChipColors
 import org.jetbrains.compose.resources.stringResource
 
 /**
@@ -89,7 +89,7 @@ private fun BigActionButton(
     modifier: Modifier = Modifier
 ) {
     val recordTypeUi = type.toUi()
-    val chipColors = chipColorsForRole(recordTypeUi.colorRole)
+    val chipColors = recordChipColors(recordTypeUi.color, recordTypeUi.end)
     val label = stringResource(type.toStringResource())
     val background = if (highlight) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant
     val foreground = if (highlight) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurface
@@ -126,7 +126,7 @@ private fun MediumActionButton(
     modifier: Modifier = Modifier
 ) {
     val recordTypeUi = type.toUi()
-    val chipColors = chipColorsForRole(recordTypeUi.colorRole)
+    val chipColors = recordChipColors(recordTypeUi.color, recordTypeUi.end)
     val label = stringResource(type.toStringResource())
 
     Row(
@@ -161,7 +161,7 @@ private fun SheetActionButton(
     modifier: Modifier = Modifier
 ) {
     val recordTypeUi = type.toUi()
-    val chipColors = chipColorsForRole(recordTypeUi.colorRole)
+    val chipColors = recordChipColors(recordTypeUi.color, recordTypeUi.end)
     val label = stringResource(type.toStringResource())
 
     Column(

@@ -19,7 +19,7 @@ import org.gmautostop.hitchlogmp.ui.components.toUi
 import org.gmautostop.hitchlogmp.ui.designsystem.theme.HLTheme
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLShapes
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLTypography
-import org.gmautostop.hitchlogmp.ui.designsystem.tokens.chipColorsForRole
+import org.gmautostop.hitchlogmp.ui.designsystem.tokens.recordChipColors
 import org.jetbrains.compose.resources.stringResource
 
 /**
@@ -35,7 +35,7 @@ fun HLTypeChip(
     modifier: Modifier = Modifier
 ) {
     val recordTypeUi = type.toUi()
-    val chipColors = chipColorsForRole(recordTypeUi.colorRole)
+    val chipColors = recordChipColors(recordTypeUi.color, recordTypeUi.end)
     val label = stringResource(type.toStringResource())
 
     Row(

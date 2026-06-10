@@ -29,7 +29,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import hitchlogmp.composeapp.generated.resources.Res
@@ -38,6 +40,7 @@ import org.gmautostop.hitchlogmp.domain.model.HitchLogRecordType
 import org.gmautostop.hitchlogmp.ui.components.toStringResource
 import org.gmautostop.hitchlogmp.ui.designsystem.components.ActionButtonSize
 import org.gmautostop.hitchlogmp.ui.designsystem.components.HLActionButton
+import org.gmautostop.hitchlogmp.ui.designsystem.theme.HLTheme
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLShapes
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLSpacing
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLTypography
@@ -142,47 +145,72 @@ internal fun QuickActions(
                     }
                 }
 
-                Row(
-                    Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(HLSpacing.md)
-                ) {
-                    if (top != null) {
-                        HLActionButton(
-                            type = top,
-                            size = ActionButtonSize.BIG,
-                            highlight = true,
-                            onClick = { onPick(top) },
-                            modifier = Modifier.weight(1f)
-                        )
-                    }
-                    if (second != null) {
-                        HLActionButton(
-                            type = second,
-                            size = ActionButtonSize.BIG,
-                            onClick = { onPick(second) },
-                            modifier = Modifier.weight(1f)
-                        )
-                    }
-                }
+                val isSingleAction = ladder.size == 1
 
-                Spacer(Modifier.height(HLSpacing.md))
+                if (!isSingleAction) {
+                    Row(
+                        Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(HLSpacing.md)
+                    ) {
+                        if (top != null) {
+                            HLActionButton(
+                                type = top,
+                                size = ActionButtonSize.BIG,
+                                highlight = true,
+                                onClick = { onPick(top) },
+                                modifier = Modifier.weight(1f)
+                            )
+                        }
+                        if (second != null) {
+                            HLActionButton(
+                                type = second,
+                                size = ActionButtonSize.BIG,
+                                onClick = { onPick(second) },
+                                modifier = Modifier.weight(1f)
+                            )
+                        }
+                    }
 
-                Row(
-                    Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(HLSpacing.md)
-                ) {
-                    medium.forEach { type ->
-                        HLActionButton(
-                            type = type,
-                            size = ActionButtonSize.MEDIUM,
-                            onClick = { onPick(type) },
-                            modifier = Modifier.weight(1f)
+                    Spacer(Modifier.height(HLSpacing.md))
+
+                    Row(
+                        Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(HLSpacing.md)
+                    ) {
+                        medium.forEach { type ->
+                            HLActionButton(
+                                type = type,
+                                size = ActionButtonSize.MEDIUM,
+                                onClick = { onPick(type) },
+                                modifier = Modifier.weight(1f)
+                            )
+                        }
+                        MoreTile(
+                            onClick = onMore,
+                            isSquare = true,
+                            size = 44.dp
                         )
                     }
-                    MoreTile(
-                        onClick = onMore,
-                        modifier = Modifier.weight(1f)
-                    )
+                } else {
+                    Row(
+                        Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(HLSpacing.md)
+                    ) {
+                        if (top != null) {
+                            HLActionButton(
+                                type = top,
+                                size = ActionButtonSize.BIG,
+                                highlight = true,
+                                onClick = { onPick(top) },
+                                modifier = Modifier.weight(1f)
+                            )
+                        }
+                        MoreTile(
+                            onClick = onMore,
+                            isSquare = true,
+                            size = 64.dp
+                        )
+                    }
                 }
             }
         }
@@ -190,28 +218,127 @@ internal fun QuickActions(
 }
 
 @Composable
-private fun MoreTile(onClick: () -> Unit, modifier: Modifier = Modifier) {
-    Row(
+private fun MoreTile(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    isSquare: Boolean = false,
+    size: Dp = 44.dp
+) {
+    Box(
         modifier
-            .height(44.dp)
+            .then(if (isSquare) Modifier.size(size) else Modifier.height(44.dp))
             .clip(HLShapes.medium)
             .background(MaterialTheme.colorScheme.primaryContainer)
-            .clickable(onClick = onClick)
-            .padding(horizontal = HLSpacing.md),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.Center
+            .clickable(onClick = onClick),
+        contentAlignment = Alignment.Center
     ) {
         Icon(
             Icons.Filled.Apps,
-            contentDescription = null,
+            contentDescription = stringResource(Res.string.more_actions),
             tint = MaterialTheme.colorScheme.primary,
             modifier = Modifier.size(18.dp)
         )
-        Spacer(Modifier.width(HLSpacing.sm))
-        Text(
-            stringResource(Res.string.more_actions),
-            style = HLTypography.labelMedium.copy(fontWeight = FontWeight.Medium),
-            color = MaterialTheme.colorScheme.onPrimaryContainer
+    }
+}
+
+// ── Previews ─────────────────────────────────────────────────────────────────
+
+/**
+ * Preview parameter provider for QuickActions states.
+ */
+class QuickActionsStateProvider : PreviewParameterProvider<QuickActionsState> {
+    override val values: Sequence<QuickActionsState> = sequenceOf(
+        // Full ladder, expanded
+        QuickActionsState(
+            ladder = listOf(
+                HitchLogRecordType.LIFT,
+                HitchLogRecordType.GET_OFF,
+                HitchLogRecordType.WALK,
+                HitchLogRecordType.CHECKPOINT,
+                HitchLogRecordType.MEET,
+                HitchLogRecordType.REST_ON,
+                HitchLogRecordType.FREE_TEXT
+            ),
+            collapsed = false
+        ),
+        // Full ladder, collapsed
+        QuickActionsState(
+            ladder = listOf(
+                HitchLogRecordType.LIFT,
+                HitchLogRecordType.GET_OFF,
+                HitchLogRecordType.WALK,
+                HitchLogRecordType.CHECKPOINT,
+                HitchLogRecordType.MEET,
+                HitchLogRecordType.REST_ON,
+                HitchLogRecordType.FREE_TEXT
+            ),
+            collapsed = true
+        ),
+        // Minimal ladder, expanded
+        QuickActionsState(
+            ladder = listOf(
+                HitchLogRecordType.LIFT,
+                HitchLogRecordType.WALK,
+                HitchLogRecordType.CHECKPOINT
+            ),
+            collapsed = false
+        ),
+        // Minimal ladder, collapsed
+        QuickActionsState(
+            ladder = listOf(
+                HitchLogRecordType.LIFT,
+                HitchLogRecordType.WALK,
+                HitchLogRecordType.CHECKPOINT
+            ),
+            collapsed = true
+        ),
+        // Single action, expanded
+        QuickActionsState(
+            ladder = listOf(HitchLogRecordType.LIFT),
+            collapsed = false
+        ),
+        // Single action, collapsed
+        QuickActionsState(
+            ladder = listOf(HitchLogRecordType.LIFT),
+            collapsed = true
+        ),
+        // Empty ladder, expanded
+        QuickActionsState(
+            ladder = emptyList(),
+            collapsed = false
+        ),
+        // Empty ladder, collapsed
+        QuickActionsState(
+            ladder = emptyList(),
+            collapsed = true
         )
+    )
+}
+
+data class QuickActionsState(
+    val ladder: List<HitchLogRecordType>,
+    val collapsed: Boolean
+)
+
+@Preview
+@Composable
+private fun QuickActionsPreview(
+    @PreviewParameter(QuickActionsStateProvider::class) state: QuickActionsState
+) {
+    HLTheme {
+        Column(
+            Modifier
+                .fillMaxWidth()
+                .background(MaterialTheme.colorScheme.background)
+        ) {
+            QuickActions(
+                ladder = state.ladder,
+                collapsed = state.collapsed,
+                onToggle = { },
+                onPick = { },
+                onMore = { },
+                onHeightMeasured = { _, _ -> }
+            )
+        }
     }
 }

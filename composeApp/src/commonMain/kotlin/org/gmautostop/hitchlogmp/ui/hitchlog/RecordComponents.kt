@@ -38,7 +38,7 @@ import org.gmautostop.hitchlogmp.ui.designsystem.components.HLSectionHeader
 import org.gmautostop.hitchlogmp.ui.designsystem.components.IconBadgeSize
 import org.gmautostop.hitchlogmp.ui.designsystem.theme.HLTheme
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLTypography
-import org.gmautostop.hitchlogmp.ui.designsystem.tokens.chipColorsForRole
+import org.gmautostop.hitchlogmp.ui.designsystem.tokens.recordChipColors
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
@@ -76,7 +76,7 @@ internal fun RecordItem(
     onClick: () -> Unit,
 ) {
     val recordTypeUi = record.type.toUi()
-    val chipColors = chipColorsForRole(recordTypeUi.colorRole)
+    val chipColors = recordChipColors(recordTypeUi.color, recordTypeUi.end)
     val label = stringResource(record.type.toStringResource())
 
     Column(

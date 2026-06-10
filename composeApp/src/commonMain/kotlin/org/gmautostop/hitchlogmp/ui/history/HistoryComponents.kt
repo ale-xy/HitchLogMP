@@ -40,7 +40,7 @@ import org.gmautostop.hitchlogmp.ui.components.toStringResource
 import org.gmautostop.hitchlogmp.ui.components.toUi
 import org.gmautostop.hitchlogmp.ui.designsystem.theme.HLTheme
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLTypography
-import org.gmautostop.hitchlogmp.ui.designsystem.tokens.chipColorsForRole
+import org.gmautostop.hitchlogmp.ui.designsystem.tokens.recordChipColors
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
@@ -50,7 +50,7 @@ fun RecordIconChip(
     dimmed: Boolean = false
 ) {
     val typeUi = type.toUi()
-    val chipColors = chipColorsForRole(typeUi.colorRole)
+    val chipColors = recordChipColors(typeUi.color, typeUi.end)
     val strokeMod = if (chipColors.stroke != null) {
         Modifier.border(1.dp, chipColors.stroke, CircleShape)
     } else {
