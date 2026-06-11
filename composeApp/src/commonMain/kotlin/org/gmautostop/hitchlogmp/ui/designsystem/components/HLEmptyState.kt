@@ -15,6 +15,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.DirectionsWalk
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -25,7 +26,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import org.gmautostop.hitchlogmp.ui.designsystem.theme.HLTheme
-import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLColors
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLShapes
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLSpacing
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLTypography
@@ -58,7 +58,7 @@ fun HLEmptyState(
         Icon(
             imageVector = icon,
             contentDescription = null,
-            tint = HLColors.OutlineVariant,
+            tint = MaterialTheme.colorScheme.outlineVariant,
             modifier = Modifier.size(64.dp)
         )
         
@@ -67,7 +67,7 @@ fun HLEmptyState(
         Text(
             text = message,
             style = HLTypography.bodyLarge.copy(fontWeight = FontWeight.Medium),
-            color = HLColors.OnSurface
+            color = MaterialTheme.colorScheme.onSurface
         )
         
         if (primaryAction != null) {
@@ -76,7 +76,7 @@ fun HLEmptyState(
             Row(
                 Modifier
                     .clip(RoundedCornerShape(28.dp))
-                    .background(HLColors.Primary)
+                    .background(MaterialTheme.colorScheme.primary)
                     .clickable(onClick = primaryAction.second)
                     .padding(start = 22.dp, end = 28.dp, top = HLSpacing.xl, bottom = HLSpacing.xl),
                 verticalAlignment = Alignment.CenterVertically,
@@ -85,7 +85,7 @@ fun HLEmptyState(
                 Text(
                     text = primaryAction.first,
                     style = HLTypography.bodyLarge.copy(fontWeight = FontWeight.Medium),
-                    color = HLColors.OnPrimary
+                    color = MaterialTheme.colorScheme.onPrimary
                 )
             }
         }
@@ -102,7 +102,7 @@ fun HLEmptyState(
                 Text(
                     text = secondaryAction.first,
                     style = HLTypography.bodyMedium.copy(fontWeight = FontWeight.Medium),
-                    color = HLColors.Primary
+                    color = MaterialTheme.colorScheme.primary
                 )
             }
         }
@@ -115,7 +115,7 @@ fun HLEmptyState(
 @Composable
 private fun EmptyStateBasicPreview() {
     HLTheme {
-        Box(Modifier.fillMaxSize().background(HLColors.Background)) {
+        Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
             HLEmptyState(
                 icon = Icons.AutoMirrored.Filled.DirectionsWalk,
                 message = "Хроника пуста. Начните гонку!"
@@ -128,7 +128,7 @@ private fun EmptyStateBasicPreview() {
 @Composable
 private fun EmptyStateWithActionsPreview() {
     HLTheme {
-        Box(Modifier.fillMaxSize().background(HLColors.Background)) {
+        Box(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
             HLEmptyState(
                 icon = Icons.AutoMirrored.Filled.DirectionsWalk,
                 message = "Хроника пуста. Начните гонку!",

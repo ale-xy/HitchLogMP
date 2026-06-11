@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -14,7 +15,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
 import org.gmautostop.hitchlogmp.ui.designsystem.theme.HLTheme
-import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLColors
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLShapes
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLSpacing
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLTypography
@@ -34,7 +34,7 @@ fun HLSectionHeader(
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .background(HLColors.Background)
+            .background(MaterialTheme.colorScheme.background)
             .padding(
                 start = HLSpacing.xl,
                 end = HLSpacing.xl,
@@ -46,7 +46,7 @@ fun HLSectionHeader(
             Modifier
                 .fillMaxWidth()
                 .clip(HLShapes.small)
-                .background(HLColors.SurfaceVariant)
+                .background(MaterialTheme.colorScheme.surfaceVariant)
                 .padding(horizontal = HLSpacing.xl, vertical = HLSpacing.md)
         ) {
             Text(
@@ -55,7 +55,7 @@ fun HLSectionHeader(
                     fontWeight = FontWeight.Medium,
                     letterSpacing = 0.5.sp
                 ),
-                color = HLColors.OnSurfaceVariant
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
     }
@@ -67,7 +67,7 @@ fun HLSectionHeader(
 @Composable
 private fun SectionHeaderPreview() {
     HLTheme {
-        Column(Modifier.background(HLColors.Background)) {
+        Column(Modifier.background(MaterialTheme.colorScheme.background)) {
             HLSectionHeader(text = "28 АПРЕЛЯ 2026")
             HLSectionHeader(text = "ПОНЕДЕЛЬНИК")
             HLSectionHeader(text = "СЕГОДНЯ")

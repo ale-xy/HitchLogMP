@@ -13,6 +13,7 @@ import androidx.compose.material.icons.filled.Flag
 import androidx.compose.material.icons.filled.Hotel
 import androidx.compose.material.icons.filled.PauseCircle
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -24,7 +25,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import org.gmautostop.hitchlogmp.ui.designsystem.theme.HLTheme
-import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLColors
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLShapes
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLSpacing
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLTypography
@@ -91,32 +91,32 @@ private fun StatusBadgeVariantsPreview() {
             HLStatusBadge(
                 icon = Icons.Filled.DirectionsCar,
                 label = "В машине",
-                backgroundColor = HLColors.Secondary,
-                foregroundColor = HLColors.OnSecondary
+                backgroundColor = MaterialTheme.colorScheme.secondary,
+                foregroundColor = MaterialTheme.colorScheme.onSecondary
             )
             HLStatusBadge(
                 icon = Icons.Filled.Hotel,
                 label = "Отдых",
-                backgroundColor = HLColors.SurfaceVariant,
-                foregroundColor = HLColors.OnSurfaceVariant
+                backgroundColor = MaterialTheme.colorScheme.surfaceVariant,
+                foregroundColor = MaterialTheme.colorScheme.onSurfaceVariant
             )
             HLStatusBadge(
                 icon = Icons.Filled.PauseCircle,
                 label = "Вне игры",
-                backgroundColor = HLColors.ErrorContainer,
-                foregroundColor = HLColors.OnErrorContainer
+                backgroundColor = MaterialTheme.colorScheme.errorContainer,
+                foregroundColor = MaterialTheme.colorScheme.onErrorContainer
             )
             HLStatusBadge(
                 icon = Icons.Filled.Flag,
                 label = "Финиш",
-                backgroundColor = HLColors.Primary,
-                foregroundColor = HLColors.OnPrimary
+                backgroundColor = MaterialTheme.colorScheme.primary,
+                foregroundColor = MaterialTheme.colorScheme.onPrimary
             )
             HLStatusBadge(
                 icon = Icons.Filled.Cancel,
                 label = "Сход",
-                backgroundColor = HLColors.Error,
-                foregroundColor = HLColors.OnError
+                backgroundColor = MaterialTheme.colorScheme.error,
+                foregroundColor = MaterialTheme.colorScheme.onError
             )
         }
     }
@@ -133,15 +133,15 @@ private fun StatusBadgeWithSubtitlePreview() {
             HLStatusBadge(
                 icon = Icons.Filled.DirectionsCar,
                 label = "В машине",
-                backgroundColor = HLColors.Secondary,
-                foregroundColor = HLColors.OnSecondary,
+                backgroundColor = MaterialTheme.colorScheme.secondary,
+                foregroundColor = MaterialTheme.colorScheme.onSecondary,
                 subtitle = "· с 14:30"
             )
             HLStatusBadge(
                 icon = Icons.Filled.Hotel,
                 label = "Отдых",
-                backgroundColor = HLColors.SurfaceVariant,
-                foregroundColor = HLColors.OnSurfaceVariant,
+                backgroundColor = MaterialTheme.colorScheme.surfaceVariant,
+                foregroundColor = MaterialTheme.colorScheme.onSurfaceVariant,
                 subtitle = "· с 18:45"
             )
         }

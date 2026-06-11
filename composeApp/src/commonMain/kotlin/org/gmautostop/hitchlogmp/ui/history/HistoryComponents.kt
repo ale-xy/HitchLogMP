@@ -15,6 +15,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -38,9 +39,8 @@ import org.gmautostop.hitchlogmp.domain.model.RecordFields
 import org.gmautostop.hitchlogmp.ui.components.toStringResource
 import org.gmautostop.hitchlogmp.ui.components.toUi
 import org.gmautostop.hitchlogmp.ui.designsystem.theme.HLTheme
-import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLColors
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLTypography
-import org.gmautostop.hitchlogmp.ui.designsystem.tokens.chipColorsForRole
+import org.gmautostop.hitchlogmp.ui.designsystem.tokens.recordChipColors
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
@@ -50,7 +50,7 @@ fun RecordIconChip(
     dimmed: Boolean = false
 ) {
     val typeUi = type.toUi()
-    val chipColors = chipColorsForRole(typeUi.colorRole)
+    val chipColors = recordChipColors(typeUi.color, typeUi.end)
     val strokeMod = if (chipColors.stroke != null) {
         Modifier.border(1.dp, chipColors.stroke, CircleShape)
     } else {
@@ -76,14 +76,14 @@ fun RecordIconChip(
 @Composable
 fun ChangeTypeChip(changeType: ChangeType, compact: Boolean = false) {
     val bg = when (changeType) {
-        ChangeType.CREATE -> HLColors.SecondaryContainer
-        ChangeType.UPDATE -> HLColors.PrimaryContainer
-        ChangeType.DELETE -> HLColors.ErrorContainer
+        ChangeType.CREATE -> MaterialTheme.colorScheme.secondaryContainer
+        ChangeType.UPDATE -> MaterialTheme.colorScheme.primaryContainer
+        ChangeType.DELETE -> MaterialTheme.colorScheme.errorContainer
     }
     val fg = when (changeType) {
-        ChangeType.CREATE -> HLColors.OnSecondaryContainer
-        ChangeType.UPDATE -> HLColors.OnPrimaryContainer
-        ChangeType.DELETE -> HLColors.OnErrorContainer
+        ChangeType.CREATE -> MaterialTheme.colorScheme.onSecondaryContainer
+        ChangeType.UPDATE -> MaterialTheme.colorScheme.onPrimaryContainer
+        ChangeType.DELETE -> MaterialTheme.colorScheme.onErrorContainer
     }
     val icon = when (changeType) {
         ChangeType.CREATE -> Icons.Filled.Add
@@ -123,7 +123,7 @@ fun ChangeTypeChip(changeType: ChangeType, compact: Boolean = false) {
 fun TypePill(type: HitchLogRecordType, strike: Boolean = false) {
     Row(
         modifier = Modifier
-            .background(HLColors.SurfaceVariant, RoundedCornerShape(100.dp))
+            .background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(100.dp))
             .padding(horizontal = 6.dp, vertical = 2.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(4.dp)
@@ -132,7 +132,7 @@ fun TypePill(type: HitchLogRecordType, strike: Boolean = false) {
         Text(
             text = stringResource(type.toStringResource()),
             style = HLTypography.labelSmall,
-            color = HLColors.OnSurfaceVariant,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
             textDecoration = if (strike) TextDecoration.LineThrough else null
         )
     }
@@ -146,19 +146,19 @@ fun InlineDiff(before: RecordFields?, after: RecordFields?, changeType: ChangeTy
                 Text(
                     text = field.formattedTime,
                     style = HLTypography.bodyMedium,
-                    color = HLColors.OnSurface)
+                    color = MaterialTheme.colorScheme.onSurface)
                 field.text?.let {
                     Text(
                         text = it,
                         style = HLTypography.bodyMedium,
-                        color = HLColors.OnSurface)
+                        color = MaterialTheme.colorScheme.onSurface)
                 }
             }
             ChangeType.DELETE ->
                 Text(
                     text = stringResource(Res.string.history_record_deleted),
                     style = HLTypography.bodyMedium,
-                    color = HLColors.Error
+                    color = MaterialTheme.colorScheme.error
                 )
             ChangeType.UPDATE -> {
                 val timeChanged = before?.time != after?.time
@@ -169,7 +169,7 @@ fun InlineDiff(before: RecordFields?, after: RecordFields?, changeType: ChangeTy
                         Text(
                             text = it.formattedTime,
                             style = HLTypography.bodyMedium,
-                            color = HLColors.Error,
+                            color = MaterialTheme.colorScheme.error,
                             textDecoration = TextDecoration.LineThrough
                         )
                     }
@@ -177,7 +177,7 @@ fun InlineDiff(before: RecordFields?, after: RecordFields?, changeType: ChangeTy
                         Text(
                             text = it.formattedTime,
                             style = HLTypography.bodyMedium,
-                            color = HLColors.OnSurface
+                            color = MaterialTheme.colorScheme.onSurface
                         )
                     }
                 }
@@ -190,7 +190,7 @@ fun InlineDiff(before: RecordFields?, after: RecordFields?, changeType: ChangeTy
                         Text(
                             text = it,
                             style = HLTypography.bodyMedium,
-                            color = HLColors.Error,
+                            color = MaterialTheme.colorScheme.error,
                             textDecoration = TextDecoration.LineThrough
                         )
                     }
@@ -198,7 +198,7 @@ fun InlineDiff(before: RecordFields?, after: RecordFields?, changeType: ChangeTy
                         Text(
                             text = it,
                             style = HLTypography.bodyMedium,
-                            color = HLColors.OnSurface
+                            color = MaterialTheme.colorScheme.onSurface
                         )
                     }
                 }
@@ -206,7 +206,7 @@ fun InlineDiff(before: RecordFields?, after: RecordFields?, changeType: ChangeTy
                     Text(
                         text = stringResource(Res.string.history_record_created),
                         style = HLTypography.bodyMedium,
-                        color = HLColors.OnSurfaceVariant
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
             }

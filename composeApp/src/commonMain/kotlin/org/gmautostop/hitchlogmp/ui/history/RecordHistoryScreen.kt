@@ -18,6 +18,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.History
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -48,7 +49,6 @@ import org.gmautostop.hitchlogmp.ui.designsystem.components.HLEmptyState
 import org.gmautostop.hitchlogmp.ui.designsystem.components.HLLoadingState
 import org.gmautostop.hitchlogmp.ui.designsystem.components.HLTopBar
 import org.gmautostop.hitchlogmp.ui.designsystem.theme.HLTheme
-import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLColors
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLSpacing
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLTypography
 import org.jetbrains.compose.resources.stringResource
@@ -79,7 +79,7 @@ private fun RecordHistoryScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(HLColors.Background)
+            .background(MaterialTheme.colorScheme.background)
     ) {
         HLTopBar(
             title = stringResource(Res.string.record_history_title),
@@ -95,7 +95,7 @@ private fun RecordHistoryScreen(
             ) {
                 Text(
                     text = stateValue.error.displayMessage,
-                    color = HLColors.Error
+                    color = MaterialTheme.colorScheme.error
                 )
             }
             is ViewState.Show -> {
@@ -135,8 +135,8 @@ private fun RecordHistoryScreen(
 
 @Composable
 private fun CurrentStateCard(record: CurrentRecord) {
-    val bg = if (record.isDeleted) HLColors.ErrorContainer else HLColors.PrimaryContainer
-    val fg = if (record.isDeleted) HLColors.OnErrorContainer else HLColors.OnPrimaryContainer
+    val bg = if (record.isDeleted) MaterialTheme.colorScheme.errorContainer else MaterialTheme.colorScheme.primaryContainer
+    val fg = if (record.isDeleted) MaterialTheme.colorScheme.onErrorContainer else MaterialTheme.colorScheme.onPrimaryContainer
     val strike = if (record.isDeleted) TextDecoration.LineThrough else null
     val labelText = stringResource(
         if (record.isDeleted) Res.string.history_deleted_record else Res.string.history_current_state
@@ -153,7 +153,7 @@ private fun CurrentStateCard(record: CurrentRecord) {
             Text(
                 text = labelText.uppercase(),
                 style = HLTypography.labelSmall,
-                color = HLColors.OnSurface.copy(alpha = 0.75f)
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.75f)
             )
             Spacer(Modifier.height(10.dp))
             Row(
@@ -193,16 +193,16 @@ private fun CurrentStateCard(record: CurrentRecord) {
 private fun DiffBody(before: RecordFields?, after: RecordFields?, changeType: ChangeType) {
     fun timeOld(f: RecordFields): @Composable () -> Unit = {
         Text(f.formattedTime, style = HLTypography.bodyMedium,
-            color = HLColors.Error, textDecoration = TextDecoration.LineThrough)
+            color = MaterialTheme.colorScheme.error, textDecoration = TextDecoration.LineThrough)
     }
     fun timeNew(f: RecordFields): @Composable () -> Unit = {
-        Text(f.formattedTime, style = HLTypography.bodyMedium, color = HLColors.OnSurface)
+        Text(f.formattedTime, style = HLTypography.bodyMedium, color = MaterialTheme.colorScheme.onSurface)
     }
     fun textOld(text: String): @Composable () -> Unit = {
-        Text(text, style = HLTypography.bodyMedium, color = HLColors.Error, textDecoration = TextDecoration.LineThrough)
+        Text(text, style = HLTypography.bodyMedium, color = MaterialTheme.colorScheme.error, textDecoration = TextDecoration.LineThrough)
     }
     fun textNew(text: String): @Composable () -> Unit = {
-        Text(text, style = HLTypography.bodyMedium, color = HLColors.OnSurface)
+        Text(text, style = HLTypography.bodyMedium, color = MaterialTheme.colorScheme.onSurface)
     }
 
     val timeLabel = stringResource(Res.string.history_field_time)
@@ -268,7 +268,7 @@ private fun DiffPairRow(
         Text(
             text = label.uppercase(),
             style = HLTypography.labelMedium,
-            color = HLColors.OnSurfaceVariant,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.width(64.dp)
         )
         Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
@@ -285,10 +285,10 @@ private fun VersionCard(version: RecordVersion) {
             .fillMaxWidth()
             .padding(start = 16.dp, end = 16.dp, bottom = 12.dp),
         shape = RoundedCornerShape(12.dp),
-        color = HLColors.Surface
+        color = MaterialTheme.colorScheme.surface
     ) {
         Box(
-            modifier = Modifier.border(1.dp, HLColors.OutlineVariant, RoundedCornerShape(12.dp))
+            modifier = Modifier.border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(12.dp))
         ) {
             Column(modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp)) {
                 Row(
@@ -300,7 +300,7 @@ private fun VersionCard(version: RecordVersion) {
                     Text(
                         text = version.formattedEditedAt,
                         style = HLTypography.bodyMedium,
-                        color = HLColors.OnSurfaceVariant
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
                 Spacer(Modifier.height(10.dp))

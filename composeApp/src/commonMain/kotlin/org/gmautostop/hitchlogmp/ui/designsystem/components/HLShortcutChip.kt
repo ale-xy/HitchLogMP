@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -19,7 +20,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.gmautostop.hitchlogmp.ui.designsystem.theme.HLTheme
-import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLColors
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLShapes
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLTypography
 
@@ -39,8 +39,8 @@ fun HLShortcutChip(
     isPrimary: Boolean = false,
     modifier: Modifier = Modifier
 ) {
-    val background = if (isPrimary) HLColors.Primary else HLColors.SurfaceContainerLow
-    val foreground = if (isPrimary) HLColors.OnPrimary else HLColors.Primary
+    val background = if (isPrimary) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceContainerLow
+    val foreground = if (isPrimary) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.primary
     val fontSize = if (isPrimary) 15.sp else 13.sp
 
     Box(
@@ -115,7 +115,7 @@ private fun ShortcutChipPreview() {
     HLTheme {
         Column(
             Modifier
-                .background(HLColors.Background)
+                .background(MaterialTheme.colorScheme.background)
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
@@ -147,7 +147,7 @@ private fun ShortcutChipRailPreview() {
     HLTheme {
         Box(
             Modifier
-                .background(HLColors.Background)
+                .background(MaterialTheme.colorScheme.background)
                 .padding(16.dp)
         ) {
             HLShortcutChipRail(onShortcut = { })

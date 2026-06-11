@@ -1,19 +1,25 @@
 package org.gmautostop.hitchlogmp.ui.loglist
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -25,12 +31,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import hitchlogmp.composeapp.generated.resources.Res
 import hitchlogmp.composeapp.generated.resources.edit_chronicle
-import org.gmautostop.hitchlogmp.ui.designsystem.components.HLIconBadge
-import org.gmautostop.hitchlogmp.ui.designsystem.components.IconBadgeSize
+import org.gmautostop.hitchlogmp.domain.model.LogColor
 import org.gmautostop.hitchlogmp.ui.designsystem.theme.HLTheme
-import org.gmautostop.hitchlogmp.ui.designsystem.tokens.ColorRole
-import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLColors
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLTypography
+import org.gmautostop.hitchlogmp.ui.designsystem.tokens.resolve
 import org.jetbrains.compose.resources.stringResource
 
 /**
@@ -48,51 +52,70 @@ fun ChronicleCard(
     onEdit: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val shape = RoundedCornerShape(12.dp)
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(12.dp))
+            .height(IntrinsicSize.Min)
+            .clip(shape)
             .border(
                 width = 1.dp,
-                color = HLColors.OutlineVariant,
-                shape = RoundedCornerShape(12.dp)
+                color = MaterialTheme.colorScheme.outlineVariant,
+                shape = shape
             )
-            .clickable(onClick = onOpen)
-            .padding(16.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(16.dp)
+            .clickable(onClick = onOpen),
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        // Icon badge
-        HLIconBadge(
-            icon = Icons.AutoMirrored.Filled.MenuBook,
-            colorRole = ColorRole.PRIMARY,
-            size = IconBadgeSize.LARGE
+        // Color stripe
+        Box(
+            modifier = Modifier
+                .width(12.dp)
+                .fillMaxHeight()
+                .background(chronicle.color.resolve())
         )
 
-        // Text content
-        Column(
-            modifier = Modifier.weight(1f)
+        // Content
+        Row(
+            modifier = Modifier
+                .weight(1f)
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // Chronicle name
-            Text(
-                text = chronicle.name,
-                style = HLTypography.titleMedium.copy(fontWeight = FontWeight.Medium),
-                color = HLColors.OnSurface,
-                overflow = TextOverflow.Ellipsis
-            )
-        }
+            // Text content
+            Column(
+                modifier = Modifier.weight(1f)
+            ) {
+                // Chronicle name
+                Text(
+                    text = chronicle.name,
+                    style = HLTypography.titleMedium.copy(fontWeight = FontWeight.Medium),
+                    color = MaterialTheme.colorScheme.onSurface,
+                    overflow = TextOverflow.Ellipsis
+                )
+                // Start date
+                if (chronicle.formattedStartDate != null) {
+                    Text(
+                        text = chronicle.formattedStartDate,
+                        style = HLTypography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(top = 3.dp)
+                    )
+                }
+            }
 
-        // Edit button
-        IconButton(
-            onClick = onEdit,
-            modifier = Modifier.size(40.dp)
-        ) {
-            Icon(
-                imageVector = Icons.Default.Edit,
-                contentDescription = stringResource(Res.string.edit_chronicle),
-                tint = HLColors.OnSurfaceVariant,
-                modifier = Modifier.size(24.dp)
-            )
+            // Edit button
+            IconButton(
+                onClick = onEdit,
+                modifier = Modifier.size(40.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Edit,
+                    contentDescription = stringResource(Res.string.edit_chronicle),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(24.dp)
+                )
+            }
         }
     }
 }
@@ -108,7 +131,8 @@ private fun ChronicleCardShortNamePreview() {
                 chronicle = HitchLogUi(
                     id = "1",
                     name = "Москва → СПб",
-                    formattedDate = "5.05.2026"
+                    formattedDate = "5.05.2026",
+                    color = LogColor.BLUE
                 ),
                 onOpen = { },
                 onEdit = { }
@@ -126,7 +150,8 @@ private fun ChronicleCardLongNamePreview() {
                 chronicle = HitchLogUi(
                     id = "2",
                     name = "Москва → Санкт-Петербург → Петрозаводск → Мурманск",
-                    formattedDate = "15.04.2026"
+                    formattedDate = "15.04.2026",
+                    color = LogColor.RED
                 ),
                 onOpen = { },
                 onEdit = { }

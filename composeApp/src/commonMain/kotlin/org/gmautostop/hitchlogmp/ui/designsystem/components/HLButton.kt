@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
@@ -22,7 +23,6 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLColors
 
 /**
  * Button style variants following Material 3 design.
@@ -73,7 +73,7 @@ fun HLButton(
                     if (variant == ButtonVariant.Outlined) {
                         Modifier.border(
                             1.dp, 
-                            if (enabled) HLColors.Outline else HLColors.OutlineVariant, 
+                            if (enabled) MaterialTheme.colorScheme.outline else MaterialTheme.colorScheme.outlineVariant, 
                             shape
                         )
                     } else Modifier
@@ -115,27 +115,27 @@ private data class ButtonColors(
 private fun getButtonColors(variant: ButtonVariant, isPressed: Boolean, enabled: Boolean): ButtonColors {
     if (!enabled) {
         return ButtonColors(
-            background = HLColors.SurfaceVariant,
-            foreground = HLColors.OnSurfaceVariant
+            background = MaterialTheme.colorScheme.surfaceVariant,
+            foreground = MaterialTheme.colorScheme.onSurfaceVariant
         )
     }
     
     return when (variant) {
         ButtonVariant.Filled -> ButtonColors(
-            background = if (isPressed) HLColors.PrimaryContainer else HLColors.Primary,
-            foreground = if (isPressed) HLColors.OnPrimaryContainer else HLColors.OnPrimary
+            background = if (isPressed) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.primary,
+            foreground = if (isPressed) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onPrimary
         )
         ButtonVariant.Tonal -> ButtonColors(
-            background = if (isPressed) HLColors.Primary else HLColors.PrimaryContainer,
-            foreground = if (isPressed) HLColors.OnPrimary else HLColors.OnPrimaryContainer
+            background = if (isPressed) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.primaryContainer,
+            foreground = if (isPressed) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onPrimaryContainer
         )
         ButtonVariant.Outlined -> ButtonColors(
-            background = if (isPressed) HLColors.SurfaceContainer else Color.Transparent,
-            foreground = HLColors.OnSurface
+            background = if (isPressed) MaterialTheme.colorScheme.surfaceContainer else Color.Transparent,
+            foreground = MaterialTheme.colorScheme.onSurface
         )
         ButtonVariant.Text -> ButtonColors(
-            background = if (isPressed) HLColors.SurfaceContainer else Color.Transparent,
-            foreground = HLColors.Primary
+            background = if (isPressed) MaterialTheme.colorScheme.surfaceContainer else Color.Transparent,
+            foreground = MaterialTheme.colorScheme.primary
         )
     }
 }

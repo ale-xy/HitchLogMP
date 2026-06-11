@@ -2,26 +2,35 @@ package org.gmautostop.hitchlogmp.ui.hitchlog
 
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.DirectionsWalk
+import androidx.compose.material.icons.filled.Chat
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Group
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -35,12 +44,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.zIndex
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import hitchlogmp.composeapp.generated.resources.Res
 import hitchlogmp.composeapp.generated.resources.chronicle_empty
@@ -58,6 +69,7 @@ import hitchlogmp.composeapp.generated.resources.new_record
 import hitchlogmp.composeapp.generated.resources.start
 import org.gmautostop.hitchlogmp.domain.AppError
 import org.gmautostop.hitchlogmp.domain.model.HitchLogRecordType
+import org.gmautostop.hitchlogmp.domain.model.LogColor
 import org.gmautostop.hitchlogmp.export.ExportFormat
 import org.gmautostop.hitchlogmp.ui.Error
 import org.gmautostop.hitchlogmp.ui.ViewState
@@ -68,8 +80,9 @@ import org.gmautostop.hitchlogmp.ui.designsystem.components.HLEmptyState
 import org.gmautostop.hitchlogmp.ui.designsystem.components.HLLoadingState
 import org.gmautostop.hitchlogmp.ui.designsystem.components.HLTopBar
 import org.gmautostop.hitchlogmp.ui.designsystem.theme.HLTheme
-import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLColors
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLSpacing
+import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLTypography
+import org.gmautostop.hitchlogmp.ui.designsystem.tokens.resolve
 import org.jetbrains.compose.resources.stringResource
 
 // ── Top-level screen ─────────────────────────────────────────────────────────
@@ -181,15 +194,22 @@ private fun HitchLog(
             }
     }
 
+    var didInitialScroll by remember { mutableStateOf(false) }
     LaunchedEffect(state.records.size) {
         if (state.records.isNotEmpty()) {
-            val totalItems = groups.size * 2
-            listState.animateScrollToItem(totalItems - 1)
+            val totalItems = 1 + groups.size * 2 // +1 for props section
+            if (!didInitialScroll) {
+                // Instant jump on first load to avoid a visible top→bottom animation
+                listState.scrollToItem(totalItems - 1)
+                didInitialScroll = true
+            } else {
+                listState.animateScrollToItem(totalItems - 1)
+            }
         }
     }
 
     Scaffold(
-        containerColor = HLColors.Background,
+        containerColor = MaterialTheme.colorScheme.background,
         snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             HLTopBar(
@@ -197,22 +217,6 @@ private fun HitchLog(
                 subtitle = state.teamId.takeIf { it.isNotEmpty() },
                 onNavigateUp = navigateUp,
                 actions = {
-                    // Edit icon
-                    IconButton(
-                        onClick = { editLog(state.logId) },
-                        enabled = !isEmpty
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Edit,
-                            contentDescription = stringResource(Res.string.edit_chronicle),
-                            tint = if (isEmpty) {
-                                HLColors.OnSurfaceVariant.copy(alpha = 0.38f)
-                            } else {
-                                HLColors.OnSurfaceVariant
-                            }
-                        )
-                    }
-                    
                     // History icon
                     IconButton(
                         onClick = navigateToLogHistory,
@@ -222,9 +226,9 @@ private fun HitchLog(
                             imageVector = Icons.Default.History,
                             contentDescription = stringResource(Res.string.history_menu),
                             tint = if (isEmpty) {
-                                HLColors.OnSurfaceVariant.copy(alpha = 0.38f)
+                                MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.38f)
                             } else {
-                                HLColors.OnSurfaceVariant
+                                MaterialTheme.colorScheme.onSurfaceVariant
                             }
                         )
                     }
@@ -239,9 +243,9 @@ private fun HitchLog(
                                 imageVector = Icons.Default.Share,
                                 contentDescription = stringResource(Res.string.export_title),
                                 tint = if (isEmpty) {
-                                    HLColors.OnSurfaceVariant.copy(alpha = 0.38f)
+                                    MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.38f)
                                 } else {
-                                    HLColors.OnSurfaceVariant
+                                    MaterialTheme.colorScheme.onSurfaceVariant
                                 }
                             )
                         }
@@ -287,7 +291,7 @@ private fun HitchLog(
             Modifier
                 .padding(innerPadding)
                 .fillMaxSize()
-                .background(HLColors.Background)
+                .background(MaterialTheme.colorScheme.background)
         ) {
             if (isEmpty) {
                 HLEmptyState(
@@ -307,6 +311,15 @@ private fun HitchLog(
                             state = listState,
                             modifier = Modifier.fillMaxSize(),
                         ) {
+                            item(key = "props") {
+                                ChroniclePropertiesSection(
+                                    logName = state.logName,
+                                    team = state.team,
+                                    comment = state.comment,
+                                    color = state.color,
+                                    onEdit = { editLog(state.logId) }
+                                )
+                            }
                             groups.forEach { (date, items) ->
                                 item(key = "header_${date}") {
                                     DateHeader(date = date)
@@ -348,7 +361,6 @@ private fun HitchLog(
                 open = sheetOpen,
                 title = stringResource(Res.string.new_record),
                 onClose = { sheetOpen = false },
-                modifier = Modifier.zIndex(10f),
                 content = {
                     Column(
                         Modifier.padding(horizontal = HLSpacing.xl),
@@ -373,6 +385,110 @@ private fun HitchLog(
                     }
                 }
             )
+        }
+    }
+}
+
+@Composable
+private fun ChroniclePropertiesSection(
+    logName: String,
+    team: String?,
+    comment: String?,
+    color: LogColor,
+    onEdit: () -> Unit
+) {
+    val cardShape = RoundedCornerShape(12.dp)
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .height(IntrinsicSize.Min)
+            .clip(cardShape)
+            .border(1.dp, MaterialTheme.colorScheme.outlineVariant, cardShape)
+    ) {
+        // Left color stripe
+        Box(
+            modifier = Modifier
+                .width(12.dp)
+                .fillMaxHeight()
+                .background(color.resolve())
+        )
+
+        // Content
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .padding(start = 16.dp, end = 8.dp, top = 8.dp, bottom = 16.dp)
+        ) {
+            // Title row with edit button aligned to the title
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = logName,
+                    style = HLTypography.titleMedium.copy(fontSize = 18.sp),
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.weight(1f)
+                )
+                IconButton(onClick = onEdit) {
+                    Icon(
+                        imageVector = Icons.Default.Edit,
+                        contentDescription = stringResource(Res.string.edit_chronicle),
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(22.dp)
+                    )
+                }
+            }
+
+            // Team
+            if (!team.isNullOrBlank()) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Group,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.size(18.dp)
+                    )
+                    Text(
+                        text = team,
+                        style = HLTypography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(start = 8.dp)
+                    )
+                }
+            }
+
+            // Comment
+            if (!comment.isNullOrBlank()) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 8.dp),
+                    verticalAlignment = Alignment.Top
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Chat,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier
+                            .padding(top = 2.dp)
+                            .size(18.dp)
+                    )
+                    Text(
+                        text = comment,
+                        style = HLTypography.bodyLarge.copy(fontWeight = FontWeight.Normal),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(start = 8.dp)
+                    )
+                }
+            }
         }
     }
 }
@@ -407,7 +523,7 @@ private fun HitchLogScreenPreview(
         Box(
             Modifier
                 .fillMaxSize()
-                .background(HLColors.Background)
+                .background(MaterialTheme.colorScheme.background)
         ) {
             when (state) {
                 is ViewState.Loading -> HLLoadingState()

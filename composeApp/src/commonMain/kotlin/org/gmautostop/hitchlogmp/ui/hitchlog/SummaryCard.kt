@@ -16,6 +16,7 @@ import androidx.compose.material.icons.filled.Flag
 import androidx.compose.material.icons.filled.Hotel
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.PauseCircle
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -40,7 +41,6 @@ import org.gmautostop.hitchlogmp.timeFormatForDisplay
 import org.gmautostop.hitchlogmp.ui.designsystem.components.HLStatCell
 import org.gmautostop.hitchlogmp.ui.designsystem.components.HLStatusBadge
 import org.gmautostop.hitchlogmp.ui.designsystem.theme.HLTheme
-import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLColors
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLShapes
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLSpacing
 import org.jetbrains.compose.resources.stringResource
@@ -55,7 +55,7 @@ internal fun SummaryCard(
             .padding(start = HLSpacing.xl, end = HLSpacing.xl, top = HLSpacing.lg, bottom = HLSpacing.xs)
             .fillMaxWidth()
             .clip(HLShapes.medium)
-            .background(HLColors.PrimaryContainer)
+            .background(MaterialTheme.colorScheme.primaryContainer)
             .padding(HLSpacing.xl)
     ) {
         Row(
@@ -94,11 +94,11 @@ internal fun SummaryCard(
 @Composable
 private fun LiveStatusBadge(state: LiveState) {
     val (bg, fg, icon, label) = when (state.status) {
-        LiveStatus.IN_CAR  -> BadgeStyle(HLColors.Secondary, HLColors.OnSecondary, Icons.Filled.DirectionsCar, stringResource(Res.string.status_in_car))
-        LiveStatus.REST    -> BadgeStyle(HLColors.SurfaceVariant, HLColors.OnSurfaceVariant, Icons.Filled.Hotel, stringResource(Res.string.rest))
-        LiveStatus.OFFSIDE -> BadgeStyle(HLColors.ErrorContainer, HLColors.OnErrorContainer, Icons.Filled.PauseCircle, stringResource(Res.string.offside_on))
-        LiveStatus.FINISH  -> BadgeStyle(HLColors.Primary, HLColors.OnPrimary, Icons.Filled.Flag, stringResource(Res.string.status_finished))
-        LiveStatus.RETIRE  -> BadgeStyle(HLColors.Error, HLColors.OnError, Icons.Filled.Cancel, stringResource(Res.string.retire))
+        LiveStatus.IN_CAR  -> BadgeStyle(MaterialTheme.colorScheme.secondary, MaterialTheme.colorScheme.onSecondary, Icons.Filled.DirectionsCar, stringResource(Res.string.status_in_car))
+        LiveStatus.REST    -> BadgeStyle(MaterialTheme.colorScheme.surfaceVariant, MaterialTheme.colorScheme.onSurfaceVariant, Icons.Filled.Hotel, stringResource(Res.string.rest))
+        LiveStatus.OFFSIDE -> BadgeStyle(MaterialTheme.colorScheme.errorContainer, MaterialTheme.colorScheme.onErrorContainer, Icons.Filled.PauseCircle, stringResource(Res.string.offside_on))
+        LiveStatus.FINISH  -> BadgeStyle(MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.onPrimary, Icons.Filled.Flag, stringResource(Res.string.status_finished))
+        LiveStatus.RETIRE  -> BadgeStyle(MaterialTheme.colorScheme.error, MaterialTheme.colorScheme.onError, Icons.Filled.Cancel, stringResource(Res.string.retire))
     }
     val sinceLabel = state.since?.let { "· с ${timeFormatForDisplay.format(it)}" }
 
@@ -200,7 +200,7 @@ private fun SummaryCardPreview(
     @PreviewParameter(SummaryCardStateProvider::class) summary: SummaryCardState
 ) {
     HLTheme {
-        Box(Modifier.background(HLColors.Background)) {
+        Box(Modifier.background(MaterialTheme.colorScheme.background)) {
             SummaryCard(
                 summary = summary,
                 onToggleRest = {}

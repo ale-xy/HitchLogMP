@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -36,9 +37,8 @@ import org.gmautostop.hitchlogmp.ui.designsystem.components.HLIconBadge
 import org.gmautostop.hitchlogmp.ui.designsystem.components.HLSectionHeader
 import org.gmautostop.hitchlogmp.ui.designsystem.components.IconBadgeSize
 import org.gmautostop.hitchlogmp.ui.designsystem.theme.HLTheme
-import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLColors
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLTypography
-import org.gmautostop.hitchlogmp.ui.designsystem.tokens.chipColorsForRole
+import org.gmautostop.hitchlogmp.ui.designsystem.tokens.recordChipColors
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
@@ -56,8 +56,8 @@ fun RecordGroupCard(
             .padding(horizontal = 16.dp)
             .fillMaxWidth()
             .clip(RoundedCornerShape(12.dp))
-            .background(HLColors.Surface)
-            .border(1.dp, HLColors.OutlineVariant, RoundedCornerShape(12.dp))
+            .background(MaterialTheme.colorScheme.surface)
+            .border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(12.dp))
     ) {
         items.forEachIndexed { idx, record ->
             RecordItem(
@@ -76,7 +76,7 @@ internal fun RecordItem(
     onClick: () -> Unit,
 ) {
     val recordTypeUi = record.type.toUi()
-    val chipColors = chipColorsForRole(recordTypeUi.colorRole)
+    val chipColors = recordChipColors(recordTypeUi.color, recordTypeUi.end)
     val label = stringResource(record.type.toStringResource())
 
     Column(
@@ -102,14 +102,14 @@ internal fun RecordItem(
                 Text(
                     text = label,
                     style = HLTypography.bodyLarge.copy(fontWeight = FontWeight.Medium),
-                    color = HLColors.OnSurface,
+                    color = MaterialTheme.colorScheme.onSurface,
                 )
                 if (record.text.isNotEmpty()) {
                     Spacer(Modifier.height(2.dp))
                     Text(
                         text = record.text,
                         style = HLTypography.bodyMedium,
-                        color = HLColors.OnSurfaceVariant,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         maxLines = 2,
                         overflow = TextOverflow.Ellipsis,
                     )
@@ -119,13 +119,13 @@ internal fun RecordItem(
             Text(
                 text = timeFormatForDisplay.format(record.time),
                 style = HLTypography.labelMedium.copy(fontWeight = FontWeight.Medium),
-                color = HLColors.OnSurfaceVariant,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
 
         if (!isLast) {
             HorizontalDivider(
-                color = HLColors.OutlineVariant,
+                color = MaterialTheme.colorScheme.outlineVariant,
                 thickness = 1.dp,
             )
         }
@@ -138,7 +138,7 @@ internal fun RecordItem(
 @Composable
 private fun DateHeaderPreview() {
     HLTheme {
-        Column(Modifier.background(HLColors.Background)) {
+        Column(Modifier.background(MaterialTheme.colorScheme.background)) {
             DateHeader(date = LocalDate(2026, 4, 28))
         }
     }
@@ -150,7 +150,7 @@ private fun RecordItemVariantsPreview() {
     HLTheme {
         Column(
             Modifier
-                .background(HLColors.Background)
+                .background(MaterialTheme.colorScheme.background)
                 .padding(16.dp)
         ) {
             HLCard {
@@ -210,7 +210,7 @@ private fun RecordGroupCardPreview() {
         Box(
             Modifier
                 .fillMaxSize()
-                .background(HLColors.Background)
+                .background(MaterialTheme.colorScheme.background)
         ) {
             RecordGroupCard(
                 items = listOf(

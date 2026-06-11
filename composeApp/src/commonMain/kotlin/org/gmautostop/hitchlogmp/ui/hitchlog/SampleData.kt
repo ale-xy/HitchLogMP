@@ -34,14 +34,18 @@ fun sampleHitchLog(
     userId: String = "user123",
     name: String = "Москва → Санкт-Петербург",
     raceId: String = "race2026",
-    teamId: String = ""
+    teamId: String = "",
+    team: String? = "Иванов + Сидорова",
+    comment: String? = "Тренировочная гонка, плохая погода",
 ) = HitchLog(
     id = id,
     userId = userId,
     raceId = raceId,
     teamId = teamId,
     name = name,
-    creationTime = Timestamp.now()
+    creationTime = Timestamp.now(),
+    team = team,
+    comment = comment,
 )
 
 fun sampleHitchLogs() = listOf(
@@ -141,6 +145,8 @@ fun sampleHitchLogState(
     logId = log.id,
     logName = log.name,
     teamId = log.teamId,
+    team = log.team,
+    comment = log.comment,
     records = records,
     summary = run {
         val restUsedMin = computeRestMinutes(records)

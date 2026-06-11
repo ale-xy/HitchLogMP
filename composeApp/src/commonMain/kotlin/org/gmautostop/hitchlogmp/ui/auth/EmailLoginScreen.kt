@@ -17,6 +17,7 @@ import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -58,7 +59,6 @@ import org.gmautostop.hitchlogmp.ui.components.asStringSuspend
 import org.gmautostop.hitchlogmp.ui.designsystem.components.HLButton
 import org.gmautostop.hitchlogmp.ui.designsystem.components.HLTopBar
 import org.gmautostop.hitchlogmp.ui.designsystem.theme.HLTheme
-import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLColors
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLTypography
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.hlFilledTextFieldColors
 import org.jetbrains.compose.resources.stringResource
@@ -111,7 +111,7 @@ fun EmailLoginScreen(
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() }
 ) {
     Scaffold(
-        containerColor = HLColors.Background,
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             HLTopBar(
                 title = stringResource(Res.string.email_login_title),
@@ -163,7 +163,7 @@ fun EmailLoginScreen(
                         Icon(
                             imageVector = if (passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
                             contentDescription = stringResource(Res.string.password_visibility_toggle),
-                            tint = HLColors.OnSurfaceVariant
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                 },
@@ -181,7 +181,7 @@ fun EmailLoginScreen(
                 Text(
                     text = stringResource(Res.string.forgot_password),
                     style = HLTypography.labelLarge,
-                    color = HLColors.Primary
+                    color = MaterialTheme.colorScheme.primary
                 )
             }
 
@@ -196,7 +196,7 @@ fun EmailLoginScreen(
                         CircularProgressIndicator(
                             modifier = Modifier.size(20.dp),
                             strokeWidth = 2.dp,
-                            color = HLColors.Primary
+                            color = MaterialTheme.colorScheme.primary
                         )
                     }
                 } else null,
@@ -216,7 +216,7 @@ fun EmailLoginScreen(
                 Text(
                     text = stringResource(Res.string.no_account),
                     style = HLTypography.labelLarge,
-                    color = HLColors.Primary
+                    color = MaterialTheme.colorScheme.primary
                 )
             }
         }

@@ -9,13 +9,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import org.gmautostop.hitchlogmp.ui.designsystem.theme.HLTheme
-import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLColors
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLShapes
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLTypography
 
@@ -38,10 +38,10 @@ fun HLSaveBar(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .background(HLColors.Surface)
+            .background(MaterialTheme.colorScheme.surface)
     ) {
         HorizontalDivider(
-            color = HLColors.OutlineVariant,
+            color = MaterialTheme.colorScheme.outlineVariant,
             thickness = 1.dp
         )
         
@@ -53,10 +53,10 @@ fun HLSaveBar(
                 .padding(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 14.dp)
                 .height(48.dp),
             colors = ButtonDefaults.buttonColors(
-                containerColor = HLColors.Primary,
-                contentColor = HLColors.OnPrimary,
-                disabledContainerColor = HLColors.SurfaceVariant,
-                disabledContentColor = HLColors.OnSurfaceVariant
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary,
+                disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                disabledContentColor = MaterialTheme.colorScheme.onSurfaceVariant
             ),
             shape = HLShapes.medium
         ) {
@@ -74,7 +74,7 @@ fun HLSaveBar(
 @Composable
 private fun SaveBarEnabledPreview() {
     HLTheme {
-        Box(Modifier.background(HLColors.Background)) {
+        Box(Modifier.background(MaterialTheme.colorScheme.background)) {
             HLSaveBar(
                 label = "Сохранить",
                 enabled = true,
@@ -88,7 +88,7 @@ private fun SaveBarEnabledPreview() {
 @Composable
 private fun SaveBarDisabledPreview() {
     HLTheme {
-        Box(Modifier.background(HLColors.Background)) {
+        Box(Modifier.background(MaterialTheme.colorScheme.background)) {
             HLSaveBar(
                 label = "Сохранить",
                 enabled = false,

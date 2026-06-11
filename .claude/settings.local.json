@@ -1,4 +1,5 @@
 {
+  "respectGitignore": false,
   "permissions": {
     "allow": [
       "Edit(**)",
@@ -42,7 +43,12 @@
       "WebFetch(domain:klibs.io)",
       "Bash(find /workspace/StudioProjects/HitchLogMP -type f \\\\\\( -name \"*.jar\" -o -name \"*.klib\" \\\\\\) 2>/dev/null | head -20)",
       "WebFetch(domain:api.github.com)",
-      "WebFetch(domain:gitliveapp.github.io)"
+      "WebFetch(domain:gitliveapp.github.io)",
+      "Read(//usr/lib/**)",
+      "Read(//usr/local/lib/**)",
+      "Bash(which convert:*)",
+      "Bash(convert /workspace/StudioProjects/HitchLogMP/Screenshot_20260602_211127.png -resize 50% /tmp/screenshot2.png)",
+      "Bash(convert /workspace/StudioProjects/HitchLogMP/Screenshot_20260602_212330.png -resize 50% /tmp/screenshot3.png)"
     ]
   }
 }

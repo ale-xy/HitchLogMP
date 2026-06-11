@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -24,11 +25,10 @@ import org.gmautostop.hitchlogmp.domain.model.HitchLogRecordType
 import org.gmautostop.hitchlogmp.ui.components.toStringResource
 import org.gmautostop.hitchlogmp.ui.components.toUi
 import org.gmautostop.hitchlogmp.ui.designsystem.theme.HLTheme
-import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLColors
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLShapes
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLSpacing
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLTypography
-import org.gmautostop.hitchlogmp.ui.designsystem.tokens.chipColorsForRole
+import org.gmautostop.hitchlogmp.ui.designsystem.tokens.recordChipColors
 import org.jetbrains.compose.resources.stringResource
 
 /**
@@ -89,10 +89,10 @@ private fun BigActionButton(
     modifier: Modifier = Modifier
 ) {
     val recordTypeUi = type.toUi()
-    val chipColors = chipColorsForRole(recordTypeUi.colorRole)
+    val chipColors = recordChipColors(recordTypeUi.color, recordTypeUi.end)
     val label = stringResource(type.toStringResource())
-    val background = if (highlight) HLColors.PrimaryContainer else HLColors.SurfaceVariant
-    val foreground = if (highlight) HLColors.OnPrimaryContainer else HLColors.OnSurface
+    val background = if (highlight) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant
+    val foreground = if (highlight) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurface
 
     Row(
         modifier = modifier
@@ -126,14 +126,14 @@ private fun MediumActionButton(
     modifier: Modifier = Modifier
 ) {
     val recordTypeUi = type.toUi()
-    val chipColors = chipColorsForRole(recordTypeUi.colorRole)
+    val chipColors = recordChipColors(recordTypeUi.color, recordTypeUi.end)
     val label = stringResource(type.toStringResource())
 
     Row(
         modifier = modifier
             .height(44.dp)
             .clip(HLShapes.medium)
-            .border(1.dp, HLColors.OutlineVariant, HLShapes.medium)
+            .border(1.dp, MaterialTheme.colorScheme.outlineVariant, HLShapes.medium)
             .clickable(onClick = onClick)
             .padding(horizontal = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
@@ -147,7 +147,7 @@ private fun MediumActionButton(
         Text(
             text = label,
             style = HLTypography.labelMedium.copy(fontWeight = FontWeight.Medium),
-            color = HLColors.OnSurface,
+            color = MaterialTheme.colorScheme.onSurface,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )
@@ -161,15 +161,15 @@ private fun SheetActionButton(
     modifier: Modifier = Modifier
 ) {
     val recordTypeUi = type.toUi()
-    val chipColors = chipColorsForRole(recordTypeUi.colorRole)
+    val chipColors = recordChipColors(recordTypeUi.color, recordTypeUi.end)
     val label = stringResource(type.toStringResource())
 
     Column(
         modifier = modifier
             .height(92.dp)
             .clip(HLShapes.large)
-            .background(HLColors.Surface)
-            .border(1.dp, HLColors.OutlineVariant, HLShapes.large)
+            .background(MaterialTheme.colorScheme.surface)
+            .border(1.dp, MaterialTheme.colorScheme.outlineVariant, HLShapes.large)
             .clickable(onClick = onClick)
             .padding(vertical = 10.dp, horizontal = HLSpacing.md),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -184,7 +184,7 @@ private fun SheetActionButton(
         Text(
             text = label,
             style = HLTypography.labelMedium.copy(fontWeight = FontWeight.Medium),
-            color = HLColors.OnSurface,
+            color = MaterialTheme.colorScheme.onSurface,
             maxLines = 2,
             overflow = TextOverflow.Ellipsis
         )

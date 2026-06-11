@@ -11,13 +11,14 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.DirectionsWalk
-import androidx.compose.material.icons.filled.Block
+import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.DirectionsCar
-import androidx.compose.material.icons.filled.Flag
 import androidx.compose.material.icons.filled.Group
 import androidx.compose.material.icons.filled.Hotel
+import androidx.compose.material.icons.filled.LightMode
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.PauseCircle
+import androidx.compose.material.icons.filled.SportsScore
 import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -31,9 +32,9 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import org.gmautostop.hitchlogmp.ui.designsystem.theme.HLTheme
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.ChipColors
-import org.gmautostop.hitchlogmp.ui.designsystem.tokens.ColorRole
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLTypography
-import org.gmautostop.hitchlogmp.ui.designsystem.tokens.chipColorsForRole
+import org.gmautostop.hitchlogmp.ui.designsystem.tokens.RecordColor
+import org.gmautostop.hitchlogmp.ui.designsystem.tokens.recordChipColors
 
 /**
  * Size variants for icon badges.
@@ -45,34 +46,7 @@ enum class IconBadgeSize(val iconSize: Dp, val badgeSize: Dp) {
 }
 
 /**
- * Circular icon badge with semantic color role.
- * Used throughout the app for record types, actions, and status indicators.
- *
- * @param icon The icon to display
- * @param colorRole Semantic color role that determines background/foreground colors
- * @param size Size variant (SMALL, MEDIUM, LARGE)
- * @param modifier Optional modifier
- */
-@Composable
-fun HLIconBadge(
-    icon: ImageVector,
-    colorRole: ColorRole,
-    size: IconBadgeSize = IconBadgeSize.MEDIUM,
-    modifier: Modifier = Modifier
-) {
-    val chipColors = chipColorsForRole(colorRole)
-    
-    HLIconBadge(
-        icon = icon,
-        chipColors = chipColors,
-        size = size,
-        modifier = modifier
-    )
-}
-
-/**
  * Circular icon badge with explicit chip colors.
- * Use this variant when you need custom colors not covered by ColorRole.
  *
  * @param icon The icon to display
  * @param chipColors Explicit background, foreground, and optional stroke colors
@@ -122,17 +96,17 @@ private fun IconBadgeSizesPreview() {
         ) {
             HLIconBadge(
                 icon = Icons.Filled.DirectionsCar,
-                colorRole = ColorRole.PRIMARY,
+                chipColors = recordChipColors(RecordColor.YELLOW, end = false),
                 size = IconBadgeSize.SMALL
             )
             HLIconBadge(
                 icon = Icons.Filled.DirectionsCar,
-                colorRole = ColorRole.PRIMARY,
+                chipColors = recordChipColors(RecordColor.YELLOW, end = false),
                 size = IconBadgeSize.MEDIUM
             )
             HLIconBadge(
                 icon = Icons.Filled.DirectionsCar,
-                colorRole = ColorRole.PRIMARY,
+                chipColors = recordChipColors(RecordColor.YELLOW, end = false),
                 size = IconBadgeSize.LARGE
             )
         }
@@ -149,59 +123,52 @@ private fun IconBadgeColorsPreview() {
         ) {
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 HLIconBadge(
-                    icon = Icons.Filled.Flag,
-                    colorRole = ColorRole.PRIMARY,
+                    icon = Icons.Filled.SportsScore,
+                    chipColors = recordChipColors(RecordColor.BLUE, end = false),
                     size = IconBadgeSize.MEDIUM
                 )
-                Text("PRIMARY", style = HLTypography.bodyMedium)
-            }
-            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                HLIconBadge(
-                    icon = Icons.Filled.DirectionsCar,
-                    colorRole = ColorRole.SECONDARY,
-                    size = IconBadgeSize.MEDIUM
-                )
-                Text("SECONDARY", style = HLTypography.bodyMedium)
+                Text("BLUE", style = HLTypography.bodyMedium)
             }
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 HLIconBadge(
                     icon = Icons.AutoMirrored.Filled.DirectionsWalk,
-                    colorRole = ColorRole.TERTIARY,
+                    chipColors = recordChipColors(RecordColor.ORANGE, end = false),
                     size = IconBadgeSize.MEDIUM
                 )
-                Text("TERTIARY", style = HLTypography.bodyMedium)
+                Text("ORANGE", style = HLTypography.bodyMedium)
             }
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 HLIconBadge(
                     icon = Icons.Filled.PauseCircle,
-                    colorRole = ColorRole.ERROR,
+                    chipColors = recordChipColors(RecordColor.MAGENTA, end = false),
                     size = IconBadgeSize.MEDIUM
                 )
-                Text("ERROR", style = HLTypography.bodyMedium)
-            }
-            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                HLIconBadge(
-                    icon = Icons.Filled.Block,
-                    colorRole = ColorRole.ERROR_BOLD,
-                    size = IconBadgeSize.MEDIUM
-                )
-                Text("ERROR_BOLD", style = HLTypography.bodyMedium)
-            }
-            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                HLIconBadge(
-                    icon = Icons.Filled.Group,
-                    colorRole = ColorRole.OUTLINE,
-                    size = IconBadgeSize.MEDIUM
-                )
-                Text("OUTLINE", style = HLTypography.bodyMedium)
+                Text("MAGENTA", style = HLTypography.bodyMedium)
             }
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 HLIconBadge(
                     icon = Icons.Filled.Hotel,
-                    colorRole = ColorRole.SURFACE,
+                    chipColors = recordChipColors(RecordColor.GREEN, end = false),
                     size = IconBadgeSize.MEDIUM
                 )
-                Text("SURFACE", style = HLTypography.bodyMedium)
+                Text("GREEN", style = HLTypography.bodyMedium)
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                HLIconBadge(
+                    icon = Icons.Filled.Group,
+                    chipColors = recordChipColors(RecordColor.NEUTRAL_DARK, end = false),
+                    size = IconBadgeSize.MEDIUM
+                )
+                Text("NEUTRAL_DARK", style = HLTypography.bodyMedium)
+            }
+            // Outlined contour ("end") chip variant
+            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                HLIconBadge(
+                    icon = Icons.AutoMirrored.Filled.Logout,
+                    chipColors = recordChipColors(RecordColor.YELLOW, end = true),
+                    size = IconBadgeSize.MEDIUM
+                )
+                Text("YELLOW (end)", style = HLTypography.bodyMedium)
             }
         }
     }
@@ -221,27 +188,27 @@ private fun IconBadgeRecordTypesPreview() {
             ) {
                 HLIconBadge(
                     icon = Icons.Filled.Timer,
-                    colorRole = ColorRole.PRIMARY,
+                    chipColors = recordChipColors(RecordColor.BLUE, end = false),
                     size = IconBadgeSize.LARGE
                 )
                 HLIconBadge(
                     icon = Icons.Filled.DirectionsCar,
-                    colorRole = ColorRole.SECONDARY,
+                    chipColors = recordChipColors(RecordColor.YELLOW, end = false),
                     size = IconBadgeSize.LARGE
                 )
                 HLIconBadge(
                     icon = Icons.Filled.LocationOn,
-                    colorRole = ColorRole.PRIMARY,
+                    chipColors = recordChipColors(RecordColor.BLUE, end = false),
                     size = IconBadgeSize.LARGE
                 )
                 HLIconBadge(
-                    icon = Icons.Filled.Hotel,
-                    colorRole = ColorRole.SURFACE,
+                    icon = Icons.Filled.LightMode,
+                    chipColors = recordChipColors(RecordColor.GREEN, end = true),
                     size = IconBadgeSize.LARGE
                 )
                 HLIconBadge(
-                    icon = Icons.Filled.Flag,
-                    colorRole = ColorRole.PRIMARY,
+                    icon = Icons.Filled.SportsScore,
+                    chipColors = recordChipColors(RecordColor.BLUE, end = false),
                     size = IconBadgeSize.LARGE
                 )
             }

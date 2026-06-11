@@ -14,6 +14,7 @@ import androidx.compose.material.icons.filled.DirectionsCar
 import androidx.compose.material.icons.filled.Hotel
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -23,7 +24,6 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import org.gmautostop.hitchlogmp.ui.designsystem.theme.HLTheme
-import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLColors
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLSpacing
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLTypography
 
@@ -66,20 +66,20 @@ fun HLStatCell(
             Icon(
                 imageVector = icon,
                 contentDescription = null,
-                tint = HLColors.OnPrimaryContainer,
+                tint = MaterialTheme.colorScheme.onPrimaryContainer,
                 modifier = Modifier.size(20.dp)
             )
             Text(
                 text = value,
                 style = HLTypography.statValue,
-                color = HLColors.OnPrimaryContainer
+                color = MaterialTheme.colorScheme.onPrimaryContainer
             )
         }
         if (label != null) {
             Text(
                 text = label,
                 style = HLTypography.labelSmall,
-                color = HLColors.OnPrimaryContainer.copy(alpha = 0.75f)
+                color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.75f)
             )
         }
     }
@@ -93,7 +93,7 @@ private fun StatCellBasicPreview() {
     HLTheme {
         Box(
             Modifier
-                .background(HLColors.PrimaryContainer)
+                .background(MaterialTheme.colorScheme.primaryContainer)
                 .padding(16.dp)
         ) {
             HLStatCell(
@@ -110,7 +110,7 @@ private fun StatCellWithLabelPreview() {
     HLTheme {
         Box(
             Modifier
-                .background(HLColors.PrimaryContainer)
+                .background(MaterialTheme.colorScheme.primaryContainer)
                 .padding(16.dp)
         ) {
             Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
@@ -135,7 +135,7 @@ private fun StatCellClickablePreview() {
     HLTheme {
         Box(
             Modifier
-                .background(HLColors.PrimaryContainer)
+                .background(MaterialTheme.colorScheme.primaryContainer)
                 .padding(16.dp)
         ) {
             Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {

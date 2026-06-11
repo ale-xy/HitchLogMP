@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -17,6 +16,7 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -48,7 +48,6 @@ import org.gmautostop.hitchlogmp.ui.designsystem.components.HLTypeChip
 import org.gmautostop.hitchlogmp.ui.designsystem.components.NoteFieldRow
 import org.gmautostop.hitchlogmp.ui.designsystem.components.TimeFieldRow
 import org.gmautostop.hitchlogmp.ui.designsystem.theme.HLTheme
-import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLColors
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLSpacing
 import org.gmautostop.hitchlogmp.ui.designsystem.tokens.HLTypography
 import org.gmautostop.hitchlogmp.ui.hitchlog.sampleRecord
@@ -100,12 +99,11 @@ private fun EditRecordContent(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(HLColors.Background)
+            .background(MaterialTheme.colorScheme.background)
     ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .imePadding()
         ) {
             // Top bar
             HLTopBar(
@@ -118,7 +116,7 @@ private fun EditRecordContent(
                             Icon(
                                 imageVector = Icons.Default.History,
                                 contentDescription = stringResource(Res.string.history),
-                                tint = HLColors.OnSurfaceVariant
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
                     }
@@ -127,7 +125,7 @@ private fun EditRecordContent(
                             Icon(
                                 imageVector = Icons.Default.Delete,
                                 contentDescription = stringResource(Res.string.delete),
-                                tint = HLColors.Error
+                                tint = MaterialTheme.colorScheme.error
                             )
                         }
                     }
@@ -150,7 +148,7 @@ private fun EditRecordContent(
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .background(HLColors.SurfaceContainerLow)
+                            .background(MaterialTheme.colorScheme.surfaceContainerLow)
                             .padding(horizontal = 20.dp, vertical = 12.dp)
                     ) {
                         HLTypeChip(type = state.record.type)
@@ -203,13 +201,13 @@ private fun EditRecordContent(
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .background(HLColors.ErrorContainer)
+                            .background(MaterialTheme.colorScheme.errorContainer)
                             .padding(horizontal = 20.dp, vertical = 12.dp)
                     ) {
                         Text(
                             text = state.validationError,
                             style = HLTypography.bodyMedium,
-                            color = HLColors.OnErrorContainer
+                            color = MaterialTheme.colorScheme.onErrorContainer
                         )
                     }
                 }
@@ -230,12 +228,12 @@ private fun EditRecordContent(
                     .fillMaxWidth()
                     .padding(HLSpacing.md)
                     .align(Alignment.BottomCenter)
-                    .background(HLColors.ErrorContainer)
+                    .background(MaterialTheme.colorScheme.errorContainer)
                     .padding(HLSpacing.md)
             ) {
                 Text(
                     text = error.displayMessage,
-                    color = HLColors.OnErrorContainer
+                    color = MaterialTheme.colorScheme.onErrorContainer
                 )
             }
         }

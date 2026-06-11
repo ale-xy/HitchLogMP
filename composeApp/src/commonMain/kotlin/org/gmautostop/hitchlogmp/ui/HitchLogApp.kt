@@ -4,9 +4,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -15,6 +19,7 @@ import androidx.navigation.toRoute
 import kotlinx.coroutines.launch
 import org.gmautostop.hitchlogmp.data.AuthService
 import org.gmautostop.hitchlogmp.data.FirestoreSyncTracker
+import org.gmautostop.hitchlogmp.data.LastOpenedLogPreferences
 import org.gmautostop.hitchlogmp.domain.model.HitchLogRecordType
 import org.gmautostop.hitchlogmp.platformWindowInsetsPadding
 import org.gmautostop.hitchlogmp.ui.auth.AuthScreen
@@ -25,6 +30,7 @@ import org.gmautostop.hitchlogmp.ui.auth.EmailRegisterViewModel
 import org.gmautostop.hitchlogmp.ui.auth.ForgotPasswordScreen
 import org.gmautostop.hitchlogmp.ui.auth.ForgotPasswordSentScreen
 import org.gmautostop.hitchlogmp.ui.auth.ForgotPasswordViewModel
+import org.gmautostop.hitchlogmp.ui.designsystem.components.HLLoadingState
 import org.gmautostop.hitchlogmp.ui.designsystem.theme.HLTheme
 import org.gmautostop.hitchlogmp.ui.editlog.EditLogScreen
 import org.gmautostop.hitchlogmp.ui.editlog.EditLogViewModel
@@ -123,23 +129,50 @@ fun HitchLogApp(navController: NavHostController) {
                 composable<Screen.LogList> {
                     val authService = koinInject<AuthService>()
                     val syncTracker = koinInject<FirestoreSyncTracker>()
+                    val lastOpenedLogPreferences = koinInject<LastOpenedLogPreferences>()
                     val scope = rememberCoroutineScope()
-                    
-                    LogListScreen(
-                        viewModel = koinViewModel<LogListViewModel>(),
-                        openLog = { id -> navController.navigate(Screen.Log(id)) },
-                        createLog = { navController.navigate(Screen.EditLog()) },
-                        editLog = { id -> navController.navigate(Screen.EditLog(id)) },
-                        signOut = {
-                            scope.launch {
-                                authService.signOut()
-                                syncTracker.reset()
-                                navController.navigate(Screen.Auth) {
-                                    popUpTo(Screen.LogList) { inclusive = true }
+
+                    val logListViewModel = koinViewModel<LogListViewModel>()
+                    val logListState by logListViewModel.state.collectAsState()
+
+                    // On launch, reopen the last viewed log once the list has loaded.
+                    // Until the decision is made, keep showing a loading indicator so the
+                    // list never flashes before jumping to the saved log.
+                    var restoreAttempted by rememberSaveable { mutableStateOf(false) }
+                    val logsState = logListState.logsState
+                    if (!restoreAttempted && logsState is ViewState.Show) {
+                        LaunchedEffect(Unit) {
+                            val savedId = lastOpenedLogPreferences.load()
+                            if (savedId != null) {
+                                if (logsState.value.any { it.id == savedId }) {
+                                    navController.navigate(Screen.Log(savedId))
+                                } else {
+                                    lastOpenedLogPreferences.clear()
                                 }
                             }
+                            restoreAttempted = true
                         }
-                    )
+                    }
+
+                    if (!restoreAttempted) {
+                        HLLoadingState()
+                    } else {
+                        LogListScreen(
+                            viewModel = logListViewModel,
+                            openLog = { id -> navController.navigate(Screen.Log(id)) },
+                            createLog = { navController.navigate(Screen.EditLog()) },
+                            editLog = { id -> navController.navigate(Screen.EditLog(id)) },
+                            signOut = {
+                                scope.launch {
+                                    authService.signOut()
+                                    syncTracker.reset()
+                                    navController.navigate(Screen.Auth) {
+                                        popUpTo(Screen.LogList) { inclusive = true }
+                                    }
+                                }
+                            }
+                        )
+                    }
                 }
                 composable<Screen.EditLog> { backStackEntry ->
                     val editLog: Screen.EditLog = backStackEntry.toRoute()
@@ -155,6 +188,10 @@ fun HitchLogApp(navController: NavHostController) {
                 }
                 composable<Screen.Log> { backStackEntry ->
                     val hitchLog: Screen.Log = backStackEntry.toRoute()
+                    val lastOpenedLogPreferences = koinInject<LastOpenedLogPreferences>()
+                    LaunchedEffect(hitchLog.logId) {
+                        lastOpenedLogPreferences.save(hitchLog.logId)
+                    }
                     HitchLogScreen(
                         viewModel = koinViewModel<HitchLogViewModel> { parametersOf(hitchLog.logId) },
                         navigateUp = { navController.navigateUp() },
