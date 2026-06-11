@@ -5,6 +5,7 @@ import dev.gitlive.firebase.auth.auth
 import org.gmautostop.hitchlogmp.data.AuthService
 import org.gmautostop.hitchlogmp.data.FirestoreRepository
 import org.gmautostop.hitchlogmp.data.FirestoreSyncTracker
+import org.gmautostop.hitchlogmp.data.LastOpenedLogPreferences
 import org.gmautostop.hitchlogmp.data.SortPreferences
 import org.gmautostop.hitchlogmp.domain.repository.Repository
 import org.gmautostop.hitchlogmp.export.ChronicleFormatter
@@ -37,7 +38,8 @@ val appModule = module {
     singleOf(::FirestoreSyncTracker)
     singleOf(::FirestoreRepository).bind<Repository>()
     single { SortPreferences() }
-    
+    single { LastOpenedLogPreferences() }
+
     // Export formatters
     single<ChronicleFormatter>(named("text")) { TextChronicleFormatter() }
     single<ChronicleFormatter>(named("csv")) { CsvChronicleFormatter() }

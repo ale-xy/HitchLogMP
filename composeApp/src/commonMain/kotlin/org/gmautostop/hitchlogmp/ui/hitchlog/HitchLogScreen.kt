@@ -194,10 +194,17 @@ private fun HitchLog(
             }
     }
 
+    var didInitialScroll by remember { mutableStateOf(false) }
     LaunchedEffect(state.records.size) {
         if (state.records.isNotEmpty()) {
             val totalItems = 1 + groups.size * 2 // +1 for props section
-            listState.animateScrollToItem(totalItems - 1)
+            if (!didInitialScroll) {
+                // Instant jump on first load to avoid a visible top→bottom animation
+                listState.scrollToItem(totalItems - 1)
+                didInitialScroll = true
+            } else {
+                listState.animateScrollToItem(totalItems - 1)
+            }
         }
     }
 
