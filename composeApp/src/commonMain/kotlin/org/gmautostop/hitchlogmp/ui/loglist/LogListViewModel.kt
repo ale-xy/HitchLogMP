@@ -11,11 +11,10 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.datetime.LocalDate
-import kotlinx.datetime.format.char
 import org.gmautostop.hitchlogmp.data.AuthService
 import org.gmautostop.hitchlogmp.data.FirestoreSyncTracker
 import org.gmautostop.hitchlogmp.data.SortPreferences
+import org.gmautostop.hitchlogmp.dateFormat
 import org.gmautostop.hitchlogmp.domain.model.HitchLog
 import org.gmautostop.hitchlogmp.domain.model.LogColor
 import org.gmautostop.hitchlogmp.domain.repository.Repository
@@ -66,39 +65,12 @@ data class LogListUiState(
 )
 
 /**
- * Russian month names for date formatting.
- */
-private val russianMonthNames = arrayOf(
-    "янв", "фев", "мар", "апр", "мая", "июн",
-    "июл", "авг", "сен", "окт", "ноя", "дек"
-)
-
-/**
- * Format date as "15 мая 2025" style.
- */
-private fun LocalDate.formatRussian(): String {
-    val monthName = russianMonthNames[monthNumber - 1]
-    return "$dayOfMonth $monthName $year"
-}
-
-/**
- * Date format for chronicle creation date: d.MM.yyyy
- */
-private val dateFormat = LocalDate.Format {
-    day()
-    char('.')
-    monthNumber()
-    char('.')
-    year()
-}
-
-/**
  * Maps domain HitchLog to UI model with formatted dates.
  */
 fun HitchLog.toUi(): HitchLogUi {
     val date = creationTime.toLocalDateTime().date
     val startDateFormatted = startDate?.let {
-        it.toLocalDateTime().date.formatRussian()
+        dateFormat.format(it.toLocalDateTime().date)
     }
     return HitchLogUi(
         id = id,
