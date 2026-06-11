@@ -52,7 +52,6 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.zIndex
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import hitchlogmp.composeapp.generated.resources.Res
 import hitchlogmp.composeapp.generated.resources.chronicle_empty
@@ -355,7 +354,6 @@ private fun HitchLog(
                 open = sheetOpen,
                 title = stringResource(Res.string.new_record),
                 onClose = { sheetOpen = false },
-                modifier = Modifier.zIndex(10f),
                 content = {
                     Column(
                         Modifier.padding(horizontal = HLSpacing.xl),
