@@ -22,10 +22,10 @@ import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.plus
 import kotlinx.datetime.toInstant
-import kotlinx.datetime.until
 import org.gmautostop.hitchlogmp.dateFormat
 import org.gmautostop.hitchlogmp.dateTimeFormat
 import org.gmautostop.hitchlogmp.domain.AppError
+import org.gmautostop.hitchlogmp.domain.logic.minutesBetween
 import org.gmautostop.hitchlogmp.domain.model.HitchLogRecord
 import org.gmautostop.hitchlogmp.domain.model.HitchLogRecordType
 import org.gmautostop.hitchlogmp.domain.repository.Repository
@@ -146,8 +146,7 @@ class EditRecordViewModel(
                                 // Combine restOn + currentTime to compute elapsed
                                 combine(_currentTime, uiState) { now, state ->
                                     val nowLocal = now.localTZDateTime()
-                                val elapsed = restOnRecord.time.toInstant(TimeZone.currentSystemDefault())
-                                    .until(nowLocal.toInstant(TimeZone.currentSystemDefault()), DateTimeUnit.MINUTE)
+                                val elapsed = minutesBetween(restOnRecord.time, nowLocal)
                                 uiState.update { 
                                     it.copy(
                                         restOnTime = restOnRecord.time,

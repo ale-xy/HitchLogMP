@@ -15,19 +15,16 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withTimeout
-import kotlinx.datetime.DateTimeUnit
-import kotlinx.datetime.LocalDateTime
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.plus
-import kotlinx.datetime.toInstant
 import org.gmautostop.hitchlogmp.domain.AppError
+import org.gmautostop.hitchlogmp.domain.logic.isSameMinute
+import org.gmautostop.hitchlogmp.domain.logic.storedTimeFor
 import org.gmautostop.hitchlogmp.domain.model.ChangeType
 import org.gmautostop.hitchlogmp.domain.model.HitchLog
 import org.gmautostop.hitchlogmp.domain.model.HitchLogRecord
 import org.gmautostop.hitchlogmp.domain.model.HitchLogRecordHistoryEntry
 import org.gmautostop.hitchlogmp.domain.repository.Repository
 import org.gmautostop.hitchlogmp.domain.repository.Response
-import org.gmautostop.hitchlogmp.localTZDateTime
+import org.gmautostop.hitchlogmp.toLocalDateTime
 import org.gmautostop.hitchlogmp.toTimestamp
 import org.lighthousegames.logging.logging
 import kotlin.time.Clock
@@ -248,12 +245,17 @@ class FirestoreRepository(
         requireAuth()
         val existing = logRecordsRef(logId).document(record.id).get(Source.CACHE).data<FirestoreHitchLogRecord>()
 
-        val updatedRecord = if (existing.timestamp == record.time.toTimestamp()) {
-            FirestoreHitchLogRecord(record.copy(edited = true))
+        // The edit form only carries HH:mm, so compare at minute precision and keep the
+        // stored timestamp (including its ordering seconds) if the minute didn't change.
+        val updatedRecord = if (isSameMinute(existing.timestamp.toLocalDateTime(), record.time)) {
+            FirestoreHitchLogRecord(
+                from = record.copy(edited = true),
+                timestamp = existing.timestamp
+            )
         } else {
             FirestoreHitchLogRecord(
                 from = record.copy(edited = true),
-                timestamp = getNextTime(logId, record.time.toTimestamp())
+                timestamp = getNextTime(logId, record.time.toTimestamp(), excludeId = record.id)
             )
         }
 
@@ -374,22 +376,17 @@ class FirestoreRepository(
         }
     }
 
-    private suspend fun getNextTime(logId: String, enteredTime: Timestamp): Timestamp {
-        return logRecordsRef(logId)
+    private suspend fun getNextTime(logId: String, enteredTime: Timestamp, excludeId: String? = null): Timestamp {
+        val existingInMinute = logRecordsRef(logId)
                     .where { "timestamp" greaterThanOrEqualTo enteredTime }
                     .where { "timestamp" lessThan enteredTime.addMinute() }
                     .get(Source.CACHE)
-                    .documents.map { it.data<FirestoreHitchLogRecord>()
-                    }.maxByOrNull { it.timestamp.seconds }?.timestamp?.addSecond()
-            ?: enteredTime
+                    .documents.map { it.data<FirestoreHitchLogRecord>() }
+                    .filter { it.id != excludeId }
+                    .map { it.timestamp.toLocalDateTime() }
+        return storedTimeFor(enteredTime.toLocalDateTime(), existingInMinute).toTimestamp()
     }
 
-    private fun LocalDateTime.addSecond(): LocalDateTime =
-        toInstant(TimeZone.currentSystemDefault()).plus(1, DateTimeUnit.SECOND).localTZDateTime()
-    private fun LocalDateTime.addMinute(): LocalDateTime =
-        toInstant(TimeZone.currentSystemDefault()).plus(1, DateTimeUnit.MINUTE).localTZDateTime()
-
-    private fun Timestamp.addSecond(): Timestamp = Timestamp(seconds + 1, nanoseconds)
     private fun Timestamp.addMinute(): Timestamp = Timestamp(seconds + 60, nanoseconds)
 
     companion object {
