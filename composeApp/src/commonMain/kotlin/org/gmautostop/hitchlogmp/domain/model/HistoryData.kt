@@ -11,7 +11,7 @@ enum class SortMode { BY_TIME, BY_RECORD }
  * Used as before/after pairs to represent what changed in a history event.
  */
 data class RecordFields(
-    val time: LocalDateTime,        // kept for equality comparison in diff logic
+    val time: LocalDateTime,        // minute precision; kept for equality comparison in diff logic
     val formattedTime: String,
     val type: HitchLogRecordType,
     val text: String?               // null when the record has no text

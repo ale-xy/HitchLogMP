@@ -1,10 +1,6 @@
 package org.gmautostop.hitchlogmp.domain.logic
 
-import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.LocalDateTime
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toInstant
-import kotlinx.datetime.until
 import org.gmautostop.hitchlogmp.domain.model.HitchLogRecord
 import org.gmautostop.hitchlogmp.domain.model.HitchLogRecordType
 
@@ -40,7 +36,11 @@ fun computeLiveState(records: List<HitchLogRecord>): LiveState? {
     }
 }
 
-fun computeRestMinutes(records: List<HitchLogRecord>): Int {
+/**
+ * @param openRestEnd End time for a rest without REST_OFF. Defaults to the last record's time;
+ * a later value (e.g. now) extends the open rest up to it.
+ */
+fun computeRestMinutes(records: List<HitchLogRecord>, openRestEnd: LocalDateTime? = null): Int {
     val sorted = records.sortedBy { it.time }
     var total = 0L
     var onAt: LocalDateTime? = null
@@ -55,7 +55,9 @@ fun computeRestMinutes(records: List<HitchLogRecord>): Int {
         }
     }
     if (onAt != null && sorted.isNotEmpty()) {
-        total += minutesBetween(onAt, sorted.last().time)
+        val lastTime = sorted.last().time
+        val end = if (openRestEnd != null && openRestEnd > lastTime) openRestEnd else lastTime
+        total += minutesBetween(onAt, end)
     }
     return total.toInt().coerceAtLeast(0)
 }
@@ -112,34 +114,35 @@ fun computeRestDivisionsLeft(records: List<HitchLogRecord>, totalRestDivisions: 
     return (totalRestDivisions - used).coerceAtLeast(0)
 }
 
-private fun minutesBetween(from: LocalDateTime, to: LocalDateTime): Long {
-    val fromSec = from.date.toEpochDays() * 86400 + from.hour * 3600 + from.minute * 60 + from.second
-    val toSec = to.date.toEpochDays() * 86400 + to.hour * 3600 + to.minute * 60 + to.second
-    return ((toSec - fromSec) / 60).coerceAtLeast(0)
+/**
+ * Whole minutes between two times, ignoring seconds.
+ * Seconds are only used to order records within the same minute (see getNextTime),
+ * so durations must be computed from HH:mm as the user sees and enters them.
+ */
+fun minutesBetween(from: LocalDateTime, to: LocalDateTime): Long {
+    val fromMin = from.date.toEpochDays() * 1440L + from.hour * 60 + from.minute
+    val toMin = to.date.toEpochDays() * 1440L + to.hour * 60 + to.minute
+    return (toMin - fromMin).coerceAtLeast(0)
 }
+
+/** True if both times fall in the same minute (seconds ignored). */
+fun isSameMinute(a: LocalDateTime, b: LocalDateTime): Boolean =
+    a.date == b.date && a.hour == b.hour && a.minute == b.minute
 
 fun formatMinutes(min: Int): String =
     "${(min / 60).toString().padStart(2, '0')}:${(min % 60).toString().padStart(2, '0')}"
 
 /**
  * Computes live rest minutes including ongoing rest period.
- * If currently on rest, adds elapsed time since REST_ON to the total.
- * 
+ * If currently on rest, the open rest is counted up to [currentTime] instead of the last record.
+ *
  * @param records All log records
  * @param currentTime Current time for live calculation
  * @return Total rest minutes including live elapsed time
  */
 fun computeLiveRestMinutes(records: List<HitchLogRecord>, currentTime: LocalDateTime): Int {
-    val baseMinutes = computeRestMinutes(records)
-    val liveState = computeLiveState(records)
-    
-    if (liveState?.status == LiveStatus.REST && liveState.since != null) {
-        val elapsed = liveState.since.toInstant(TimeZone.currentSystemDefault())
-            .until(currentTime.toInstant(TimeZone.currentSystemDefault()), DateTimeUnit.MINUTE)
-        return baseMinutes + elapsed.toInt()
-    }
-    
-    return baseMinutes
+    val onRest = computeLiveState(records)?.status == LiveStatus.REST
+    return computeRestMinutes(records, openRestEnd = if (onRest) currentTime else null)
 }
 
 private val NEUTRAL_TYPES = setOf(

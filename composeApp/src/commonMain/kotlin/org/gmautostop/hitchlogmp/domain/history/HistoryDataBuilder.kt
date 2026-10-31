@@ -1,6 +1,7 @@
 package org.gmautostop.hitchlogmp.domain.history
 
 import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.LocalTime
 import org.gmautostop.hitchlogmp.domain.model.ChangeType
 import org.gmautostop.hitchlogmp.domain.model.DateGroup
 import org.gmautostop.hitchlogmp.domain.model.HistoryData
@@ -108,7 +109,9 @@ fun computeRecordVersions(
     return sorted.mapIndexed { i, entry ->
         val prev = if (i > 0) sorted[i - 1] else null
         fun fields(e: HitchLogRecordHistoryEntry) = RecordFields(
-            time = e.time,
+            // Seconds only order records within a minute; drop them so a text-only
+            // edit isn't shown as a time change
+            time = LocalDateTime(e.time.date, LocalTime(e.time.hour, e.time.minute)),
             formattedTime = formatTime(e.time),
             type = e.type,
             text = e.text.takeIf { it.isNotEmpty() }
